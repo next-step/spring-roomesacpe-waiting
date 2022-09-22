@@ -11,11 +11,9 @@ import java.net.URI;
 @RequestMapping("/members")
 public class MemberController {
     private MemberService memberService;
-    private LoginService loginService;
 
-    public MemberController(MemberService memberService, LoginService loginService) {
+    public MemberController(MemberService memberService) {
         this.memberService = memberService;
-        this.loginService = loginService;
     }
 
     @PostMapping
