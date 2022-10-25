@@ -1,4 +1,4 @@
-package com.nextstep.web.auth;
+package com.nextstep.web.auth.exception;
 
 public class AuthenticationException extends RuntimeException {
 }

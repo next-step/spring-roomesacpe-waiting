@@ -1,6 +1,7 @@
-package com.nextstep.web.common;
+package com.nextstep.web.auth;
 
-import com.nextstep.web.auth.JwtTokenProvider;
+import com.nextstep.web.common.JwtTokenProvider;
+import com.nextstep.web.common.AuthorizationExtractor;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
@@ -31,6 +32,6 @@ public class AuthenticationPrincipalArgumentResolver implements HandlerMethodArg
         String token = authorizationExtractor.extractToken((HttpServletRequest) webRequest.getNativeRequest());
         jwtTokenProvider.validateToken(token);
         String principal = jwtTokenProvider.getPrincipal(token);
-        return LoginMember.from(principal);
+        return UserDetail.from(principal);
     }
 }

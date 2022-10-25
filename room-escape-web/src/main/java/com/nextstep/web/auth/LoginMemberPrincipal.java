@@ -1,4 +1,4 @@
-package com.nextstep.web.common;
+package com.nextstep.web.auth;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

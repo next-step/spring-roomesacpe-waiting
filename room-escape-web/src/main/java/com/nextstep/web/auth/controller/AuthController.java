@@ -1,7 +1,7 @@
 package com.nextstep.web.auth.controller;
 
-import com.nextstep.web.auth.TokenRequest;
-import com.nextstep.web.auth.TokenResponse;
+import com.nextstep.web.auth.dto.TokenRequest;
+import com.nextstep.web.auth.dto.TokenResponse;
 import com.nextstep.web.auth.service.AuthMemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;

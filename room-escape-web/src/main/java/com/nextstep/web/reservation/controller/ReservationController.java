@@ -1,7 +1,7 @@
 package com.nextstep.web.reservation.controller;
 
-import com.nextstep.web.common.LoginMember;
-import com.nextstep.web.common.LoginMemberPrincipal;
+import com.nextstep.web.member.LoginMember;
+import com.nextstep.web.auth.LoginMemberPrincipal;
 import com.nextstep.web.reservation.app.ReservationCommandService;
 import com.nextstep.web.reservation.app.ReservationQueryService;
 import com.nextstep.web.reservation.dto.CreateReservationRequest;

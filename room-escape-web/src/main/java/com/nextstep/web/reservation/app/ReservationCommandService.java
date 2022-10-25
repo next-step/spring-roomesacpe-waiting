@@ -1,6 +1,6 @@
 package com.nextstep.web.reservation.app;
 
-import com.nextstep.web.common.LoginMember;
+import com.nextstep.web.member.LoginMember;
 import com.nextstep.web.member.repository.MemberDao;
 import com.nextstep.web.member.repository.entity.MemberEntity;
 import com.nextstep.web.reservation.dto.CreateReservationRequest;
@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @Transactional

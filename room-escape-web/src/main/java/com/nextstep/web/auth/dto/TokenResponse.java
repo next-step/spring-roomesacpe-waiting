@@ -1,4 +1,4 @@
-package com.nextstep.web.auth;
+package com.nextstep.web.auth.dto;
 
 public class TokenResponse {
     public String accessToken;

@@ -1,4 +1,4 @@
-package com.nextstep.web.auth;
+package com.nextstep.web.common;
 
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;

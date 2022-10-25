@@ -1,4 +1,4 @@
-package com.nextstep.web.auth;
+package com.nextstep.web.auth.dto;
 
 public class TokenRequest {
     private String username;

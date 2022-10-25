@@ -1,7 +1,8 @@
 package com.nextstep.web.member.controller;
 
-import com.nextstep.web.common.LoginMember;
-import com.nextstep.web.common.LoginMemberPrincipal;
+import com.nextstep.web.auth.UserDetail;
+import com.nextstep.web.member.LoginMember;
+import com.nextstep.web.auth.LoginMemberPrincipal;
 import com.nextstep.web.member.dto.MemberRequest;
 import com.nextstep.web.member.service.MemberService;
 import nextstep.domain.member.Member;
@@ -26,8 +27,8 @@ public class MemberController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity me(@LoginMemberPrincipal LoginMember loginMember) {
-        Member member = memberService.read(loginMember);
+    public ResponseEntity me(@LoginMemberPrincipal UserDetail userDetail) {
+        Member member = memberService.read(LoginMember.from(userDetail));
         return ResponseEntity.ok(member);
     }
 }

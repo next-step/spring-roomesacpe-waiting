@@ -1,8 +1,8 @@
 package com.nextstep.web.auth.service;
 
-import com.nextstep.web.auth.JwtTokenProvider;
-import com.nextstep.web.auth.TokenRequest;
-import com.nextstep.web.auth.TokenResponse;
+import com.nextstep.web.common.JwtTokenProvider;
+import com.nextstep.web.auth.dto.TokenRequest;
+import com.nextstep.web.auth.dto.TokenResponse;
 import com.nextstep.web.member.repository.MemberDao;
 import com.nextstep.web.member.repository.entity.MemberEntity;
 import nextstep.common.BusinessException;

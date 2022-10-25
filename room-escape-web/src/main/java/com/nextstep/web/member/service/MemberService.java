@@ -1,7 +1,7 @@
 package com.nextstep.web.member.service;
 
-import com.nextstep.web.auth.JwtTokenProvider;
-import com.nextstep.web.common.LoginMember;
+import com.nextstep.web.common.JwtTokenProvider;
+import com.nextstep.web.member.LoginMember;
 import com.nextstep.web.member.dto.MemberRequest;
 import com.nextstep.web.member.repository.MemberDao;
 import nextstep.common.BusinessException;

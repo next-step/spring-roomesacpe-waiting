@@ -1,7 +1,5 @@
 package com.nextstep.web.common;
 
-import com.nextstep.web.auth.JwtTokenProvider;
-import com.nextstep.web.member.service.MemberService;
 import nextstep.common.BusinessException;
 import nextstep.domain.member.Role;
 import org.springframework.stereotype.Component;
