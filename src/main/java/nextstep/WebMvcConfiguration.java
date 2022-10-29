@@ -6,7 +6,7 @@ import auth.LoginController;
 import auth.LoginMemberArgumentResolver;
 import auth.LoginService;
 import java.util.List;
-import nextstep.member.MemberDao;
+import nextstep.member.MemberService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -15,10 +15,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebMvcConfiguration implements WebMvcConfigurer {
 
-    private final MemberDao memberDao;
+    private final MemberService memberService;
 
-    public WebMvcConfiguration(MemberDao memberDao) {
-        this.memberDao = memberDao;
+    public WebMvcConfiguration(MemberService memberService) {
+        this.memberService = memberService;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     @Bean
     public LoginService loginService(JwtTokenProvider jwtTokenProvider) {
-        return new LoginService(memberDao, jwtTokenProvider);
+        return new LoginService(memberService, jwtTokenProvider);
     }
 
     @Bean
