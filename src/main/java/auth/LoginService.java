@@ -1,4 +1,4 @@
-package nextstep.auth;
+package auth;
 
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
@@ -29,7 +29,7 @@ public class LoginService {
         return Long.parseLong(jwtTokenProvider.getPrincipal(credential));
     }
 
-    public Member extractMember(String credential) {
+    public MemberDetail extractMember(String credential) {
         Long id = Long.parseLong(jwtTokenProvider.getPrincipal(credential));
         return memberDao.findById(id);
     }
