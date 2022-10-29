@@ -1,11 +1,11 @@
-package nextstep.auth;
+package auth;
 
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
-import org.springframework.stereotype.Service;
 
-@Service
+
 public class LoginService {
+
     private MemberDao memberDao;
     private JwtTokenProvider jwtTokenProvider;
 
