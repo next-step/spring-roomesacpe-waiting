@@ -9,19 +9,24 @@ public class Reservation {
     private Long id;
     private Schedule schedule;
     private Member member;
+    private boolean hide;
 
     public Reservation() {
     }
 
     public Reservation(Schedule schedule, Member member) {
-        this.schedule = schedule;
-        this.member = member;
+        this(null, schedule, member, false);
     }
 
-    public Reservation(Long id, Schedule schedule, Member member) {
+    public Reservation(Long id, Schedule schedule, Member member, boolean hide) {
         this.id = id;
         this.schedule = schedule;
         this.member = member;
+        this.hide = hide;
+    }
+
+    public boolean sameMember(Member member) {
+        return member != null && Objects.equals(this.member.getId(), member.getId());
     }
 
     public Long getId() {
@@ -36,7 +41,7 @@ public class Reservation {
         return member;
     }
 
-    public boolean sameMember(Member member) {
-        return member != null && Objects.equals(this.member.getId(), member.getId());
+    public boolean isHide() {
+        return hide;
     }
 }
