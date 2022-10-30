@@ -1,5 +1,6 @@
 package nextstep.reservation;
 
+import auth.TokenResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -16,7 +17,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReservationE2ETest extends AbstractE2ETest {
+public class ReservationE2ETest extends AbstractE2ETest {
     public static final String DATE = "2022-08-11";
     public static final String TIME = "13:00";
 
@@ -180,6 +181,18 @@ class ReservationE2ETest extends AbstractE2ETest {
     }
 
     private ExtractableResponse<Response> createReservation() {
+        return RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .body(request)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/reservations")
+                .then().log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> 예약을_생성한다(Long scheduleId, TokenResponse token) {
+        ReservationRequest request = new ReservationRequest(scheduleId);
         return RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
