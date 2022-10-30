@@ -27,19 +27,19 @@ public class ReservationWaitingRepresentationRepository {
             resultSet.getDate("schedule.date").toLocalDate(),
             resultSet.getTime("schedule.time").toLocalTime()
         ),
-        resultSet.getLong("count(reservation_waiting.id)")
+        resultSet.getLong("waitNum")
     );
 
-    public List<ReservationWaitingDetails> findAllNotHideWaitingDetailsByMemberId(Long memberId) {
+    public List<ReservationWaitingDetails> findAllWaitingDetailsByMemberId(Long memberId) {
         return jdbcTemplate.query("select "
             + "reservation_waiting.id, schedule.id, theme.id, "
             + "theme.name, theme.desc, theme.price, "
             + "schedule.date, schedule.time, "
-            + "count(reservation_waiting.id) "
+            + "(select count(*) from reservation_waiting where schedule.id = schedule.id and reservation_waiting.id <= reservation_waiting.id) as waitNum "
             + "from reservation_waiting "
             + "inner join schedule on reservation_waiting.schedule_id = schedule.id "
-            + "inner join theme on reservation_waiting.theme_id = theme.id "
+            + "inner join theme on schedule.theme_id = theme.id "
             + "inner join member on reservation_waiting.member_id = member.id "
-            + "where reservation_waiting.canceled = ? and member.id = ?", rowMapper, false, memberId);
+            + "where member.id = ?", rowMapper, memberId);
     }
 }

@@ -31,7 +31,7 @@ public class ReservationWaitingController {
         return ResponseEntity.created(URI.create("/reservations/" + result.getId())).build();
     }
 
-    @GetMapping
+    @GetMapping("/mine")
     public ResponseEntity getReservationWaitings(@LoginMember UserDetails userDetails) {
         List<ReservationWaitingDetails> results = reservationWaitingRepresentationService.findAllByMine(userDetails);
         return ResponseEntity.ok().body(results);

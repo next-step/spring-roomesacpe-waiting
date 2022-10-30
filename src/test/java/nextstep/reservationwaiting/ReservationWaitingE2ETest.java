@@ -5,8 +5,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import java.util.List;
 import nextstep.AbstractE2ETest;
 import nextstep.reservation.ReservationRequest;
+import nextstep.reservation.ReservationResponse;
 import nextstep.schedule.ScheduleRequest;
 import nextstep.theme.ThemeRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,9 +93,28 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
         assertThat(response.header("Location")).contains("/reservation-waitings/");
     }
 
+    @DisplayName("나의 예약대기를 조회한다")
+    @Test
+    void showMine() {
+        createReservation();
+        createReservationWaiting();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().get("/reservation-waitings/mine")
+            .then().log().all()
+            .extract();
+
+        List<ReservationWaitingDetails> results = response.jsonPath().getList(".", ReservationWaitingDetails.class);
+        assertThat(results.size()).isEqualTo(1);
+    }
+
     @DisplayName("비로그인 사용자가 예약 대기를 생성한다")
     @Test
     void createWithoutLoginTest() {
+        createReservation();
+
         var response = RestAssured
                 .given().log().all()
                 .body(request)
@@ -108,6 +129,7 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
     @DisplayName("나의 예약대기를 취소한다")
     @Test
     void delete() {
+        createReservation();
         var reservationWaiting = createReservationWaiting();
 
         var response = RestAssured
@@ -123,6 +145,7 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
     @DisplayName("다른 사람의 예약대기를 취소한다")
     @Test
     void deleteOthers() {
+        createReservation();
         var reservationWaiting = createReservationWaiting();
 
         var response = RestAssured

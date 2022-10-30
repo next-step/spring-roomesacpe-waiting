@@ -16,6 +16,6 @@ public class ReservationWaitingRepresentationService {
     }
 
     public List<ReservationWaitingDetails> findAllByMine(UserDetails userDetails) {
-        return reservationWaitingRepresentationRepository.findAllNotHideWaitingDetailsByMemberId(userDetails.getId());
+        return reservationWaitingRepresentationRepository.findAllWaitingDetailsByMemberId(userDetails.getId());
     }
 }
