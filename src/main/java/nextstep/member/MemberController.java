@@ -1,7 +1,7 @@
 package nextstep.member;
 
-import nextstep.auth.LoginMember;
-import nextstep.auth.LoginService;
+import auth.AuthPrincipal;
+import auth.LoginMember;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +23,10 @@ public class MemberController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity me(@LoginMember Member member) {
-        return ResponseEntity.ok(member);
+    public ResponseEntity me(@LoginMember AuthPrincipal authPrincipal) {
+        if (authPrincipal.isAnonymous()) {
+            return ResponseEntity.status(401).build();
+        }
+        return ResponseEntity.ok(memberService.findById(Long.parseLong(authPrincipal.getPrincipal())));
     }
 }
