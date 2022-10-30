@@ -34,3 +34,11 @@ CREATE TABLE member
     role     varchar(20) not null,
     primary key (id)
 );
+
+CREATE TABLE reservation_waiting
+(
+    id         bigint    not null auto_increment,
+    scheduleId bigint    not null,
+    memberId   bigint    not null,
+    primary key (id)
+);
