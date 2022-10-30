@@ -1,6 +1,8 @@
 package nextstep.reservationwaiting;
 
 import auth.UserDetails;
+import nextstep.reservation.ReservationCreateService;
+import nextstep.reservation.ReservationReadService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -8,19 +10,44 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ReservationWaitingCommandService {
 
-    private final ReservationWaitingCommandRepository reservationWaitingCommandRepository;
+    private final ReservationWaitingCreateService reservationWaitingCreateService;
+    private final ReservationReadService reservationReadService;
+    private final ReservationCreateService reservationCreateService;
 
-    public ReservationWaitingCommandService(ReservationWaitingCommandRepository reservationWaitingCommandRepository) {
-        this.reservationWaitingCommandRepository = reservationWaitingCommandRepository;
+    public ReservationWaitingCommandService(
+        ReservationWaitingCreateService reservationWaitingCreateService,
+        ReservationReadService reservationReadService,
+        ReservationCreateService reservationCreateService
+    ) {
+        this.reservationWaitingCreateService = reservationWaitingCreateService;
+        this.reservationReadService = reservationReadService;
+        this.reservationCreateService = reservationCreateService;
     }
 
-    // TODO: 2022/10/29 예약이 없을 경우 자동으로 예약을 생성하도록.
-    //  한 계층을 더 만들어서 나누는 것도 괜찮을 것 같다.
-    public Long create(UserDetails userDetails, ReservationWaitingRequest request) {
-        ReservationWaiting reservationWaiting = new ReservationWaiting(
-            request.getScheduleId(),
-            userDetails.getId()
+    public CreatedReservation create(UserDetails userDetails, ReservationWaitingRequest request) {
+        if (reservationReadService.existsByScheduleId(request.getScheduleId())) {
+            return createReservationWaiting(userDetails, request);
+        }
+        return getCreatedReservation(userDetails, request);
+    }
+
+    private CreatedReservation createReservationWaiting(
+        UserDetails userDetails,
+        ReservationWaitingRequest request
+    ) {
+        return new CreatedReservation(
+            reservationWaitingCreateService.create(userDetails.getId(), request.getScheduleId()),
+            ReservationType.RESERVATION_WAITING
         );
-        return reservationWaitingCommandRepository.save(reservationWaiting);
+    }
+
+    private CreatedReservation getCreatedReservation(
+        UserDetails userDetails,
+        ReservationWaitingRequest request
+    ) {
+        return new CreatedReservation(
+            reservationCreateService.create(userDetails.getId(), request.getScheduleId()),
+            ReservationType.RESERVATION
+        );
     }
 }

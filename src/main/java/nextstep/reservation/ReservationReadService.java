@@ -30,4 +30,8 @@ public class ReservationReadService {
     public List<Reservation> findAllByMemberId(Long memberId) {
         return reservationDao.findAllByMemberId(memberId);
     }
+
+    public boolean existsByScheduleId(Long scheduleId) {
+        return reservationDao.existsByScheduleId(scheduleId);
+    }
 }

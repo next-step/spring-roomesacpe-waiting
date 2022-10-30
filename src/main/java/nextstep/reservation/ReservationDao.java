@@ -138,4 +138,9 @@ public class ReservationDao {
             return Collections.emptyList();
         }
     }
+
+    public boolean existsByScheduleId(Long scheduleId) {
+        String sql = "SELECT count(*) from reservation where schedule_id = ?;";
+        return jdbcTemplate.queryForObject(sql, Integer.class, scheduleId) > 0;
+    }
 }
