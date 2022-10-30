@@ -11,17 +11,20 @@ import org.springframework.transaction.annotation.Transactional;
 public class ReservationWaitingCommandService {
 
     private final ReservationWaitingCreateService reservationWaitingCreateService;
-    private final ReservationReadService reservationReadService;
+    private final ReservationWaitingUpdateService reservationWaitingUpdateService;
     private final ReservationCreateService reservationCreateService;
+    private final ReservationReadService reservationReadService;
 
     public ReservationWaitingCommandService(
         ReservationWaitingCreateService reservationWaitingCreateService,
-        ReservationReadService reservationReadService,
-        ReservationCreateService reservationCreateService
+        ReservationWaitingUpdateService reservationWaitingUpdateService,
+        ReservationCreateService reservationCreateService,
+        ReservationReadService reservationReadService
     ) {
         this.reservationWaitingCreateService = reservationWaitingCreateService;
-        this.reservationReadService = reservationReadService;
+        this.reservationWaitingUpdateService = reservationWaitingUpdateService;
         this.reservationCreateService = reservationCreateService;
+        this.reservationReadService = reservationReadService;
     }
 
     public CreatedReservation create(UserDetails userDetails, ReservationWaitingRequest request) {
@@ -49,5 +52,9 @@ public class ReservationWaitingCommandService {
             reservationCreateService.create(userDetails.getId(), request.getScheduleId()),
             ReservationType.RESERVATION
         );
+    }
+
+    public void cancelById(UserDetails userDetails, Long id) {
+        reservationWaitingUpdateService.canceledById(id);
     }
 }

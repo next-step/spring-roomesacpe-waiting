@@ -23,7 +23,7 @@ public class ReservationCommandService {
         return reservationCreateService.create(userDetails.getId(), reservationRequest.getScheduleId());
     }
 
-    public void deleteById(UserDetails userDetails, Long reservationId) {
-        reservationUpdateService.hideById(userDetails.getId(), reservationId);
+    public void cancelById(UserDetails userDetails, Long reservationId) {
+        reservationUpdateService.canceledById(userDetails.getId(), reservationId);
     }
 }

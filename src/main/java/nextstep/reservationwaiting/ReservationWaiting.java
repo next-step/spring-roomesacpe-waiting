@@ -7,18 +7,24 @@ public class ReservationWaiting {
     private Long id;
     private Long scheduleId;
     private Long memberId;
+    private boolean canceled;
 
     protected ReservationWaiting() {
     }
 
     public ReservationWaiting(Long scheduleId, Long memberId) {
-        this(null, scheduleId, memberId);
+        this(null, scheduleId, memberId, false);
     }
 
-    public ReservationWaiting(Long id, Long scheduleId, Long memberId) {
+    public ReservationWaiting(Long id, Long scheduleId, Long memberId, boolean canceled) {
         this.id = id;
         this.scheduleId = scheduleId;
         this.memberId = memberId;
+        this.canceled = canceled;
+    }
+
+    public void canceled() {
+        this.canceled = true;
     }
 
     public Long getId() {
@@ -31,6 +37,10 @@ public class ReservationWaiting {
 
     public Long getMemberId() {
         return memberId;
+    }
+
+    public boolean isCanceled() {
+        return canceled;
     }
 
     @Override

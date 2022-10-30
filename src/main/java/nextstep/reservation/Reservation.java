@@ -9,7 +9,7 @@ public class Reservation {
     private Long id;
     private Schedule schedule;
     private Member member;
-    private boolean hide;
+    private boolean canceled;
 
     public Reservation() {
     }
@@ -18,19 +18,19 @@ public class Reservation {
         this(null, schedule, member, false);
     }
 
-    public Reservation(Long id, Schedule schedule, Member member, boolean hide) {
+    public Reservation(Long id, Schedule schedule, Member member, boolean canceled) {
         this.id = id;
         this.schedule = schedule;
         this.member = member;
-        this.hide = hide;
+        this.canceled = canceled;
     }
 
     public boolean sameMember(Member member) {
         return member != null && Objects.equals(this.member.getId(), member.getId());
     }
 
-    public void hide() {
-        this.hide = true;
+    public void canceled() {
+        this.canceled = true;
     }
 
     public Long getId() {
@@ -45,7 +45,7 @@ public class Reservation {
         return member;
     }
 
-    public boolean isHide() {
-        return hide;
+    public boolean isCanceled() {
+        return canceled;
     }
 }

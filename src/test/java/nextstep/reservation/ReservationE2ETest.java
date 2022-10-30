@@ -120,7 +120,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(reservations.size()).isEqualTo(1);
     }
 
-    @DisplayName("예약을 삭제한다")
+    @DisplayName("예약을 취소한다")
     @Test
     void delete() {
         var reservation = createReservation();
@@ -128,14 +128,14 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().delete(reservation.header("Location"))
+                .when().put(reservation.header("Location"))
                 .then().log().all()
                 .extract();
 
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
-    @DisplayName("삭제된 나의 예약도 조회된다")
+    @DisplayName("취소된 나의 예약도 조회된다")
     @Test
     void showMineWithDelete() {
         ExtractableResponse<Response> createdResponse = createReservation();
@@ -189,20 +189,20 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(reservations.size()).isEqualTo(0);
     }
 
-    @DisplayName("없는 예약을 삭제한다")
+    @DisplayName("없는 예약을 취소한다")
     @Test
     void createNotExistReservation() {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().delete("/reservations/1")
+                .when().put("/reservations/1")
                 .then().log().all()
                 .extract();
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
-    @DisplayName("다른 사람이 예약을삭제한다")
+    @DisplayName("다른 사람이 예약을 취소한다")
     @Test
     void deleteReservationOfOthers() {
         createReservation();
@@ -210,7 +210,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2("other-token")
-                .when().delete("/reservations/1")
+                .when().put("/reservations/1")
                 .then().log().all()
                 .extract();
 

@@ -18,7 +18,7 @@ public class ReservationUpdateService {
         this.memberDao = memberDao;
     }
 
-    public void hideById(Long memberId, Long reservationId) {
+    public void canceledById(Long memberId, Long reservationId) {
         Reservation reservation = reservationDao.findById(reservationId);
         if (reservation == null) {
             throw new NullPointerException();
@@ -27,7 +27,7 @@ public class ReservationUpdateService {
         if (!reservation.sameMember(member)) {
             throw new AuthenticationException();
         }
-        reservation.hide();
-        reservationDao.update(reservation);
+        reservation.canceled();
+        reservationDao.updateCanceled(reservation);
     }
 }

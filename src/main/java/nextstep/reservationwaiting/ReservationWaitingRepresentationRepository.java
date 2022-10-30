@@ -40,6 +40,6 @@ public class ReservationWaitingRepresentationRepository {
             + "inner join schedule on reservation_waiting.schedule_id = schedule.id "
             + "inner join theme on reservation_waiting.theme_id = theme.id "
             + "inner join member on reservation_waiting.member_id = member.id "
-            + "where reservation_waiting.hide = ? and member.id = ?", rowMapper, false, memberId);
+            + "where reservation_waiting.canceled = ? and member.id = ?", rowMapper, false, memberId);
     }
 }

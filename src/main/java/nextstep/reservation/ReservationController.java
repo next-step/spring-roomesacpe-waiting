@@ -41,11 +41,10 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
-    @DeleteMapping("/reservations/{id}")
-    public ResponseEntity deleteReservation(@LoginMember UserDetails userDetails, @PathVariable Long id) {
-        reservationCommandService.deleteById(userDetails, id);
-
-        return ResponseEntity.noContent().build();
+    @PutMapping("/reservations/{id}")
+    public ResponseEntity cancel(@LoginMember UserDetails userDetails, @PathVariable Long id) {
+        reservationCommandService.cancelById(userDetails, id);
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(Exception.class)

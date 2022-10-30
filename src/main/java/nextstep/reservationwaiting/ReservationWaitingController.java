@@ -4,7 +4,6 @@ import auth.LoginMember;
 import auth.UserDetails;
 import java.net.URI;
 import java.util.List;
-import nextstep.reservation.ReservationRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,5 +35,11 @@ public class ReservationWaitingController {
     public ResponseEntity getReservationWaitings(@LoginMember UserDetails userDetails) {
         List<ReservationWaitingDetails> results = reservationWaitingRepresentationService.findAllByMine(userDetails);
         return ResponseEntity.ok().body(results);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity cancel(@LoginMember UserDetails userDetails, @PathVariable Long id) {
+        reservationWaitingCommandService.cancelById(userDetails, id);
+        return ResponseEntity.ok().build();
     }
 }

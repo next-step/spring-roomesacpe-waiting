@@ -5,10 +5,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import java.util.List;
 import nextstep.AbstractE2ETest;
 import nextstep.reservation.ReservationRequest;
-import nextstep.reservation.ReservationResponse;
 import nextstep.schedule.ScheduleRequest;
 import nextstep.theme.ThemeRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -105,6 +103,47 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
                 .extract();
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @DisplayName("나의 예약대기를 취소한다")
+    @Test
+    void delete() {
+        var reservationWaiting = createReservationWaiting();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().put(reservationWaiting.header("Location"))
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @DisplayName("다른 사람의 예약대기를 취소한다")
+    @Test
+    void deleteOthers() {
+        var reservationWaiting = createReservationWaiting();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2("other-token")
+            .when().put(reservationWaiting.header("Location"))
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    private ExtractableResponse<Response> createReservationWaiting() {
+        return RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .body(request)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when().post("/reservation-waitings")
+            .then().log().all()
+            .extract();
     }
 
     private ExtractableResponse<Response> createReservation() {
