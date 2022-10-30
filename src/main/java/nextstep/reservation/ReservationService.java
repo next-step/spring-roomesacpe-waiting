@@ -3,6 +3,9 @@ package nextstep.reservation;
 import auth.AuthenticationException;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
+import nextstep.reservation.dto.ReservationRequest;
+import nextstep.reservation.dto.ReservationWaitingRequest;
+import nextstep.reservation.dto.ReservationWaitingResponse;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import nextstep.support.DuplicateEntityException;
@@ -48,6 +51,28 @@ public class ReservationService {
         );
 
         return reservationDao.save(newReservation);
+    }
+
+    public ReservationWaitingResponse createWaiting(Long memberId, ReservationWaitingRequest reservationWaitingRequest) {
+        if (memberId == null) {
+            throw new AuthenticationException();
+        }
+
+        Member member = memberDao.findById(memberId);
+        Schedule schedule = scheduleDao.findById(reservationWaitingRequest.getScheduleId());
+        if (schedule == null) {
+            throw new NullPointerException();
+        }
+
+        int seq = reservationDao.findLastWaitingSeq(schedule.getId());
+        List<Reservation> reservation = reservationDao.findByScheduleId(schedule.getId());
+        if (reservation.isEmpty() && seq == 0) {
+            // 예약이 없고 예약 대기도 없을 경우
+            return new ReservationWaitingResponse(reservationDao.save(new Reservation(schedule, member)), true);
+        } else {
+            ReservationWaiting reservationWaiting = new ReservationWaiting(schedule, member, ++seq);
+            return new ReservationWaitingResponse(reservationDao.saveWaiting(reservationWaiting), false);
+        }
     }
 
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {

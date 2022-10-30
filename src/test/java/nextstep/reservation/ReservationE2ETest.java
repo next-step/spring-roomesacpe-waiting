@@ -4,6 +4,8 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import nextstep.AbstractE2ETest;
+import nextstep.reservation.dto.ReservationRequest;
+import nextstep.reservation.dto.ReservationWaitingRequest;
 import nextstep.schedule.ScheduleRequest;
 import nextstep.theme.ThemeRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -85,6 +87,40 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .extract();
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @DisplayName("예약 대기를 생성한다")
+    @Test
+    void createWaiting() {
+        createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .body(new ReservationWaitingRequest(scheduleId))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when().post("/reservation-waitings")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(response.header("Location")).startsWith("/reservation-waitings");
+    }
+
+    @DisplayName("예약 대기를 생성하는데 예약이 된다.")
+    @Test
+    void tryCreateWaiting_reserve() {
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .body(new ReservationWaitingRequest(scheduleId))
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when().post("/reservation-waitings")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(response.header("Location")).startsWith("/reservations");
     }
 
     @DisplayName("예약을 조회한다")

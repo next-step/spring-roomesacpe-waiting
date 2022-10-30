@@ -61,6 +61,22 @@ public class ReservationDao {
         return keyHolder.getKey().longValue();
     }
 
+    public Long saveWaiting(ReservationWaiting reservationWaiting) {
+        String sql = "INSERT INTO waiting (schedule_id, member_id, seq) VALUES (?, ?, ?);";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            ps.setLong(1, reservationWaiting.getSchedule().getId());
+            ps.setLong(2, reservationWaiting.getMember().getId());
+            ps.setInt(3, reservationWaiting.getSeq());
+            return ps;
+
+        }, keyHolder);
+
+        return keyHolder.getKey().longValue();
+    }
+
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
         String sql = "SELECT " +
                 "reservation.id, reservation.schedule_id, reservation.member_id, " +
@@ -116,5 +132,15 @@ public class ReservationDao {
     public void deleteById(Long id) {
         String sql = "DELETE FROM reservation where id = ?;";
         jdbcTemplate.update(sql, id);
+    }
+
+    public int findLastWaitingSeq(Long scheduleId) {
+        String sql = "SELECT max(seq) from WAITING where schedule_id = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, scheduleId);
+        } catch (Exception e) {
+            return 0;
+        }
     }
 }

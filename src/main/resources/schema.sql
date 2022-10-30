@@ -6,6 +6,17 @@ CREATE TABLE RESERVATION
     primary key (id)
 );
 
+CREATE TABLE WAITING
+(
+    id          bigint not null auto_increment,
+    schedule_id bigint not null,
+    member_id   bigint not null,
+    seq         int    not null,
+    primary key (id),
+    constraint uq_schedule_id_seq
+        unique (schedule_id, seq)
+);
+
 CREATE TABLE theme
 (
     id    bigint not null auto_increment,
