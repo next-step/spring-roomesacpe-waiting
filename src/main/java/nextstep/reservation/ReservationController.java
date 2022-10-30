@@ -12,27 +12,38 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class ReservationController {
 
-    public final ReservationService reservationService;
+    private final ReservationCommandService reservationCommandService;
+    private final ReservationRepresentationService reservationRepresentationService;
 
-    public ReservationController(ReservationService reservationService) {
-        this.reservationService = reservationService;
+    public ReservationController(
+        ReservationCommandService reservationCommandService,
+        ReservationRepresentationService reservationRepresentationService
+    ) {
+        this.reservationCommandService = reservationCommandService;
+        this.reservationRepresentationService = reservationRepresentationService;
     }
 
     @PostMapping("/reservations")
     public ResponseEntity createReservation(@LoginMember UserDetails userDetails, @RequestBody ReservationRequest reservationRequest) {
-        Long id = reservationService.create(userDetails, reservationRequest);
+        Long id = reservationCommandService.create(userDetails, reservationRequest);
         return ResponseEntity.created(URI.create("/reservations/" + id)).build();
     }
 
     @GetMapping("/reservations")
     public ResponseEntity readReservations(@RequestParam Long themeId, @RequestParam String date) {
-        List<Reservation> results = reservationService.findAllByThemeIdAndDate(themeId, date);
+        List<ReservationResponse> results = reservationRepresentationService.findAllByThemeIdAndDate(themeId, date);
+        return ResponseEntity.ok().body(results);
+    }
+
+    @GetMapping("/reservations/mine")
+    public ResponseEntity readMyReservations(@LoginMember UserDetails userDetails) {
+        List<ReservationResponse> results = reservationRepresentationService.getMyReservations(userDetails);
         return ResponseEntity.ok().body(results);
     }
 
     @DeleteMapping("/reservations/{id}")
     public ResponseEntity deleteReservation(@LoginMember UserDetails userDetails, @PathVariable Long id) {
-        reservationService.deleteById(userDetails, id);
+        reservationCommandService.deleteById(userDetails, id);
 
         return ResponseEntity.noContent().build();
     }

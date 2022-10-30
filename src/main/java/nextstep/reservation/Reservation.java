@@ -29,6 +29,10 @@ public class Reservation {
         return member != null && Objects.equals(this.member.getId(), member.getId());
     }
 
+    public void hide() {
+        this.hide = true;
+    }
+
     public Long getId() {
         return id;
     }

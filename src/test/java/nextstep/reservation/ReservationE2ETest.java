@@ -100,7 +100,23 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .extract();
 
-        List<Reservation> reservations = response.jsonPath().getList(".", Reservation.class);
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
+        assertThat(reservations.size()).isEqualTo(1);
+    }
+
+    @DisplayName("나의 예약을 조회한다")
+    @Test
+    void showMine() {
+        createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().get("/reservations/mine")
+            .then().log().all()
+            .extract();
+
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
         assertThat(reservations.size()).isEqualTo(1);
     }
 
@@ -117,6 +133,28 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .extract();
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("삭제된 나의 예약도 조회된다")
+    @Test
+    void showMineWithDelete() {
+        ExtractableResponse<Response> createdResponse = createReservation();
+        RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().delete(createdResponse.header("Location"))
+            .then().log().all()
+            .extract();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().get("/reservations/mine")
+            .then().log().all()
+            .extract();
+
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
+        assertThat(reservations.size()).isEqualTo(1);
     }
 
     @DisplayName("중복 예약을 생성한다")
@@ -147,7 +185,7 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .extract();
 
-        List<Reservation> reservations = response.jsonPath().getList(".", Reservation.class);
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
         assertThat(reservations.size()).isEqualTo(0);
     }
 
