@@ -3,7 +3,7 @@ package nextstep.config;
 import auth.JwtTokenProvider;
 import auth.LoginController;
 import auth.LoginService;
-import nextstep.member.MemberDao;
+import auth.UserRepresentationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,8 +16,8 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public LoginService loginService(MemberDao memberDao, JwtTokenProvider jwtTokenProvider) {
-        return new LoginService(memberDao, jwtTokenProvider);
+    public LoginService loginService(UserRepresentationService userRepresentationService, JwtTokenProvider jwtTokenProvider) {
+        return new LoginService(userRepresentationService, jwtTokenProvider);
     }
 
     @Bean

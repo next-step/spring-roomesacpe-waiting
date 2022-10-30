@@ -1,5 +1,6 @@
 package nextstep.member;
 
+import auth.UserDetail;
 import io.restassured.RestAssured;
 import auth.TokenRequest;
 import auth.TokenResponse;

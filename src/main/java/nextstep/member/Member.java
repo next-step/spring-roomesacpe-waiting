@@ -30,6 +30,17 @@ public class Member {
         this.role = role;
     }
 
+    public static Member from(UserDetail userDetail) {
+        return new Member(
+                userDetail.getId(),
+                userDetail.getUsername(),
+                userDetail.getPassword(),
+                userDetail.getName(),
+                userDetail.getPhone(),
+                userDetail.getRole()
+        );
+    }
+
     public Long getId() {
         return id;
     }
