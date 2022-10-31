@@ -19,10 +19,14 @@ public class ReservationWaitingService {
     }
 
     public Long createReservationWaiting(Long scheduleId, Member member) {
-        if (reservationService.existsReservationInSchedule(scheduleId)) {
+        if (!reservationService.existsReservationInSchedule(scheduleId)) {
             return reservationService.create(member, new ReservationRequest(scheduleId));
         }
         ReservationWaiting reservationWaiting = new ReservationWaiting(scheduleId, member.getId());
         return reservationWaitingDao.save(reservationWaiting);
+    }
+
+    public void deleteReservationWaiting(Long reservationWaitingId) {
+        reservationWaitingDao.deleteById(reservationWaitingId);
     }
 }

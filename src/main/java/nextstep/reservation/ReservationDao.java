@@ -119,8 +119,7 @@ public class ReservationDao {
     }
 
     public boolean existReservationByScheduleId(Long scheduleId) {
-        String sql = "SELECT * FROM reservation WHERE schedule_id = ?";
-        List<Reservation> reservations = jdbcTemplate.query(sql, rowMapper, scheduleId);
+        List<Reservation> reservations = this.findByScheduleId(scheduleId);
         return !(reservations.isEmpty());
     }
 }

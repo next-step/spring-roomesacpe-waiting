@@ -1,6 +1,9 @@
 package nextstep.reservation_waiting;
 
+import auth.TokenResponse;
 import io.restassured.RestAssured;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
 import nextstep.AbstractE2ETest;
 import nextstep.reservation.ReservationE2ETest;
 import nextstep.schedule.ScheduleRequest;
@@ -97,5 +100,38 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
 
         var getReservationsResponse = 예약을_조회한다(themeId);
         assertThat(getReservationsResponse.jsonPath().getList("id")).hasSize(1);
+    }
+
+    @DisplayName("예약 대기를 삭제한다.")
+    @Test
+    void deleteReservationWaiting() {
+        // given
+        예약을_생성한다(scheduleId, token);
+        ExtractableResponse<Response> createResponse = 예약대기를_생성한다(new ReservationWaitingRequest(scheduleId), token);
+        Long reservationWaitingId = Long.parseLong(createResponse.header("Location").split("/")[2]);
+
+        // when
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .pathParam("reservationWaitingId", reservationWaitingId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().delete("/reservation-waitings/{reservationWaitingId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    public static ExtractableResponse<Response> 예약대기를_생성한다(ReservationWaitingRequest request, TokenResponse token) {
+        return RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .body(request)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/reservation-waitings")
+                .then().log().all()
+                .extract();
     }
 }

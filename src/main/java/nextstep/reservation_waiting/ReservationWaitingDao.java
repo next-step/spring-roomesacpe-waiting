@@ -29,4 +29,9 @@ public class ReservationWaitingDao {
 
         return keyHolder.getKey().longValue();
     }
+
+    public void deleteById(Long reservationWaitingId) {
+        String sql = "DELETE FROM reservation_waiting WHERE id = ?";
+        jdbcTemplate.update(sql, reservationWaitingId);
+    }
 }
