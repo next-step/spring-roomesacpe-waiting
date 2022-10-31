@@ -1,6 +1,7 @@
 package nextstep.reservation;
 
 import auth.AuthenticationException;
+import auth.LoginAdmin;
 import auth.LoginMember;
 import auth.UserDetails;
 import java.net.URI;
@@ -29,6 +30,12 @@ public class ReservationController {
         return ResponseEntity.created(URI.create("/reservations/" + id)).build();
     }
 
+    @PatchMapping("/reservations/{id}/approve")
+    public ResponseEntity approveReservation(@LoginAdmin UserDetails adminDetails, @PathVariable Long id) {
+        reservationCommandService.approveReservation(id);
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/reservations")
     public ResponseEntity readReservations(@RequestParam Long themeId, @RequestParam String date) {
         List<ReservationResponse> results = reservationRepresentationService.findAllByThemeIdAndDate(themeId, date);
@@ -41,9 +48,9 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
-    @PutMapping("/reservations/{id}")
+    @PutMapping("/reservations/{id}/cancel")
     public ResponseEntity cancel(@LoginMember UserDetails userDetails, @PathVariable Long id) {
-        reservationCommandService.cancelById(userDetails, id);
+        reservationCommandService.cancelReservation(userDetails, id);
         return ResponseEntity.ok().build();
     }
 

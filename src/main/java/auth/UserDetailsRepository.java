@@ -4,5 +4,7 @@ public interface UserDetailsRepository {
 
     UserDetails findByUsername(String username);
 
-    UserDetails findById(Long id);
+    UserDetails findMemberById(Long id);
+
+    UserDetails findAdminById(Long id);
 }

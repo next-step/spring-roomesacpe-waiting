@@ -58,6 +58,36 @@ class ReservationE2ETest extends AbstractE2ETest {
         );
     }
 
+    @DisplayName("관리자가 예약을 승인한다")
+    @Test
+    void acceptByAdmin() {
+        ExtractableResponse<Response> reservation = createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().patch(reservation.header("Location") + "/approve")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @DisplayName("관리자가 아닌 사람이 예약을 승인을 시도한다")
+    @Test
+    void acceptByNotAdmin() {
+        ExtractableResponse<Response> reservation = createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2("another-token")
+            .when().patch(reservation.header("Location") + "/approve")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
     @DisplayName("예약을 생성한다")
     @Test
     void create() {
@@ -128,7 +158,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().put(reservation.header("Location"))
+                .when().put(reservation.header("Location") + "/cancel")
                 .then().log().all()
                 .extract();
 
@@ -195,7 +225,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().put("/reservations/1")
+                .when().put("/reservations/1/cancel")
                 .then().log().all()
                 .extract();
 
@@ -210,7 +240,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2("other-token")
-                .when().put("/reservations/1")
+                .when().put("/reservations/1/cancel")
                 .then().log().all()
                 .extract();
 

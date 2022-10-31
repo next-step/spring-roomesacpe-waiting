@@ -27,6 +27,10 @@ public class Schedule {
         this.time = time;
     }
 
+    public int getThemePrice() {
+        return theme.getPrice();
+    }
+
     public Long getId() {
         return id;
     }

@@ -22,9 +22,15 @@ public class UserDetailsDao implements UserDetailsRepository {
     );
 
     @Override
-    public UserDetails findById(Long id) {
+    public UserDetails findMemberById(Long id) {
         String sql = "SELECT id, username, password, role from member where id = ?;";
         return jdbcTemplate.queryForObject(sql, rowMapper, id);
+    }
+
+    @Override
+    public UserDetails findAdminById(Long id) {
+        String sql = "SELECT id, username, password, role from member where id = ? and role = ?;";
+        return jdbcTemplate.queryForObject(sql, rowMapper, id, "ADMIN");
     }
 
     @Override

@@ -1,5 +1,6 @@
 package nextstep.reservation;
 
+import java.util.NoSuchElementException;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 import nextstep.theme.Theme;
@@ -17,7 +18,7 @@ import java.util.List;
 @Component
 public class ReservationDao {
 
-    public final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public ReservationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -92,11 +93,11 @@ public class ReservationDao {
         try {
             return jdbcTemplate.queryForObject(sql, rowMapper, id);
         } catch (Exception e) {
-            return null;
+            throw new NoSuchElementException();
         }
     }
 
-    public void updateCanceled(Reservation reservation) {
+    public void updateStatus(Reservation reservation) {
         String sql = "UPDATE reservation SET status = ? WHERE id = ?;";
         jdbcTemplate.update(sql, reservation.getStatusName(), reservation.getId());
     }

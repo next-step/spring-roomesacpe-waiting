@@ -18,16 +18,19 @@ public class ReservationUpdateService {
         this.memberDao = memberDao;
     }
 
-    public void canceledById(Long memberId, Long reservationId) {
+    public void cancelById(Long memberId, Long reservationId) {
         Reservation reservation = reservationDao.findById(reservationId);
-        if (reservation == null) {
-            throw new NullPointerException();
-        }
         Member member = memberDao.findById(memberId);
         if (!reservation.sameMember(member)) {
             throw new AuthenticationException();
         }
         reservation.canceled();
-        reservationDao.updateCanceled(reservation);
+        reservationDao.updateStatus(reservation);
+    }
+
+    public void approveById(Long reservationId) {
+        Reservation reservation = reservationDao.findById(reservationId);
+        reservation.approve();
+        reservationDao.updateStatus(reservation);
     }
 }

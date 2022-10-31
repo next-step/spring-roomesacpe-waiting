@@ -15,8 +15,9 @@ public class AdminInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
         String credential = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+        jwtTokenProvider.validateToken(credential);
         String role = jwtTokenProvider.getRole(credential);
         if (!Objects.equals(role, "ADMIN")) {
             throw new AuthenticationException();

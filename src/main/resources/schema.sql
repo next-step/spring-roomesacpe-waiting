@@ -16,6 +16,15 @@ CREATE TABLE reservation_waiting
     primary key (id)
 );
 
+CREATE TABLE sales
+(
+    id          bigint not null auto_increment,
+    price       int not null,
+    status      varchar(100) not null,
+    reservation_id bigint not null,
+    primary key (id)
+);
+
 CREATE TABLE theme
 (
     id    bigint not null auto_increment,

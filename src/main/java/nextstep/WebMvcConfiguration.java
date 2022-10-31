@@ -37,5 +37,6 @@ public class WebMvcConfiguration implements WebMvcConfigurer {
 
     public void addArgumentResolvers(List argumentResolvers) {
         argumentResolvers.add(new LoginMemberArgumentResolver(loginService()));
+        argumentResolvers.add(new LoginAdminArgumentResolver(loginService()));
     }
 }

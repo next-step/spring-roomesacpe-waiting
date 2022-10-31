@@ -31,8 +31,16 @@ public class Reservation {
         return member != null && Objects.equals(this.member.getId(), member.getId());
     }
 
+    public void approve() {
+        this.status = APPROVED;
+    }
+
     public void canceled() {
         // TODO: 2022/10/31 do something
+    }
+
+    public int getThemePrice() {
+        return schedule.getThemePrice();
     }
 
     public Long getId() {
