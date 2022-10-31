@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import static nextstep.reservation.ReservationE2ETest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ReservationWaitingE2ETest extends AbstractE2ETest {
@@ -55,7 +56,7 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
     @Test
     void createReservationWaiting() {
         // given
-        ReservationE2ETest.예약을_생성한다(scheduleId, token);
+        예약을_생성한다(scheduleId, token);
 
         var request = new ReservationWaitingRequest(scheduleId);
 
@@ -71,5 +72,30 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+    }
+
+    @DisplayName("예약이 없는 스케줄에 예약대기를 생성하면, 예약을 생성한다.")
+    @Test
+    void createReservationWaitingWithNotExistsReservationSchedule() {
+        // given
+        var request = new ReservationWaitingRequest(scheduleId);
+        var getReservationsResponse1 = 예약을_조회한다(themeId);
+        assertThat(getReservationsResponse1.jsonPath().getList("id")).isEmpty();
+
+        // when
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .body(request)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/reservation-waitings")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+
+        var getReservationsResponse = 예약을_조회한다(themeId);
+        assertThat(getReservationsResponse.jsonPath().getList("id")).hasSize(1);
     }
 }

@@ -69,4 +69,8 @@ public class ReservationService {
 
         reservationDao.deleteById(id);
     }
+
+    public boolean existsReservationInSchedule(Long scheduleId) {
+        return reservationDao.existReservationByScheduleId(scheduleId);
+    }
 }

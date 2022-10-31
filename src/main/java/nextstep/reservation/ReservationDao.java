@@ -117,4 +117,10 @@ public class ReservationDao {
         String sql = "DELETE FROM reservation where id = ?;";
         jdbcTemplate.update(sql, id);
     }
+
+    public boolean existReservationByScheduleId(Long scheduleId) {
+        String sql = "SELECT * FROM reservation WHERE schedule_id = ?";
+        List<Reservation> reservations = jdbcTemplate.query(sql, rowMapper, scheduleId);
+        return !(reservations.isEmpty());
+    }
 }

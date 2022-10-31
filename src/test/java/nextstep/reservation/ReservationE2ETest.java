@@ -202,4 +202,14 @@ public class ReservationE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .extract();
     }
+
+    public static ExtractableResponse<Response> 예약을_조회한다(Long themeId) {
+        return RestAssured
+                .given().log().all()
+                .param("themeId", themeId)
+                .param("date", DATE)
+                .when().get("/reservations")
+                .then().log().all()
+                .extract();
+    }
 }
