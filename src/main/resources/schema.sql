@@ -38,7 +38,7 @@ CREATE TABLE member
 CREATE TABLE reservation_waiting
 (
     id         bigint    not null auto_increment,
-    scheduleId bigint    not null,
-    memberId   bigint    not null,
+    schedule_id bigint    not null,
+    member_id   bigint    not null,
     primary key (id)
 );
