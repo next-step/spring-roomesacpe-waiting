@@ -38,7 +38,7 @@ public class DailyRevenue {
         return dailyAt;
     }
 
-    public void plusProfit(Long profit) {
-        this.profit += profit;
+    public void updateProfit(Long profit) {
+        this.profit = profit;
     }
 }

@@ -17,8 +17,10 @@ import nextstep.theme.ThemeDao;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BiFunction;
 
 @Service
 public class ReservationService {
@@ -127,12 +129,84 @@ public class ReservationService {
         reservation.approve();
         reservationDao.updateStatus(reservation);
 
+        appendRevenueHistory(memberId, at, reservation, Long::sum);
+    }
+
+    public void cancel(Long memberId, Long reservationId, String role, LocalDateTime at) {
+        Reservation reservation = reservationDao.findById(reservationId);
+
+        if (reservation == null) {
+            throw new NullPointerException();
+        }
+
+        switch (role) {
+            case "ADMIN" -> adminCancel(memberId, role, at, reservation);
+            case "MEMBER" -> memberCancel(role, reservation);
+        }
+    }
+
+    private void memberCancel(String role, Reservation reservation) {
+        reservation.cancel(role);
+        reservationDao.updateStatus(reservation);
+        if (reservation.getStatus() == Reservation.Status.CANCEL) {
+            reserveIfExistWait(reservation.getSchedule().getId());
+        }
+    }
+
+    private void adminCancel(Long memberId, String role, LocalDateTime at, Reservation reservation) {
+        Reservation.Status currentStatus = reservation.getStatus();
+        reservation.cancel(role);
+        reservationDao.updateStatus(reservation);
+
+        if (currentStatus.equals(Reservation.Status.CONFIRMED)) {
+            appendRevenueHistory(memberId, at, reservation, (original, target) -> original - target);
+        }
+
+        if (reservation.getStatus() == Reservation.Status.CANCEL) {
+            reserveIfExistWait(reservation.getSchedule().getId());
+        }
+    }
+
+    public void approveCancel(Long memberId, Long reservationId, LocalDateTime at) {
+        Reservation reservation = reservationDao.findById(reservationId);
+
+        if (reservation == null) {
+            throw new NullPointerException();
+        }
+
+        reservation.approveCancel();
+        reservationDao.updateStatus(reservation);
+
+        reserveIfExistWait(reservation.getSchedule().getId());
+        appendRevenueHistory(memberId, at, reservation, (original, target) -> original - target);
+    }
+
+    private void reserveIfExistWait(Long scheduleId) {
+        reservationDao.findWaitingsByScheduleId(scheduleId)
+            .stream()
+            .min(Comparator.comparing(ReservationWaiting::getSeq))
+            .ifPresent(reservationWaiting -> {
+                Reservation newReservation = new Reservation(reservationWaiting.getSchedule(), reservationWaiting.getMember());
+                reservationDao.save(newReservation);
+                reservationDao.deleteWaitingById(reservationWaiting.getId());
+            });
+    }
+
+    public List<Reservation> findMyReservations(Long memberId) {
+        return reservationDao.findByMemberId(memberId);
+    }
+
+    public List<ReservationWaiting> findMyWaitings(Long memberId) {
+        return reservationDao.findWaitingsByMemberId(memberId);
+    }
+
+    private void appendRevenueHistory(Long memberId, LocalDateTime at, Reservation reservation, BiFunction<Long, Long, Long> profitFunction) {
         long profit = reservation.getSchedule().getTheme().getPrice();
         Optional<DailyRevenue> dailyRevenue = revenueDao.findDailyRevenueAt(at.toLocalDate());
         dailyRevenue.ifPresentOrElse(
             revenue -> {
                 Long originalProfit = revenue.getProfit();
-                revenue.plusProfit(profit);
+                revenue.updateProfit(profitFunction.apply(originalProfit, profit));
 
                 revenueDao.updateProfit(revenue);
                 revenueDao.saveHistory(new RevenueHistory(revenue.getId(), originalProfit, revenue.getProfit(), reservation.getStatus().name(), at));
@@ -145,11 +219,11 @@ public class ReservationService {
         );
     }
 
-    public List<Reservation> findMyReservations(Long memberId) {
-        return reservationDao.findByMemberId(memberId);
-    }
-
-    public List<ReservationWaiting> findMyWaitings(Long memberId) {
-        return reservationDao.findWaitingsByMemberId(memberId);
+    public Reservation findById(Long id) {
+        Reservation reservation = reservationDao.findById(id);
+        if (reservation == null) {
+            throw new NullPointerException();
+        }
+        return reservation;
     }
 }

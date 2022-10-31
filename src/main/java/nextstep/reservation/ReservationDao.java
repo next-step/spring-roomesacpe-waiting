@@ -235,4 +235,23 @@ public class ReservationDao {
         String sql = "UPDATE reservation set status = ? where id = ?;";
         jdbcTemplate.update(sql, reservation.getStatus().name(), reservation.getId());
     }
+
+    public List<ReservationWaiting> findWaitingsByScheduleId(Long scheduleId) {
+        String sql = "SELECT " +
+            "waiting.id, waiting.seq, waiting.schedule_id, waiting.member_id, " +
+            "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+            "theme.id, theme.name, theme.desc, theme.price, " +
+            "member.id, member.username, member.password, member.name, member.phone, member.role " +
+            "from waiting " +
+            "inner join schedule on waiting.schedule_id = schedule.id " +
+            "inner join theme on schedule.theme_id = theme.id " +
+            "inner join member on waiting.member_id = member.id " +
+            "where waiting.schedule_id = ?;";
+
+        try {
+            return jdbcTemplate.query(sql, waitingRowMapper, scheduleId);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
 }

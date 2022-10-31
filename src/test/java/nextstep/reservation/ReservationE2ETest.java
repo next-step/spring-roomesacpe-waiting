@@ -1,5 +1,6 @@
 package nextstep.reservation;
 
+import auth.TokenResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -94,7 +95,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("예약 대기를 생성한다")
     @Test
     void createWaitingReservation() {
-        createReservation();
+        createReservation(token);
 
         var response = RestAssured
             .given().log().all()
@@ -128,7 +129,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("예약을 조회한다")
     @Test
     void show() {
-        createReservation();
+        createReservation(token);
 
         var response = RestAssured
                 .given().log().all()
@@ -145,7 +146,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("내 예약을 조회한다")
     @Test
     void showMine() {
-        createReservation();
+        createReservation(token);
 
         var response = RestAssured
             .given().log().all()
@@ -161,7 +162,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("내 웨이팅을 조회한다")
     @Test
     void showWaitingMine() {
-        createReservation();
+        createReservation(token);
         createWaiting();
 
         var response = RestAssured
@@ -178,7 +179,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("예약을 삭제한다")
     @Test
     void delete() {
-        var reservation = createReservation();
+        var reservation = createReservation(token);
 
         var response = RestAssured
                 .given().log().all()
@@ -193,7 +194,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("예약을 삭제한다")
     @Test
     void deleteWaiting() {
-        createReservation();
+        createReservation(token);
         var waiting = createWaiting();
 
         var response = RestAssured
@@ -209,7 +210,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("중복 예약을 생성한다")
     @Test
     void createDuplicateReservation() {
-        createReservation();
+        createReservation(token);
 
         var response = RestAssured
                 .given().log().all()
@@ -254,7 +255,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("다른 사람이 예약을삭제한다")
     @Test
     void deleteReservationOfOthers() {
-        createReservation();
+        createReservation(token);
 
         var response = RestAssured
                 .given().log().all()
@@ -269,7 +270,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     @DisplayName("예약을 승인한다.")
     @Test
     void approveReservation() {
-        var reservation = createReservation();
+        var reservation = createReservation(token);
 
         var response = RestAssured
             .given().log().all()
@@ -278,10 +279,110 @@ class ReservationE2ETest extends AbstractE2ETest {
             .then().log().all()
             .extract();
 
+        Reservation findReservation = findReservation(reservation.header("Location"));
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(findReservation.getStatus()).isEqualTo(Reservation.Status.CONFIRMED);
     }
 
-    private ExtractableResponse<Response> createReservation() {
+    @DisplayName("예약을 취소한다. (admin : WAIT -> CANCEL)")
+    @Test
+    void cancelWaitReservation_admin() {
+        var reservation = createReservation(token);
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().patch(reservation.header("Location")+ "/cancel")
+            .then().log().all()
+            .extract();
+
+        Reservation findReservation = findReservation(reservation.header("Location"));
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(findReservation.getStatus()).isEqualTo(Reservation.Status.CANCEL);
+    }
+
+    @DisplayName("예약을 취소한다. (admin : CONFIRMED -> CANCEL)")
+    @Test
+    void cancelConfirmedReservation_admin() {
+        var reservation = createReservation(token);
+        approve(reservation.header("Location") + "/approve");
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().patch(reservation.header("Location")+ "/cancel")
+            .then().log().all()
+            .extract();
+
+        Reservation findReservation = findReservation(reservation.header("Location"));
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(findReservation.getStatus()).isEqualTo(Reservation.Status.CANCEL);
+    }
+
+    @DisplayName("예약을 취소한다. (member : WAIT -> CANCEL)")
+    @Test
+    void cancelWaitReservation_member() {
+        var reservation = createReservation(memberToken);
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(memberToken.getAccessToken())
+            .when().patch(reservation.header("Location")+ "/cancel")
+            .then().log().all()
+            .extract();
+
+        Reservation findReservation = findReservation(reservation.header("Location"));
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(findReservation.getStatus()).isEqualTo(Reservation.Status.CANCEL);
+    }
+
+    @DisplayName("예약을 취소한다. (member : CONFIRMED -> WAIT_CANCEL)")
+    @Test
+    void cancelConfirmedReservation_member() {
+        var reservation = createReservation(memberToken);
+        approve(reservation.header("Location") + "/approve");
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(memberToken.getAccessToken())
+            .when().patch(reservation.header("Location")+ "/cancel")
+            .then().log().all()
+            .extract();
+
+        Reservation findReservation = findReservation(reservation.header("Location"));
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(findReservation.getStatus()).isEqualTo(Reservation.Status.WAIT_CANCEL);
+    }
+
+    @DisplayName("예약취소를 허가한다.")
+    @Test
+    void approveCancel() {
+        var reservation = createReservation(memberToken);
+        approve(reservation.header("Location") + "/approve");
+        memberCancel(reservation);
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().get(reservation.header("Location")+ "/cancel-approve")
+            .then().log().all()
+            .extract();
+
+        Reservation findReservation = findReservation(reservation.header("Location"));
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(findReservation.getStatus()).isEqualTo(Reservation.Status.CANCEL);
+    }
+
+    private ExtractableResponse<Response> memberCancel(ExtractableResponse<Response> reservation) {
+        return RestAssured
+            .given().log().all()
+            .auth().oauth2(memberToken.getAccessToken())
+            .when().patch(reservation.header("Location") + "/cancel")
+            .then().log().all()
+            .extract();
+    }
+
+    private ExtractableResponse<Response> createReservation(TokenResponse token) {
         return RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
@@ -299,6 +400,25 @@ class ReservationE2ETest extends AbstractE2ETest {
             .body(request)
             .contentType(MediaType.APPLICATION_JSON_VALUE)
             .when().post("/reservation-waitings")
+            .then().log().all()
+            .extract();
+    }
+
+    private Reservation findReservation(String path) {
+        return RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().get(path)
+            .then().log().all()
+            .extract()
+            .as(Reservation.class);
+    }
+
+    private ExtractableResponse<Response> approve(String path) {
+        return RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().patch(path)
             .then().log().all()
             .extract();
     }

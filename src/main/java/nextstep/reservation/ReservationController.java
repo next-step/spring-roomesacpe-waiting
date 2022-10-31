@@ -44,6 +44,11 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
+    @GetMapping("/reservations/{id}")
+    public ResponseEntity readReservationsById(@PathVariable Long id) {
+        return ResponseEntity.ok().body(reservationService.findById(id));
+    }
+
     @GetMapping("/reservations/mine")
     public ResponseEntity readMyReservations(@LoginMember AuthPrincipal authPrincipal) {
         if (authPrincipal.isAnonymous()) {
@@ -87,6 +92,20 @@ public class ReservationController {
     @PatchMapping("/reservations/{id}/approve")
     public ResponseEntity approve(@LoginMember AuthPrincipal authPrincipal, @PathVariable Long id) {
         reservationService.approve(Long.parseLong(authPrincipal.getPrincipal()), id, LocalDateTime.now());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/reservations/{id}/cancel")
+    public ResponseEntity cancel(@LoginMember AuthPrincipal authPrincipal, @PathVariable Long id) {
+        reservationService.cancel(Long.parseLong(authPrincipal.getPrincipal()), id, authPrincipal.getRole(), LocalDateTime.now());
+
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/reservations/{id}/cancel-approve")
+    public ResponseEntity cancelApprove(@LoginMember AuthPrincipal authPrincipal, @PathVariable Long id) {
+        reservationService.approveCancel(Long.parseLong(authPrincipal.getPrincipal()), id, LocalDateTime.now());
 
         return ResponseEntity.ok().build();
     }
