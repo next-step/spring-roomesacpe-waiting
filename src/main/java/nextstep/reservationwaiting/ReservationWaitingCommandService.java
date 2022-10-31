@@ -54,7 +54,7 @@ public class ReservationWaitingCommandService {
         );
     }
 
-    public void cancelById(UserDetails userDetails, Long id) {
-        reservationWaitingUpdateService.canceledById(id);
+    public void cancelById(UserDetails userDetails, Long reservationId) {
+        reservationWaitingUpdateService.canceledById(userDetails.getId(), reservationId);
     }
 }

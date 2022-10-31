@@ -1,5 +1,6 @@
 package nextstep.reservationwaiting;
 
+import auth.AuthenticationException;
 import java.util.Objects;
 
 public class ReservationWaiting {
@@ -23,7 +24,10 @@ public class ReservationWaiting {
         this.canceled = canceled;
     }
 
-    public void canceled() {
+    public void cancelIfOwner(Long memberId) {
+        if (!Objects.equals(this.memberId, memberId)) {
+            throw new AuthenticationException();
+        }
         this.canceled = true;
     }
 

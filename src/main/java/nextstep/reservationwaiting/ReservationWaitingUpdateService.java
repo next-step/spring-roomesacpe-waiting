@@ -13,9 +13,9 @@ public class ReservationWaitingUpdateService {
         this.reservationWaitingCommandRepository = reservationWaitingCommandRepository;
     }
 
-    public void canceledById(Long id) {
-        ReservationWaiting reservationWaiting = reservationWaitingCommandRepository.findById(id);
-        reservationWaiting.canceled();
+    public void canceledById(Long memberId, Long reservationId) {
+        ReservationWaiting reservationWaiting = reservationWaitingCommandRepository.findById(reservationId);
+        reservationWaiting.cancelIfOwner(memberId);
         reservationWaitingCommandRepository.updateCanceled(reservationWaiting);
     }
 }
