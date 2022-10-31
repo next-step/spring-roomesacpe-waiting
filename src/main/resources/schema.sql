@@ -1,8 +1,9 @@
 CREATE TABLE RESERVATION
 (
-    id          bigint not null auto_increment,
-    schedule_id bigint not null,
-    member_id   bigint not null,
+    id          bigint      not null auto_increment,
+    schedule_id bigint      not null,
+    member_id   bigint      not null,
+    status      varchar(20) not null,
     primary key (id)
 );
 
@@ -43,5 +44,25 @@ CREATE TABLE member
     name     varchar(20) not null,
     phone    varchar(20) not null,
     role     varchar(20) not null,
+    primary key (id)
+);
+
+CREATE TABLE daily_revenue
+(
+    id        bigint not null auto_increment,
+    member_id bigint not null,
+    profit    bigint not null,
+    daily_at  date   not null,
+    primary key (id)
+);
+
+CREATE TABLE revenue_history
+(
+    id               bigint not null auto_increment,
+    daily_revenue_id bigint not null,
+    original_profit  bigint not null,
+    target_profit    bigint not null,
+    remark           varchar(200),
+    created_at       datetime(6) default CURRENT_TIMESTAMP (6) not null,
     primary key (id)
 );

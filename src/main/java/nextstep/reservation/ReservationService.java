@@ -6,6 +6,9 @@ import nextstep.member.MemberDao;
 import nextstep.reservation.dto.ReservationRequest;
 import nextstep.reservation.dto.ReservationWaitingRequest;
 import nextstep.reservation.dto.ReservationWaitingResponse;
+import nextstep.revenue.DailyRevenue;
+import nextstep.revenue.RevenueDao;
+import nextstep.revenue.RevenueHistory;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import nextstep.support.DuplicateEntityException;
@@ -13,7 +16,9 @@ import nextstep.theme.Theme;
 import nextstep.theme.ThemeDao;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReservationService {
@@ -21,12 +26,14 @@ public class ReservationService {
     public final ThemeDao themeDao;
     public final ScheduleDao scheduleDao;
     public final MemberDao memberDao;
+    public final RevenueDao revenueDao;
 
-    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao) {
+    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao, RevenueDao revenueDao) {
         this.reservationDao = reservationDao;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
+        this.revenueDao = revenueDao;
     }
 
     public Long create(Long memberId, ReservationRequest reservationRequest) {
@@ -46,8 +53,8 @@ public class ReservationService {
         }
 
         Reservation newReservation = new Reservation(
-                schedule,
-                member
+            schedule,
+            member
         );
 
         return reservationDao.save(newReservation);
@@ -108,6 +115,34 @@ public class ReservationService {
         }
 
         reservationDao.deleteWaitingById(id);
+    }
+
+    public void approve(Long memberId, Long reservationId, LocalDateTime at) {
+        Reservation reservation = reservationDao.findById(reservationId);
+
+        if (reservation == null) {
+            throw new NullPointerException();
+        }
+
+        reservation.approve();
+        reservationDao.updateStatus(reservation);
+
+        long profit = reservation.getSchedule().getTheme().getPrice();
+        Optional<DailyRevenue> dailyRevenue = revenueDao.findDailyRevenueAt(at.toLocalDate());
+        dailyRevenue.ifPresentOrElse(
+            revenue -> {
+                Long originalProfit = revenue.getProfit();
+                revenue.plusProfit(profit);
+
+                revenueDao.updateProfit(revenue);
+                revenueDao.saveHistory(new RevenueHistory(revenue.getId(), originalProfit, revenue.getProfit(), reservation.getStatus().name(), at));
+            },
+            () -> {
+                DailyRevenue newRevenue = new DailyRevenue(memberId, profit, at.toLocalDate());
+                Long id = revenueDao.save(newRevenue);
+                revenueDao.saveHistory(new RevenueHistory(id, 0L, profit, reservation.getStatus().name(), at));
+            }
+        );
     }
 
     public List<Reservation> findMyReservations(Long memberId) {

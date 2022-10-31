@@ -23,9 +23,10 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
         try {
             String credential = webRequest.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-            return new AuthPrincipal(jwtTokenProvider.getPrincipal(credential));
+            String role = jwtTokenProvider.getRole(credential);
+            return new AuthPrincipal(jwtTokenProvider.getPrincipal(credential), role);
         } catch (Exception e) {
-            return new AuthPrincipal(null);
+            return new AuthPrincipal(null, "ANONYMOUS");
         }
     }
 }

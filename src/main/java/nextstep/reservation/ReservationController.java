@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,7 +52,7 @@ public class ReservationController {
 
         List<MyReservationResponse> results = reservationService.findMyReservations(Long.parseLong(authPrincipal.getPrincipal()))
             .stream()
-            .map(reservation -> new MyReservationResponse(reservation.getId(), reservation.getSchedule()))
+            .map(reservation -> new MyReservationResponse(reservation.getId(), reservation.getSchedule(), reservation.getStatus()))
             .collect(Collectors.toList());
         return ResponseEntity.ok().body(results);
     }
@@ -81,6 +82,13 @@ public class ReservationController {
         reservationService.deleteWaitingById(Long.parseLong(authPrincipal.getPrincipal()), id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/reservations/{id}/approve")
+    public ResponseEntity approve(@LoginMember AuthPrincipal authPrincipal, @PathVariable Long id) {
+        reservationService.approve(Long.parseLong(authPrincipal.getPrincipal()), id, LocalDateTime.now());
+
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(Exception.class)
