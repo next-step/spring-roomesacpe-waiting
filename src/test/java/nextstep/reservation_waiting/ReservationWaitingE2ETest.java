@@ -124,6 +124,29 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }
 
+    @DisplayName("자신의 예약 대기가 아닌경우 취소할 수 없다.")
+    @Test
+    void deleteReservationWaitingWithNotMine() {
+        // given
+        TokenResponse otherToken = 회원가입하고_토큰을_반환한다("otherUsername", "1234");
+        예약을_생성한다(scheduleId, otherToken);
+        ExtractableResponse<Response> createResponse = 예약대기를_생성한다(new ReservationWaitingRequest(scheduleId), otherToken);
+        Long reservationWaitingId = Long.parseLong(createResponse.header("Location").split("/")[2]);
+
+        // when
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .pathParam("reservationWaitingId", reservationWaitingId)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().delete("/reservation-waitings/{reservationWaitingId}")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
     public static ExtractableResponse<Response> 예약대기를_생성한다(ReservationWaitingRequest request, TokenResponse token) {
         return RestAssured
                 .given().log().all()

@@ -41,4 +41,26 @@ public class AbstractE2ETest {
 
         token = response.as(TokenResponse.class);
     }
+
+    public static TokenResponse 회원가입하고_토큰을_반환한다(String username, String password) {
+        MemberRequest memberBody = new MemberRequest(username, password, "name", "010-1234-5678", "ADMIN");
+        RestAssured
+                .given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(memberBody)
+                .when().post("/members")
+                .then().log().all()
+                .statusCode(HttpStatus.CREATED.value());
+
+        TokenRequest tokenBody = new TokenRequest(username, password);
+        var response = RestAssured
+                .given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(tokenBody)
+                .when().post("/login/token")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+        return response.as(TokenResponse.class);
+    }
 }
