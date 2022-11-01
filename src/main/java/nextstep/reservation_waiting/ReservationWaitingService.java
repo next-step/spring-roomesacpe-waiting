@@ -6,7 +6,6 @@ import nextstep.reservation.ReservationRequest;
 import nextstep.reservation.ReservationService;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
-import nextstep.schedule.ScheduleService;
 import nextstep.support.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
