@@ -75,4 +75,8 @@ public class ReservationService {
     public boolean existsReservationInSchedule(Long scheduleId) {
         return reservationDao.existReservationByScheduleId(scheduleId);
     }
+
+    public List<Reservation> findAllByMember(Member member) {
+        return reservationDao.findByMemberId(member.getId());
+    }
 }

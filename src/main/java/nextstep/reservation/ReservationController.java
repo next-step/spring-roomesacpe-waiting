@@ -33,6 +33,12 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
+    @GetMapping("/reservations/mine")
+    public ResponseEntity<List<Reservation>> readMyReservations(@LoginMember UserDetail userDetail) {
+        List<Reservation> results = reservationService.findAllByMember(Member.from(userDetail));
+        return ResponseEntity.ok().body(results);
+    }
+
     @DeleteMapping("/reservations/{id}")
     public ResponseEntity deleteReservation(@LoginMember UserDetail userDetail, @PathVariable Long id) {
         Member member = Member.from(userDetail);
