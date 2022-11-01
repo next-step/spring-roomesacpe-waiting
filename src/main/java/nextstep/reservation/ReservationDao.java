@@ -71,7 +71,7 @@ public class ReservationDao {
                 "inner join schedule on reservation.schedule_id = schedule.id " +
                 "inner join theme on schedule.theme_id = theme.id " +
                 "inner join member on reservation.member_id = member.id " +
-                "where theme.id = ? and schedule.date = ?;";
+                "where theme.id = ? and schedule.date = ? AND reservation.deleted = false;";
 
         return jdbcTemplate.query(sql, rowMapper, themeId, Date.valueOf(date));
     }
@@ -86,7 +86,7 @@ public class ReservationDao {
                 "inner join schedule on reservation.schedule_id = schedule.id " +
                 "inner join theme on schedule.theme_id = theme.id " +
                 "inner join member on reservation.member_id = member.id " +
-                "where reservation.id = ?;";
+                "where reservation.id = ? AND reservation.deleted = false;";
         try {
             return jdbcTemplate.queryForObject(sql, rowMapper, id);
         } catch (Exception e) {
@@ -104,7 +104,7 @@ public class ReservationDao {
                 "inner join schedule on reservation.schedule_id = schedule.id " +
                 "inner join theme on schedule.theme_id = theme.id " +
                 "inner join member on reservation.member_id = member.id " +
-                "where schedule.id = ?;";
+                "where schedule.id = ? AND reservation.deleted = false;";
 
         try {
             return jdbcTemplate.query(sql, rowMapper, id);
@@ -114,7 +114,7 @@ public class ReservationDao {
     }
 
     public void deleteById(Long id) {
-        String sql = "DELETE FROM reservation where id = ?;";
+        String sql = "UPDATE reservation SET deleted = true where id = ?;";
         jdbcTemplate.update(sql, id);
     }
 
