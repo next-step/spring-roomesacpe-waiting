@@ -1,13 +1,18 @@
 package nextstep.auth;
 
+import auth.AuthenticationException;
+import auth.JwtTokenProvider;
+import auth.TokenRequest;
+import auth.TokenResponse;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
 import org.springframework.stereotype.Service;
 
 @Service
 public class LoginService {
-    private MemberDao memberDao;
-    private JwtTokenProvider jwtTokenProvider;
+
+    private final MemberDao memberDao;
+    private final JwtTokenProvider jwtTokenProvider;
 
     public LoginService(MemberDao memberDao, JwtTokenProvider jwtTokenProvider) {
         this.memberDao = memberDao;

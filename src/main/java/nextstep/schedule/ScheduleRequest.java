@@ -1,11 +1,11 @@
 package nextstep.schedule;
 
-import nextstep.theme.Theme;
-
 import java.time.LocalDate;
 import java.time.LocalTime;
+import nextstep.theme.Theme;
 
 public class ScheduleRequest {
+
     private Long themeId;
     private String date;
     private String time;
@@ -33,9 +33,9 @@ public class ScheduleRequest {
 
     public Schedule toEntity(Theme theme) {
         return new Schedule(
-                theme,
-                LocalDate.parse(this.date),
-                LocalTime.parse(this.time)
+            theme,
+            LocalDate.parse(this.date),
+            LocalTime.parse(this.time)
         );
     }
 }

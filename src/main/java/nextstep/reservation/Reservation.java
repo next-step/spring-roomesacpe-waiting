@@ -1,11 +1,11 @@
 package nextstep.reservation;
 
+import java.util.Objects;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 
-import java.util.Objects;
-
 public class Reservation {
+
     private Long id;
     private Schedule schedule;
     private Member member;
