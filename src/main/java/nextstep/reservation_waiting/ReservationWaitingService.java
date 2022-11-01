@@ -10,6 +10,8 @@ import nextstep.support.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class ReservationWaitingService {
@@ -40,5 +42,15 @@ public class ReservationWaitingService {
             throw new AuthenticationException();
         }
         reservationWaitingDao.deleteById(reservationWaitingId);
+    }
+
+    public List<ReservationWaitingResponse> findReservationWaitingsByMember(Member member) {
+        List<ReservationWaiting> reservationWaitings = reservationWaitingDao.findByMemberId(member.getId());
+        return reservationWaitings.stream()
+                .map(reservationWaiting -> {
+                    Long waitNum = reservationWaitingDao.findWaitNumById(reservationWaiting.getId(), reservationWaiting.getSchedule().getId());
+                    return ReservationWaitingResponse.of(reservationWaiting, waitNum);
+                })
+                .toList();
     }
 }

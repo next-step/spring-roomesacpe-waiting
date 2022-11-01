@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/reservation-waitings")
@@ -28,5 +29,11 @@ public class ReservationWaitingController {
     public ResponseEntity<Void> deleteReservationWaiting(@LoginMember UserDetail userDetail, @PathVariable("reservationWaitingId") Long reservationWaitingId) {
         reservationWaitingService.deleteReservationWaiting(reservationWaitingId, Member.from(userDetail));
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<ReservationWaitingResponse>> readMyReservationWaiting(@LoginMember UserDetail userDetail) {
+        List<ReservationWaitingResponse> reservationWaitings = reservationWaitingService.findReservationWaitingsByMember(Member.from(userDetail));
+        return ResponseEntity.ok(reservationWaitings);
     }
 }

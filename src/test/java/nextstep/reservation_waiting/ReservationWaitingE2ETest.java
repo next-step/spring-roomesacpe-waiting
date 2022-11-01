@@ -147,6 +147,27 @@ class ReservationWaitingE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
+    @DisplayName("자신의 예약 대기 목록을 조회한다.")
+    @Test
+    void readMyReservationWaitings() {
+        // given
+        예약을_생성한다(scheduleId, token);
+        예약대기를_생성한다(new ReservationWaitingRequest(scheduleId), token);
+
+        // when
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservation-waitings/mine")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.jsonPath().getList("waitNum")).containsExactly(1);
+    }
+
     public static ExtractableResponse<Response> 예약대기를_생성한다(ReservationWaitingRequest request, TokenResponse token) {
         return RestAssured
                 .given().log().all()
