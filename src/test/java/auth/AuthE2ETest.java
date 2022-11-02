@@ -1,4 +1,4 @@
-package nextstep.auth;
+package auth;
 
 import auth.TokenRequest;
 import auth.TokenResponse;
