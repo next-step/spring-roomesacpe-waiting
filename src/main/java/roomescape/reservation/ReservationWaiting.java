@@ -3,6 +3,8 @@ package roomescape.reservation;
 import roomescape.member.Member;
 import roomescape.schedule.Schedule;
 
+import java.util.Objects;
+
 public class ReservationWaiting {
     private Long id;
     private Schedule schedule;
@@ -36,5 +38,9 @@ public class ReservationWaiting {
 
     public int getWaitNum() {
         return waitNum;
+    }
+
+    public boolean isCreatedBy(Member member) {
+        return Objects.equals(this.member.getId(), member.getId());
     }
 }

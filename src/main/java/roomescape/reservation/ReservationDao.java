@@ -46,6 +46,30 @@ public class ReservationDao {
             )
     );
 
+    private final RowMapper<ReservationWaiting> waitingRowMapper = (resultSet, rowNum) -> new ReservationWaiting(
+            resultSet.getLong("waiting.id"),
+            new Schedule(
+                    resultSet.getLong("schedule.id"),
+                    new Theme(
+                            resultSet.getLong("theme.id"),
+                            resultSet.getString("theme.name"),
+                            resultSet.getString("theme.desc"),
+                            resultSet.getInt("theme.price")
+                    ),
+                    resultSet.getDate("schedule.date").toLocalDate(),
+                    resultSet.getTime("schedule.time").toLocalTime()
+            ),
+            new Member(
+                    resultSet.getLong("member.id"),
+                    resultSet.getString("member.username"),
+                    resultSet.getString("member.password"),
+                    resultSet.getString("member.name"),
+                    resultSet.getString("member.phone"),
+                    resultSet.getString("member.role")
+            ),
+            resultSet.getInt("waiting.wait_num")
+    );
+
     public Long save(Reservation reservation) {
         String sql = "INSERT INTO reservation (schedule_id, member_id) VALUES (?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
@@ -87,11 +111,8 @@ public class ReservationDao {
                 "inner join theme on schedule.theme_id = theme.id " +
                 "inner join member on reservation.member_id = member.id " +
                 "where reservation.id = ?;";
-        try {
-            return jdbcTemplate.queryForObject(sql, rowMapper, id);
-        } catch (Exception e) {
-            return null;
-        }
+
+        return jdbcTemplate.queryForObject(sql, rowMapper, id);
     }
 
     public List<Reservation> findByScheduleId(Long id) {
@@ -146,5 +167,25 @@ public class ReservationDao {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    public int deleteWaitingById(Long id) {
+        String sql = "DELETE FROM waiting where id = ?;";
+        return jdbcTemplate.update(sql, id);
+    }
+
+    public ReservationWaiting findWaitingById(Long id) {
+        String sql = "SELECT " +
+                "waiting.id, waiting.schedule_id, waiting.member_id, waiting.wait_num, " +
+                "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+                "theme.id, theme.name, theme.desc, theme.price, " +
+                "member.id, member.username, member.password, member.name, member.phone, member.role " +
+                "from waiting " +
+                "inner join schedule on waiting.schedule_id = schedule.id " +
+                "inner join theme on schedule.theme_id = theme.id " +
+                "inner join member on waiting.member_id = member.id " +
+                "where waiting.id = ?;";
+
+        return jdbcTemplate.queryForObject(sql, waitingRowMapper, id);
     }
 }

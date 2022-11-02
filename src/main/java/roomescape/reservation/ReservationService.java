@@ -72,9 +72,25 @@ public class ReservationService {
         }
     }
 
+    public void deleteWaiting(Long memberId, Long id) {
+        ReservationWaiting waiting = findReservationWaiting(id);
+        Member member = findMember(memberId);
+        checkMyReservationWaiting(waiting, member);
+
+        if (reservationDao.deleteWaitingById(id) == 0) {
+            throw new NullPointerException("존재하지 않는 예약 대기입니다.");
+        }
+    }
+
     private void checkMyReservation(Reservation reservation, Member member) {
         if (!reservation.isCreatedBy(member)) {
             throw new AuthenticationException("해당 예약에 대한 권한이 없습니다");
+        }
+    }
+
+    private void checkMyReservationWaiting(ReservationWaiting waiting, Member member) {
+        if (!waiting.isCreatedBy(member)) {
+            throw new AuthenticationException("해당 예약 대기에 대한 권한이 없습니다");
         }
     }
 
@@ -99,6 +115,14 @@ public class ReservationService {
             return reservationDao.findById(reservationId);
         } catch (EmptyResultDataAccessException e) {
             throw new NullPointerException("존재하지 않는 예약입니다.");
+        }
+    }
+
+    private ReservationWaiting findReservationWaiting(Long reservationWaitingId) {
+        try {
+            return reservationDao.findWaitingById(reservationWaitingId);
+        } catch (EmptyResultDataAccessException e) {
+            throw new NullPointerException("존재하지 않는 예약 대기입니다.");
         }
     }
 }

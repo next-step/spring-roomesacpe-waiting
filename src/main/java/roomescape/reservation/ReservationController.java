@@ -40,4 +40,10 @@ public class ReservationController {
         reservationService.deleteById(loginMember.getId(), id);
         return ResponseEntity.noContent().build();
     }
+
+    @DeleteMapping("/reservation-waitings/{id}")
+    public ResponseEntity<Void> deleteReservationWaiting(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
+        reservationService.deleteWaiting(loginMember.getId(), id);
+        return ResponseEntity.noContent().build();
+    }
 }
