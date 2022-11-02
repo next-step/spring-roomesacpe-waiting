@@ -122,4 +122,29 @@ public class ReservationDao {
         String sql = "SELECT COUNT(*) FROM reservation where schedule_id = ?;";
         return jdbcTemplate.queryForObject(sql, Integer.class, scheduleId) > 0;
     }
+
+    public Long saveWaiting(ReservationWaiting reservationWaiting) {
+        String sql = "INSERT INTO waiting (schedule_id, member_id, wait_num) VALUES (?, ?, ?);";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+            ps.setLong(1, reservationWaiting.getSchedule().getId());
+            ps.setLong(2, reservationWaiting.getMember().getId());
+            ps.setInt(3, reservationWaiting.getWaitNum());
+            return ps;
+
+        }, keyHolder);
+
+        return keyHolder.getKey().longValue();
+    }
+
+    public int findMaxWaitNumByScheduleId(Long scheduleId) {
+        String sql = "SELECT MAX(wait_num) FROM waiting where schedule_id = ?;";
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, scheduleId);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }

@@ -1,8 +1,17 @@
-CREATE TABLE RESERVATION
+CREATE TABLE reservation
 (
     id          bigint not null auto_increment,
     schedule_id bigint not null,
     member_id   bigint not null,
+    primary key (id)
+);
+
+CREATE TABLE waiting
+(
+    id          bigint not null auto_increment,
+    schedule_id bigint not null,
+    member_id   bigint not null,
+    wait_num    int    not null,
     primary key (id)
 );
 

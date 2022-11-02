@@ -7,7 +7,6 @@ import roomescape.member.MemberDao;
 import roomescape.schedule.Schedule;
 import roomescape.schedule.ScheduleDao;
 import roomescape.support.DuplicateEntityException;
-import roomescape.theme.Theme;
 import roomescape.theme.ThemeDao;
 import org.springframework.stereotype.Service;
 
@@ -32,14 +31,25 @@ public class ReservationService {
         Member member = findMember(memberId);
         checkReservationAvailable(schedule.getId());
 
-        Reservation newReservation = new Reservation(schedule, member);
-        return reservationDao.save(newReservation);
+        Reservation reservation = new Reservation(schedule, member);
+        return reservationDao.save(reservation);
     }
 
     private void checkReservationAvailable(Long scheduleId) {
         if (reservationDao.existsByScheduleId(scheduleId)) {
             throw new DuplicateEntityException("이미 예약된 스케줄입니다.");
         }
+    }
+
+    public Long createWaiting(Long memberId, ReservationRequest reservationRequest) {
+        Schedule schedule = findSchedule(reservationRequest.getScheduleId());
+        Member member = findMember(memberId);
+        if (reservationDao.existsByScheduleId(schedule.getId())) {
+            int waitNum = reservationDao.findMaxWaitNumByScheduleId(schedule.getId()) + 1;
+            ReservationWaiting reservationWaiting = new ReservationWaiting(schedule, member, waitNum);
+            return reservationDao.saveWaiting(reservationWaiting);
+        }
+        return create(memberId, reservationRequest);
     }
 
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
@@ -63,7 +73,7 @@ public class ReservationService {
     }
 
     private void checkMyReservation(Reservation reservation, Member member) {
-        if (!reservation.isMine(member)) {
+        if (!reservation.isCreatedBy(member)) {
             throw new AuthenticationException("해당 예약에 대한 권한이 없습니다");
         }
     }

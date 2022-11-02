@@ -23,6 +23,12 @@ public class ReservationController {
         return ResponseEntity.created(URI.create("/reservations/" + id)).build();
     }
 
+    @PostMapping("/reservation-waitings")
+    public ResponseEntity<Void> createReservationWaiting(@LoginMemberPrincipal LoginMember loginMember, @RequestBody ReservationRequest reservationRequest) {
+        Long id = reservationService.createWaiting(loginMember.getId(), reservationRequest);
+        return ResponseEntity.created(URI.create("/reservation-waitings/" + id)).build();
+    }
+
     @GetMapping("/reservations")
     public ResponseEntity<List<Reservation>> readReservations(@RequestParam Long themeId, @RequestParam String date) {
         List<Reservation> results = reservationService.findAllByThemeIdAndDate(themeId, date);

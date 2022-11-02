@@ -3,25 +3,23 @@ package roomescape.reservation;
 import roomescape.member.Member;
 import roomescape.schedule.Schedule;
 
-import java.util.Objects;
-
-public class Reservation {
+public class ReservationWaiting {
     private Long id;
     private Schedule schedule;
     private Member member;
+    private int waitNum;
 
-    public Reservation() {
-    }
-
-    public Reservation(Schedule schedule, Member member) {
+    public ReservationWaiting(Schedule schedule, Member member, int waitNum) {
         this.schedule = schedule;
         this.member = member;
+        this.waitNum = waitNum;
     }
 
-    public Reservation(Long id, Schedule schedule, Member member) {
+    public ReservationWaiting(Long id, Schedule schedule, Member member, int waitNum) {
         this.id = id;
         this.schedule = schedule;
         this.member = member;
+        this.waitNum = waitNum;
     }
 
     public Long getId() {
@@ -36,7 +34,7 @@ public class Reservation {
         return member;
     }
 
-    public boolean isCreatedBy(Member member) {
-        return Objects.equals(this.member.getId(), member.getId());
+    public int getWaitNum() {
+        return waitNum;
     }
 }
