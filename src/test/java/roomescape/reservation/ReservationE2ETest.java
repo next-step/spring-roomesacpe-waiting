@@ -220,7 +220,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
-    @DisplayName("예약 대기를 삭제한다")
+    @DisplayName("예약 대기를 취소한다")
     @Test
     void deleteWaiting() {
         createReservation();
@@ -229,20 +229,37 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().delete(waiting.header("Location"))
+                .when().put(waiting.header("Location"))
                 .then().log().all()
                 .extract();
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }
 
-    @DisplayName("없는 예약대기를 삭제하면 예외를 반환한다")
+    @DisplayName("없는 예약대기를 취소하면 예외를 반환한다")
     @Test
     void deleteNotExistWaiting() {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().delete("/reservation-waitings/1")
+                .when().put("/reservation-waitings/1")
+                .then().log().all()
+                .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @DisplayName("취소된 예약대기를 취소하면 예외를 반환한다")
+    @Test
+    void deleteCanceledWaiting() {
+        createReservation();
+        var waiting = createReservationWaiting();
+        cancelWaiting();
+
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .when().put(waiting.header("Location"))
                 .then().log().all()
                 .extract();
 
@@ -258,7 +275,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2("other-token")
-                .when().delete(waiting.header("Location"))
+                .when().put(waiting.header("Location"))
                 .then().log().all()
                 .extract();
 
@@ -283,6 +300,15 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .body(request)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/reservation-waitings")
+                .then().log().all()
+                .extract();
+    }
+
+    private ExtractableResponse<Response> cancelWaiting() {
+        return RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .when().put("/reservation-waitings/1")
                 .then().log().all()
                 .extract();
     }
