@@ -35,8 +35,13 @@ public class Reservation {
         this.status = APPROVED;
     }
 
-    public void canceled() {
-        // TODO: 2022/10/31 do something
+    public void cancel() {
+        if (this.status == WAIT_PAYMENT) {
+            this.status = WITHDRAW;
+        }
+        if (this.status == APPROVED) {
+            this.status = WAIT_ADMIN_CANCEL;
+        }
     }
 
     public int getThemePrice() {

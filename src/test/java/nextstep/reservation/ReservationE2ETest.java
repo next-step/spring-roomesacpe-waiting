@@ -158,7 +158,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().put(reservation.header("Location") + "/cancel")
+                .when().patch(reservation.header("Location") + "/cancel")
                 .then().log().all()
                 .extract();
 
@@ -225,7 +225,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().put("/reservations/1/cancel")
+                .when().patch("/reservations/1/cancel")
                 .then().log().all()
                 .extract();
 
@@ -240,7 +240,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2("other-token")
-                .when().put("/reservations/1/cancel")
+                .when().patch("/reservations/1/cancel")
                 .then().log().all()
                 .extract();
 

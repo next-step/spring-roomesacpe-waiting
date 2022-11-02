@@ -48,7 +48,7 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
-    @PutMapping("/reservations/{id}/cancel")
+    @PatchMapping("/reservations/{id}/cancel")
     public ResponseEntity cancel(@LoginMember UserDetails userDetails, @PathVariable Long id) {
         reservationCommandService.cancelReservation(userDetails, id);
         return ResponseEntity.ok().build();

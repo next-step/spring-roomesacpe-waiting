@@ -24,7 +24,7 @@ public class ReservationUpdateService {
         if (!reservation.sameMember(member)) {
             throw new AuthenticationException();
         }
-        reservation.canceled();
+        reservation.cancel();
         reservationDao.updateStatus(reservation);
     }
 
