@@ -35,6 +35,18 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
+    @GetMapping("/reservations/mine")
+    public ResponseEntity<List<ReservationResponse>> readMyReservations(@LoginMemberPrincipal LoginMember loginMember) {
+        List<ReservationResponse> results = reservationService.findAllByMemberId(loginMember.getId());
+        return ResponseEntity.ok().body(results);
+    }
+
+    @GetMapping("/reservation-waitings/mine")
+    public ResponseEntity<List<ReservationWaitingResponse>> readMyReservationWaitings(@LoginMemberPrincipal LoginMember loginMember) {
+        List<ReservationWaitingResponse> results = reservationService.findWaitingsByMemberId(loginMember.getId());
+        return ResponseEntity.ok().body(results);
+    }
+
     @DeleteMapping("/reservations/{id}")
     public ResponseEntity<Void> deleteReservation(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
         reservationService.deleteById(loginMember.getId(), id);

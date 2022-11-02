@@ -11,6 +11,7 @@ import roomescape.theme.ThemeDao;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
@@ -60,6 +61,20 @@ public class ReservationService {
         }
 
         return reservationDao.findAllByThemeIdAndDate(themeId, date);
+    }
+
+    public List<ReservationResponse> findAllByMemberId(Long memberId) {
+        Member member = findMember(memberId);
+        List<Reservation> reservations = reservationDao.findAllByMemberId(member.getId());
+        return reservations.stream()
+                .map(ReservationResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public List<ReservationWaitingResponse> findWaitingsByMemberId(Long memberId) {
+        Member member = findMember(memberId);
+        List<ReservationWaiting> waitings = reservationDao.findAllWaitingsByMemberId(member.getId());
+        return waitings.stream().map(ReservationWaitingResponse::from).collect(Collectors.toList());
     }
 
     public void deleteById(Long memberId, Long id) {
