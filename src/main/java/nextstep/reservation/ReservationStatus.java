@@ -3,8 +3,9 @@ package nextstep.reservation;
 public enum ReservationStatus {
     WAIT_PAYMENT("입금 대기"),
     APPROVED("예약 승인"),
-    NOT_ACCEPTED("예약 미승인"),
-    WITHDRAW("예약 철회");
+    WITHDRAW("예약 철회"),
+    CANCEL("예약 취소"),
+    WAIT_ADMIN_CANCEL("관리자 예약 취소 대기");
 
     private final String description;
 
