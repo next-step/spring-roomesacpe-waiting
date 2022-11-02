@@ -87,6 +87,47 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
+    @DisplayName("예약 대기를 생성한다")
+    @Test
+    void createWaiting() {
+        createReservation();
+
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .body(request)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/reservation-waitings")
+                .then().log().all()
+                .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+    }
+
+    @DisplayName("예약이 없을 때, 예약대기를 신청할 경우 예약이 생성된다")
+    @Test
+    void createReservationWhenNoWaiting() {
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .body(request)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/reservation-waitings")
+                .then().log().all()
+                .extract();
+
+        var reservations = RestAssured
+                .given().log().all()
+                .param("themeId", themeId)
+                .param("date", DATE)
+                .when().get("/reservations")
+                .then().log().all()
+                .extract().jsonPath().getList(".", Reservation.class);
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        assertThat(reservations).hasSize(1);
+    }
+
     @DisplayName("예약을 조회한다")
     @Test
     void show() {
@@ -101,7 +142,7 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .extract();
 
         List<Reservation> reservations = response.jsonPath().getList(".", Reservation.class);
-        assertThat(reservations.size()).isEqualTo(1);
+        assertThat(reservations).hasSize(1);
     }
 
     @DisplayName("예약을 삭제한다")
