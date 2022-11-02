@@ -1,4 +1,4 @@
-package nextstep.reservation;
+package nextstep.waiting;
 
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
@@ -11,20 +11,20 @@ import org.springframework.stereotype.Component;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
-import java.util.Collections;
-import java.util.List;
+import java.sql.Time;
+import java.util.Objects;
 
 @Component
-public class ReservationDao {
+public class ReservationWaitingDao {
 
     public final JdbcTemplate jdbcTemplate;
 
-    public ReservationDao(JdbcTemplate jdbcTemplate) {
+    public ReservationWaitingDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<Reservation> rowMapper = (resultSet, rowNum) -> new Reservation(
-            resultSet.getLong("reservation.id"),
+    private final RowMapper<ReservationWaiting> rowMapper = (resultSet, rowNum) -> new ReservationWaiting(
+            resultSet.getLong("reservation_waiting.id"),
             new Schedule(
                     resultSet.getLong("schedule.id"),
                     new Theme(
@@ -43,24 +43,28 @@ public class ReservationDao {
                     resultSet.getString("member.name"),
                     resultSet.getString("member.phone"),
                     resultSet.getString("member.role")
-            )
+            ),
+            resultSet.getDate("reservation_waiting.request_date").toLocalDate(),
+            resultSet.getTime("reservation_waiting.request_time").toLocalTime()
     );
 
-    public Long save(Reservation reservation) {
-        String sql = "INSERT INTO reservation (schedule_id, member_id) VALUES (?, ?);";
+    public Long save(ReservationWaiting reservationWaiting) {
+        String sql = "INSERT INTO reservation_waiting (schedule_id, member_id, request_date, request_date) VALUES (?, ?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
-            ps.setLong(1, reservation.getSchedule().getId());
-            ps.setLong(2, reservation.getMember().getId());
+            ps.setLong(1, reservationWaiting.getSchedule().getId());
+            ps.setLong(2, reservationWaiting.getMember().getId());
+            ps.setDate(3, Date.valueOf(reservationWaiting.getRequestDate()));
+            ps.setTime(4, Time.valueOf(reservationWaiting.getRequestTime()));
             return ps;
 
         }, keyHolder);
 
-        return keyHolder.getKey().longValue();
+        return Objects.requireNonNull(keyHolder.getKey()).longValue();
     }
-
+/*
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
         String sql = "SELECT " +
                 "reservation.id, reservation.schedule_id, reservation.member_id, " +
@@ -117,11 +121,5 @@ public class ReservationDao {
         String sql = "DELETE FROM reservation where id = ?;";
         jdbcTemplate.update(sql, id);
     }
-
-    public Boolean existsByScheduleId(Long scheduleId) {
-        String sql = "SELECT EXISTS(SELECT * FROM reservation WHERE schedule_id = ?)";
-        Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, scheduleId);
-
-        return exists;
-    }
+    */
 }

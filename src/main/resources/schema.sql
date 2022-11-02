@@ -3,6 +3,7 @@ CREATE TABLE RESERVATION
     id          bigint not null auto_increment,
     schedule_id bigint not null,
     member_id   bigint not null,
+    canceled bit(1) not null,
     primary key (id)
 );
 
@@ -32,5 +33,15 @@ CREATE TABLE member
     name     varchar(20) not null,
     phone    varchar(20) not null,
     role     varchar(20) not null,
+    primary key (id)
+);
+
+CREATE TABLE reservation_waiting
+(
+    id          bigint not null auto_increment,
+    schedule_id bigint not null,
+    member_id   bigint not null,
+    request_date     date   not null,
+    request_date     time   not null,
     primary key (id)
 );
