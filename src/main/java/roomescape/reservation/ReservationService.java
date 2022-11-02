@@ -87,14 +87,16 @@ public class ReservationService {
         }
     }
 
-    public void deleteWaiting(Long memberId, Long id) {
+    public void cancelWaiting(Long memberId, Long id) {
         ReservationWaiting waiting = findReservationWaiting(id);
         Member member = findMember(memberId);
         checkMyReservationWaiting(waiting, member);
 
-        if (reservationDao.deleteWaitingById(id) == 0) {
-            throw new NullPointerException("존재하지 않는 예약 대기입니다.");
+        ReservationWaiting reservationWaiting = findReservationWaiting(id);
+        if (reservationWaiting.isCanceled()) {
+            throw new IllegalArgumentException("이미 취소된 예약 대기입니다.");
         }
+        reservationDao.cancelWaitingById(reservationWaiting.getId());
     }
 
     private void checkMyReservation(Reservation reservation, Member member) {

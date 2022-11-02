@@ -12,6 +12,7 @@ CREATE TABLE waiting
     schedule_id bigint not null,
     member_id   bigint not null,
     wait_num    int    not null,
+    canceled    boolean not null,
     primary key (id)
 );
 

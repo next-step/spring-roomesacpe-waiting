@@ -67,7 +67,8 @@ public class ReservationDao {
                     resultSet.getString("member.phone"),
                     resultSet.getString("member.role")
             ),
-            resultSet.getInt("waiting.wait_num")
+            resultSet.getInt("waiting.wait_num"),
+            resultSet.getBoolean("waiting.canceled")
     );
 
     public Long save(Reservation reservation) {
@@ -85,21 +86,6 @@ public class ReservationDao {
         return keyHolder.getKey().longValue();
     }
 
-    public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
-        String sql = "SELECT " +
-                "reservation.id, reservation.schedule_id, reservation.member_id, " +
-                "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
-                "theme.id, theme.name, theme.desc, theme.price, " +
-                "member.id, member.username, member.password, member.name, member.phone, member.role " +
-                "from reservation " +
-                "inner join schedule on reservation.schedule_id = schedule.id " +
-                "inner join theme on schedule.theme_id = theme.id " +
-                "inner join member on reservation.member_id = member.id " +
-                "where theme.id = ? and schedule.date = ?;";
-
-        return jdbcTemplate.query(sql, rowMapper, themeId, Date.valueOf(date));
-    }
-
     public Reservation findById(Long id) {
         String sql = "SELECT " +
                 "reservation.id, reservation.schedule_id, reservation.member_id, " +
@@ -113,6 +99,21 @@ public class ReservationDao {
                 "where reservation.id = ?;";
 
         return jdbcTemplate.queryForObject(sql, rowMapper, id);
+    }
+
+    public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
+        String sql = "SELECT " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, " +
+                "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+                "theme.id, theme.name, theme.desc, theme.price, " +
+                "member.id, member.username, member.password, member.name, member.phone, member.role " +
+                "from reservation " +
+                "inner join schedule on reservation.schedule_id = schedule.id " +
+                "inner join theme on schedule.theme_id = theme.id " +
+                "inner join member on reservation.member_id = member.id " +
+                "where theme.id = ? and schedule.date = ?;";
+
+        return jdbcTemplate.query(sql, rowMapper, themeId, Date.valueOf(date));
     }
 
     public List<Reservation> findAllByMemberId(Long memberId) {
@@ -164,7 +165,7 @@ public class ReservationDao {
     }
 
     public Long saveWaiting(ReservationWaiting reservationWaiting) {
-        String sql = "INSERT INTO waiting (schedule_id, member_id, wait_num) VALUES (?, ?, ?);";
+        String sql = "INSERT INTO waiting (schedule_id, member_id, wait_num, canceled) VALUES (?, ?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
@@ -172,6 +173,7 @@ public class ReservationDao {
             ps.setLong(1, reservationWaiting.getSchedule().getId());
             ps.setLong(2, reservationWaiting.getMember().getId());
             ps.setInt(3, reservationWaiting.getWaitNum());
+            ps.setBoolean(4, reservationWaiting.isCanceled());
             return ps;
 
         }, keyHolder);
@@ -188,14 +190,9 @@ public class ReservationDao {
         }
     }
 
-    public int deleteWaitingById(Long id) {
-        String sql = "DELETE FROM waiting where id = ?;";
-        return jdbcTemplate.update(sql, id);
-    }
-
     public ReservationWaiting findWaitingById(Long id) {
         String sql = "SELECT " +
-                "waiting.id, waiting.schedule_id, waiting.member_id, waiting.wait_num, " +
+                "waiting.id, waiting.schedule_id, waiting.member_id, waiting.wait_num, waiting.canceled, " +
                 "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
                 "theme.id, theme.name, theme.desc, theme.price, " +
                 "member.id, member.username, member.password, member.name, member.phone, member.role " +
@@ -210,7 +207,7 @@ public class ReservationDao {
 
     public List<ReservationWaiting> findAllWaitingsByMemberId(Long memberId) {
         String sql = "SELECT " +
-                "waiting.id, waiting.schedule_id, waiting.member_id, waiting.wait_num, " +
+                "waiting.id, waiting.schedule_id, waiting.member_id, waiting.wait_num, waiting.canceled, " +
                 "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
                 "theme.id, theme.name, theme.desc, theme.price, " +
                 "member.id, member.username, member.password, member.name, member.phone, member.role " +
@@ -225,5 +222,10 @@ public class ReservationDao {
         } catch (Exception e) {
             return Collections.emptyList();
         }
+    }
+
+    public void cancelWaitingById(Long id) {
+        String sql = "UPDATE waiting SET canceled = ? WHERE id = ?;";
+        jdbcTemplate.update(sql, true, id);
     }
 }

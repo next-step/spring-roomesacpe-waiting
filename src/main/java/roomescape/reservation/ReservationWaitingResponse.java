@@ -6,11 +6,13 @@ public class ReservationWaitingResponse {
     private Long id;
     private Schedule schedule;
     private int waitNum;
+    private boolean canceled;
 
-    public ReservationWaitingResponse(Long id, Schedule schedule, int waitNum) {
+    public ReservationWaitingResponse(Long id, Schedule schedule, int waitNum, boolean canceled) {
         this.id = id;
         this.schedule = schedule;
         this.waitNum = waitNum;
+        this.canceled = canceled;
     }
 
     public Long getId() {
@@ -25,7 +27,15 @@ public class ReservationWaitingResponse {
         return waitNum;
     }
 
+    public boolean isCanceled() {
+        return canceled;
+    }
+
     public static ReservationWaitingResponse from(ReservationWaiting reservationWaiting) {
-        return new ReservationWaitingResponse(reservationWaiting.getId(), reservationWaiting.getSchedule(), reservationWaiting.getWaitNum());
+        return new ReservationWaitingResponse(
+                reservationWaiting.getId(),
+                reservationWaiting.getSchedule(),
+                reservationWaiting.getWaitNum(),
+                reservationWaiting.isCanceled());
     }
 }
