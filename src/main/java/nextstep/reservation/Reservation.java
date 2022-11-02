@@ -48,4 +48,8 @@ public class Reservation {
     public boolean sameMember(Member member) {
         return member != null && Objects.equals(this.member.getId(), member.getId());
     }
+
+    public void approve() {
+        this.status = ReservationStatus.APPROVE;
+    }
 }

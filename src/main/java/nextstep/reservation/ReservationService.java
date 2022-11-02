@@ -79,4 +79,10 @@ public class ReservationService {
     public List<Reservation> findAllByMember(Member member) {
         return reservationDao.findByMemberId(member.getId());
     }
+
+    public void approveReservation(Long reservationId) {
+        Reservation reservation = reservationDao.findById(reservationId);
+        reservation.approve();
+        reservationDao.update(reservation);
+    }
 }

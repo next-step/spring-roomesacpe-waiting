@@ -141,4 +141,9 @@ public class ReservationDao {
             return Collections.emptyList();
         }
     }
+
+    public void update(Reservation reservation) {
+        String sql = "UPDATE reservation SET schedule_id = ?, member_id = ?, status = ?";
+        jdbcTemplate.update(sql, reservation.getSchedule().getId(), reservation.getMember().getId(), reservation.getStatus().name());
+    }
 }
