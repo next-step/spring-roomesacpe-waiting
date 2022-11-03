@@ -4,6 +4,7 @@ import auth.AuthenticationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import roomescape.member.Member;
 import roomescape.member.MemberDao;
+import roomescape.sales.SalesService;
 import roomescape.schedule.Schedule;
 import roomescape.schedule.ScheduleDao;
 import roomescape.support.DuplicateEntityException;
@@ -15,16 +16,19 @@ import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
-    public final ReservationDao reservationDao;
-    public final ThemeDao themeDao;
-    public final ScheduleDao scheduleDao;
-    public final MemberDao memberDao;
+    private final ReservationDao reservationDao;
+    private final ThemeDao themeDao;
+    private final ScheduleDao scheduleDao;
+    private final MemberDao memberDao;
 
-    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao) {
+    private final SalesService salesService;
+
+    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao, SalesService salesService) {
         this.reservationDao = reservationDao;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
+        this.salesService = salesService;
     }
 
     public Long create(Long memberId, ReservationRequest reservationRequest) {
@@ -48,6 +52,7 @@ public class ReservationService {
 
         if (member.isAdmin()) {
             reservation.approve();
+            salesService.create(reservation.getPrice());
         }
         throw new AuthenticationException("관리자만 이용가능합니다");
     }
