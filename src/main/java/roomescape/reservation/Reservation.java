@@ -48,6 +48,10 @@ public class Reservation {
         return this.status.equals(ReservationStatus.APPROVED);
     }
 
+    public boolean isCancelRequested() {
+        return this.status.equals(ReservationStatus.CANCEL_REQUESTED);
+    }
+
     public boolean isCreatedBy(Member member) {
         return Objects.equals(this.member.getId(), member.getId());
     }

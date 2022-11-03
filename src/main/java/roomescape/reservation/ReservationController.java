@@ -59,6 +59,12 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
 
+    @GetMapping("/reservations/{id}/cancel-approve")
+    public ResponseEntity<Void> approveCancelReservation(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
+        reservationService.approveCancelReservation(loginMember.getId(), id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/reservation-waitings/{id}")
     public ResponseEntity<Void> cancelReservationWaiting(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
         reservationService.cancelWaiting(loginMember.getId(), id);

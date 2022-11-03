@@ -106,7 +106,7 @@ public class ReservationService {
 
     private void cancelReservationByAdmin(Reservation reservation) {
         reservationDao.deleteById(reservation.getId());
-        if (reservation.isApproved()) {
+        if (reservation.isApproved() || reservation.isCancelRequested()) {
             salesService.refund(reservation.getPrice());
             organizeWaitings(reservation.getSchedule().getId());
         }
@@ -129,6 +129,16 @@ public class ReservationService {
         } else {
             reservationDao.deleteById(reservation.getId());
         }
+    }
+
+    public void approveCancelReservation(Long memberId, Long reservationId) {
+        Member member = findMember(memberId);
+        Reservation reservation = findReservation(reservationId);
+
+        if (!member.isAdmin()) {
+            throw new AuthenticationException("관리자만 이용가능합니다");
+        }
+        cancelReservationByAdmin(reservation);
     }
 
     public void deleteById(Long memberId, Long id) {
