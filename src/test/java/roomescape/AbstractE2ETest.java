@@ -17,6 +17,7 @@ public class AbstractE2ETest {
     public static final String PASSWORD = "password";
 
     protected TokenResponse token;
+    protected TokenResponse notAdminToken;
 
     @BeforeEach
     protected void setUp() {
@@ -38,7 +39,24 @@ public class AbstractE2ETest {
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract();
-
         token = response.as(TokenResponse.class);
+
+        var notAdminMemberBody = new MemberRequest("NOT_ADMIN", PASSWORD, "name", "010-1234-5678", "NONE");
+        RestAssured
+                .given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(notAdminMemberBody)
+                .when().post("/members")
+                .then().log().all()
+                .statusCode(HttpStatus.CREATED.value());
+
+        notAdminToken = RestAssured
+                .given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(new TokenRequest("NOT_ADMIN", PASSWORD))
+                .when().post("/login/token")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract().as(TokenResponse.class);
     }
 }

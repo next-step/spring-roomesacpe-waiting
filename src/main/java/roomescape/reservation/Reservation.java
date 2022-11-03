@@ -44,10 +44,6 @@ public class Reservation {
         return schedule.getTheme().getPrice();
     }
 
-    public void approve() {
-        this.status = ReservationStatus.APPROVED;
-    }
-
     public boolean isCreatedBy(Member member) {
         return Objects.equals(this.member.getId(), member.getId());
     }

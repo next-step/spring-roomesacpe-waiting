@@ -177,6 +177,36 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(reservations.size()).isEqualTo(0);
     }
 
+    @DisplayName("예약을 승인한다")
+    @Test
+    void approve() {
+        var reservation = createReservation();
+
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .when().patch(reservation.header("Location") + "/approve")
+                .then().log().all()
+                .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @DisplayName("관리자가 아닌 사람이 예약을 승인하면, 예외를 반환한다")
+    @Test
+    void failToApprove() {
+        var reservation = createReservation();
+
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(notAdminToken.getAccessToken())
+                .when().patch(reservation.header("Location") + "/approve")
+                .then().log().all()
+                .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
     @DisplayName("예약을 삭제한다")
     @Test
     void delete() {

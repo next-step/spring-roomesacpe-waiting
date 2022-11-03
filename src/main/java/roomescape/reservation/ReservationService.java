@@ -50,11 +50,11 @@ public class ReservationService {
         Member member = findMember(memberId);
         Reservation reservation = findReservation(reservationId);
 
-        if (member.isAdmin()) {
-            reservation.approve();
-            salesService.create(reservation.getPrice());
+        if (!member.isAdmin()) {
+            throw new AuthenticationException("관리자만 이용가능합니다");
         }
-        throw new AuthenticationException("관리자만 이용가능합니다");
+        reservationDao.updateReservationStatusById(ReservationStatus.APPROVED.name(), reservationId);
+        salesService.create(reservation.getPrice());
     }
 
     public Long createWaiting(Long memberId, ReservationRequest reservationRequest) {
