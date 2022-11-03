@@ -47,15 +47,21 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
-    @DeleteMapping("/reservations/{id}")
-    public ResponseEntity<Void> deleteReservation(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
-        reservationService.deleteById(loginMember.getId(), id);
-        return ResponseEntity.noContent().build();
+    @PatchMapping("/reservations/{id}/approve")
+    public ResponseEntity<Void> approveReservation(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
+        reservationService.approveReservation(loginMember.getId(), id);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/reservation-waitings/{id}")
     public ResponseEntity<Void> cancelReservationWaiting(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
         reservationService.cancelWaiting(loginMember.getId(), id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/reservations/{id}")
+    public ResponseEntity<Void> deleteReservation(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
+        reservationService.deleteById(loginMember.getId(), id);
         return ResponseEntity.noContent().build();
     }
 }

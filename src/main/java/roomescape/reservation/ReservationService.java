@@ -42,6 +42,16 @@ public class ReservationService {
         }
     }
 
+    public void approveReservation(Long memberId, Long reservationId) {
+        Member member = findMember(memberId);
+        Reservation reservation = findReservation(reservationId);
+
+        if (member.isAdmin()) {
+            reservation.approve();
+        }
+        throw new AuthenticationException("관리자만 이용가능합니다");
+    }
+
     public Long createWaiting(Long memberId, ReservationRequest reservationRequest) {
         Schedule schedule = findSchedule(reservationRequest.getScheduleId());
         Member member = findMember(memberId);

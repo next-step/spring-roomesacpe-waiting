@@ -52,5 +52,7 @@ public class Member {
         return role;
     }
 
-
+    public boolean isAdmin() {
+        return this.role.equals("ADMIN");
+    }
 }

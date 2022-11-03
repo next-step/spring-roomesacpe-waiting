@@ -43,7 +43,8 @@ public class ReservationDao {
                     resultSet.getString("member.name"),
                     resultSet.getString("member.phone"),
                     resultSet.getString("member.role")
-            )
+            ),
+            ReservationStatus.valueOf(resultSet.getString("status"))
     );
 
     private final RowMapper<ReservationWaiting> waitingRowMapper = (resultSet, rowNum) -> new ReservationWaiting(

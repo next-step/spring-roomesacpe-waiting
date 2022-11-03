@@ -9,19 +9,20 @@ public class Reservation {
     private Long id;
     private Schedule schedule;
     private Member member;
+    private ReservationStatus status;
 
     public Reservation() {
     }
 
     public Reservation(Schedule schedule, Member member) {
-        this.schedule = schedule;
-        this.member = member;
+        this(null, schedule, member, ReservationStatus.STANDBY);
     }
 
-    public Reservation(Long id, Schedule schedule, Member member) {
+    public Reservation(Long id, Schedule schedule, Member member, ReservationStatus status) {
         this.id = id;
         this.schedule = schedule;
         this.member = member;
+        this.status = status;
     }
 
     public Long getId() {
@@ -34,6 +35,17 @@ public class Reservation {
 
     public Member getMember() {
         return member;
+    }
+
+    public ReservationStatus getStatus() {
+        return status;
+    }
+    public int getPrice() {
+        return schedule.getTheme().getPrice();
+    }
+
+    public void approve() {
+        this.status = ReservationStatus.APPROVED;
     }
 
     public boolean isCreatedBy(Member member) {
