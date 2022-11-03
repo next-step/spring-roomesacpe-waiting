@@ -1,5 +1,7 @@
 package roomescape.member;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class Member {
     private Long id;
     private String username;
@@ -52,6 +54,7 @@ public class Member {
         return role;
     }
 
+    @JsonIgnore
     public boolean isAdmin() {
         return this.role.equals("ADMIN");
     }

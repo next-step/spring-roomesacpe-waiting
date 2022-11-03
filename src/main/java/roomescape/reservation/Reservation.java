@@ -40,6 +40,7 @@ public class Reservation {
     public ReservationStatus getStatus() {
         return status;
     }
+
     public int getPrice() {
         return schedule.getTheme().getPrice();
     }

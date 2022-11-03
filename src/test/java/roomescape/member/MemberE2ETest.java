@@ -78,7 +78,7 @@ class MemberE2ETest {
 
     @DisplayName("내 정보를 조회한다")
     @Test
-    void showThemes() {
+    void showMe() {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())

@@ -12,10 +12,10 @@ import org.springframework.http.MediaType;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ThemeE2ETest extends AbstractE2ETest {
+class ThemeE2ETest extends AbstractE2ETest {
     @DisplayName("테마를 생성한다")
     @Test
-    public void create() {
+    void create() {
         ThemeRequest body = new ThemeRequest("테마이름", "테마설명", 22000);
         RestAssured
                 .given().log().all()
@@ -29,9 +29,8 @@ public class ThemeE2ETest extends AbstractE2ETest {
 
     @DisplayName("어드민이 아닌 사람이 테마를 생성한다")
     @Test
-    public void createFromNormalUser() {
-
-        MemberRequest memberBody = new MemberRequest(USERNAME+1, PASSWORD, "name", "010-1234-5678", "");
+    void createFromNormalUser() {
+        MemberRequest memberBody = new MemberRequest(USERNAME + 1, PASSWORD, "name", "010-1234-5678", "");
         RestAssured
                 .given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -40,7 +39,7 @@ public class ThemeE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .statusCode(HttpStatus.CREATED.value());
 
-        TokenRequest tokenBody = new TokenRequest(USERNAME+1, PASSWORD);
+        TokenRequest tokenBody = new TokenRequest(USERNAME + 1, PASSWORD);
         var response = RestAssured
                 .given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -65,7 +64,7 @@ public class ThemeE2ETest extends AbstractE2ETest {
 
     @DisplayName("테마 목록을 조회한다")
     @Test
-    public void showThemes() {
+    void showThemes() {
         createTheme();
 
         var response = RestAssured
