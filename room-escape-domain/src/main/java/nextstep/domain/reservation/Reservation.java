@@ -9,6 +9,7 @@ public class Reservation {
     private final Identity id;
     private final Schedule schedule;
     private final LocalDateTime reservationTime;
+    private final ReservationStatus reservationStatus = ReservationStatus.RESERVATION;
     private final String name;
 
     public Reservation(Identity id, Schedule schedule, LocalDateTime reservationTime, String name) {
@@ -16,6 +17,10 @@ public class Reservation {
         this.schedule = schedule;
         this.reservationTime = reservationTime;
         this.name = name;
+    }
+
+    public Reservation(Identity id, Schedule schedule, String name) {
+        this(id, schedule, LocalDateTime.now(), name);
     }
 
     public Identity getId() {

@@ -38,7 +38,7 @@ public class ReservationDao {
 
     public Long save(ReservationEntity reservationEntity) {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("scheduleId", reservationEntity.getScheduleEntity());
+        parameters.put("scheduleId", reservationEntity.getScheduleEntity().getId());
         parameters.put("reservationTime", reservationEntity.getReservationTime());
         parameters.put("name", reservationEntity.getName());
 

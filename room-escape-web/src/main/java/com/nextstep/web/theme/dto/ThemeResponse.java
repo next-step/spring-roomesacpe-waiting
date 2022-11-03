@@ -4,6 +4,7 @@ import com.nextstep.web.theme.repository.entity.ThemeEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import nextstep.domain.theme.Theme;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -22,6 +23,10 @@ public class ThemeResponse {
         this.name = name;
         this.desc = desc;
         this.price = price;
+    }
+
+    public static ThemeResponse of(Theme theme) {
+        return new ThemeResponse(theme.getId().getNumber(), theme.getName(), theme.getDesc(), theme.getPrice());
     }
 
     public static ThemeResponse of(ThemeEntity themeEntity) {

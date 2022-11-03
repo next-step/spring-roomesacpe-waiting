@@ -22,6 +22,11 @@ public class ScheduleEntity {
         this.time = time;
     }
 
+    public static ScheduleEntity of(Schedule schedule) {
+        return new ScheduleEntity(schedule.getId().getNumber(), ThemeEntity.of(schedule.getTheme()),
+                schedule.getDate().toString(), schedule.getDate().toString());
+    }
+
     public Schedule fromThis() {
         return new Schedule(new Identity(id), themeEntity.fromThis(), LocalDate.parse(date), LocalTime.parse(time));
     }

@@ -6,6 +6,7 @@ import com.nextstep.web.theme.repository.entity.ThemeEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import nextstep.domain.schedule.Schedule;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
@@ -30,6 +31,11 @@ public class ScheduleResponse {
         this.date = date;
         this.time = time;
     }
+
+    public static ScheduleResponse from(Schedule schedule) {
+        return new ScheduleResponse(schedule.getId().getNumber(), ThemeResponse.of(schedule.getTheme()), schedule.getDate(), schedule.getTime());
+    }
+
 
     public static List<ScheduleResponse> toListFromEntity(List<ScheduleEntity> scheduleEntities, ThemeEntity themeEntity) {
         return scheduleEntities.stream()
