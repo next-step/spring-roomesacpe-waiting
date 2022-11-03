@@ -16,7 +16,7 @@ public class AbstractE2ETest {
     public static final String USERNAME = "username";
     public static final String PASSWORD = "password";
 
-    protected TokenResponse token;
+    protected TokenResponse adminToken;
     protected TokenResponse notAdminToken;
 
     @BeforeEach
@@ -39,7 +39,7 @@ public class AbstractE2ETest {
                 .then().log().all()
                 .statusCode(HttpStatus.OK.value())
                 .extract();
-        token = response.as(TokenResponse.class);
+        adminToken = response.as(TokenResponse.class);
 
         var notAdminMemberBody = new MemberRequest("NOT_ADMIN", PASSWORD, "name", "010-1234-5678", "NONE");
         RestAssured

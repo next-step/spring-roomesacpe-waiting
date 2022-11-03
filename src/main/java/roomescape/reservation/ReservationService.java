@@ -69,14 +69,15 @@ public class ReservationService {
         return create(memberId, reservationRequest);
     }
 
-    public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
+    public List<ReservationResponse> findAllByThemeIdAndDate(Long themeId, String date) {
         try {
             themeDao.findById(themeId);
         } catch (EmptyResultDataAccessException e) {
             throw new NullPointerException("존재하지 않는 테마입니다.");
         }
 
-        return reservationDao.findAllByThemeIdAndDate(themeId, date);
+        var reservations = reservationDao.findAllByThemeIdAndDate(themeId, date);
+        return reservations.stream().map(ReservationResponse::from).collect(Collectors.toList());
     }
 
     public List<ReservationResponse> findAllByMemberId(Long memberId) {

@@ -30,8 +30,8 @@ public class ReservationController {
     }
 
     @GetMapping("/reservations")
-    public ResponseEntity<List<Reservation>> readReservations(@RequestParam Long themeId, @RequestParam String date) {
-        List<Reservation> results = reservationService.findAllByThemeIdAndDate(themeId, date);
+    public ResponseEntity<List<ReservationResponse>> readReservations(@RequestParam Long themeId, @RequestParam String date) {
+        List<ReservationResponse> results = reservationService.findAllByThemeIdAndDate(themeId, date);
         return ResponseEntity.ok().body(results);
     }
 
