@@ -11,6 +11,7 @@ import roomescape.support.DuplicateEntityException;
 import roomescape.theme.ThemeDao;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,6 +91,44 @@ public class ReservationService {
         Member member = findMember(memberId);
         List<ReservationWaiting> waitings = reservationDao.findAllWaitingsByMemberId(member.getId());
         return waitings.stream().map(ReservationWaitingResponse::from).collect(Collectors.toList());
+    }
+
+    public void cancelReservation(Long memberId, Long reservationId) {
+        Member member = findMember(memberId);
+        Reservation reservation = findReservation(reservationId);
+
+        if (member.isAdmin()) {
+            cancelReservationByAdmin(reservation);
+        } else {
+            cancelReservationByUser(reservation, member);
+        }
+    }
+
+    private void cancelReservationByAdmin(Reservation reservation) {
+        reservationDao.deleteById(reservation.getId());
+        if (reservation.isApproved()) {
+            salesService.refund(reservation.getPrice());
+            organizeWaitings(reservation.getSchedule().getId());
+        }
+    }
+
+    private void organizeWaitings(Long scheduleId) {
+        List<ReservationWaiting> waitings = reservationDao.findAllWaitingsByScheduleId(scheduleId);
+        waitings.stream().min(Comparator.comparing(ReservationWaiting::getWaitNum))
+                .ifPresent(it -> {
+                    reservationDao.save(new Reservation(it.getSchedule(), it.getMember()));
+                    reservationDao.deleteWaitingById(it.getId());
+                });
+    }
+
+    private void cancelReservationByUser(Reservation reservation, Member member) {
+        checkMyReservation(reservation, member);
+
+        if (reservation.isApproved()) {
+            reservationDao.updateReservationStatusById(ReservationStatus.CANCEL_REQUESTED.name(), reservation.getId());
+        } else {
+            reservationDao.deleteById(reservation.getId());
+        }
     }
 
     public void deleteById(Long memberId, Long id) {

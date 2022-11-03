@@ -53,6 +53,12 @@ public class ReservationController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/reservations/{id}/cancel")
+    public ResponseEntity<Void> cancelReservation(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
+        reservationService.cancelReservation(loginMember.getId(), id);
+        return ResponseEntity.ok().build();
+    }
+
     @PutMapping("/reservation-waitings/{id}")
     public ResponseEntity<Void> cancelReservationWaiting(@LoginMemberPrincipal LoginMember loginMember, @PathVariable Long id) {
         reservationService.cancelWaiting(loginMember.getId(), id);

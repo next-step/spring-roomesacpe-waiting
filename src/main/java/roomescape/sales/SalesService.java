@@ -13,4 +13,8 @@ public class SalesService {
     public void create(int amount) {
         salesDao.save(new Sales(amount));
     }
+
+    public void refund(int amount) {
+        salesDao.save(new Sales(-amount));
+    }
 }

@@ -231,8 +231,32 @@ public class ReservationDao {
         }
     }
 
+    public List<ReservationWaiting> findAllWaitingsByScheduleId(Long scheduleId) {
+        String sql = "SELECT " +
+                "waiting.id, waiting.schedule_id, waiting.member_id, waiting.wait_num, waiting.canceled, " +
+                "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+                "theme.id, theme.name, theme.desc, theme.price, " +
+                "member.id, member.username, member.password, member.name, member.phone, member.role " +
+                "from waiting " +
+                "inner join schedule on waiting.schedule_id = schedule.id " +
+                "inner join theme on schedule.theme_id = theme.id " +
+                "inner join member on waiting.member_id = member.id " +
+                "where schedule.id = ?;";
+
+        try {
+            return jdbcTemplate.query(sql, waitingRowMapper, scheduleId);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
     public void cancelWaitingById(Long id) {
         String sql = "UPDATE waiting SET canceled = ? WHERE id = ?;";
         jdbcTemplate.update(sql, true, id);
+    }
+
+    public void deleteWaitingById(Long id) {
+        String sql = "DELETE FROM waiting where id = ?;";
+        jdbcTemplate.update(sql, id);
     }
 }
