@@ -18,7 +18,7 @@ public class ReservationUpdateService {
         this.memberDao = memberDao;
     }
 
-    public void cancelById(Long memberId, Long reservationId) {
+    public Reservation cancelById(Long memberId, Long reservationId) {
         Reservation reservation = reservationDao.findById(reservationId);
         Member member = memberDao.findById(memberId);
         if (!reservation.sameMember(member)) {
@@ -26,6 +26,21 @@ public class ReservationUpdateService {
         }
         reservation.cancel();
         reservationDao.updateStatus(reservation);
+        return reservation;
+    }
+
+    public Reservation adminCancelById(Long reservationId) {
+        Reservation reservation = reservationDao.findById(reservationId);
+        reservation.cancelByAdmin();
+        reservationDao.updateStatus(reservation);
+        return reservation;
+    }
+
+    public Reservation cancelApproveById(Long reservationId) {
+        Reservation reservation = reservationDao.findById(reservationId);
+        reservation.cancelApproveByAdmin();
+        reservationDao.updateStatus(reservation);
+        return reservation;
     }
 
     public void approveById(Long reservationId) {

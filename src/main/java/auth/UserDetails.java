@@ -17,6 +17,10 @@ public class UserDetails {
         return !this.password.equals(password);
     }
 
+    public boolean checkNotAdmin() {
+        return !role.equals("ADMIN");
+    }
+
     public Long getId() {
         return id;
     }

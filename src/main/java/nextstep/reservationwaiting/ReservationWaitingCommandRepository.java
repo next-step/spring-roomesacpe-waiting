@@ -20,18 +20,18 @@ public class ReservationWaitingCommandRepository {
             resultSet.getLong("reservation_waiting.id"),
             resultSet.getLong("reservation_waiting.schedule_id"),
             resultSet.getLong("reservation_waiting.member_id"),
-            resultSet.getBoolean("reservation_waiting.canceled")
+            ReservationWaitingStatus.valueOf(resultSet.getString("reservation_waiting.status"))
     );
 
     public Long save(ReservationWaiting reservationWaiting) {
-        String sql = "INSERT INTO reservation_waiting (schedule_id, member_id, canceled) VALUES (?, ?, ?);";
+        String sql = "INSERT INTO reservation_waiting (schedule_id, member_id, status) VALUES (?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setLong(1, reservationWaiting.getScheduleId());
             ps.setLong(2, reservationWaiting.getMemberId());
-            ps.setBoolean(3, reservationWaiting.isCanceled());
+            ps.setString(3, reservationWaiting.getStatusName());
             return ps;
 
         }, keyHolder);
@@ -40,8 +40,8 @@ public class ReservationWaitingCommandRepository {
     }
 
     public void updateCanceled(ReservationWaiting reservationWaiting) {
-        String sql = "UPDATE reservation_waiting SET canceled = ? WHERE id = ?;";
-        jdbcTemplate.update(sql, reservationWaiting.isCanceled(), reservationWaiting.getId());
+        String sql = "UPDATE reservation_waiting SET status = ? WHERE id = ?;";
+        jdbcTemplate.update(sql, reservationWaiting.getStatusName(), reservationWaiting.getId());
     }
 
     public ReservationWaiting findById(Long id) {

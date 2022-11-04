@@ -1,9 +1,6 @@
 package nextstep.reservation;
 
-import auth.AuthenticationException;
-import auth.LoginAdmin;
-import auth.LoginMember;
-import auth.UserDetails;
+import auth.*;
 import java.net.URI;
 import java.util.List;
 import org.springframework.http.HttpStatus;
@@ -31,8 +28,8 @@ public class ReservationController {
     }
 
     @PatchMapping("/reservations/{id}/approve")
-    public ResponseEntity approveReservation(@LoginAdmin UserDetails adminDetails, @PathVariable Long id) {
-        reservationCommandService.approveReservation(id);
+    public ResponseEntity approveReservation(@LoginMember UserDetails userDetails, @PathVariable Long id) {
+        reservationCommandService.approveReservation(userDetails, id);
         return ResponseEntity.ok().build();
     }
 
@@ -51,6 +48,12 @@ public class ReservationController {
     @PatchMapping("/reservations/{id}/cancel")
     public ResponseEntity cancel(@LoginMember UserDetails userDetails, @PathVariable Long id) {
         reservationCommandService.cancelReservation(userDetails, id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/reservations/{id}/cancel-approve")
+    public ResponseEntity cancelApprove(@LoginMember UserDetails userDetails, @PathVariable Long id) {
+        reservationCommandService.cancelApproveReservation(userDetails, id);
         return ResponseEntity.ok().build();
     }
 

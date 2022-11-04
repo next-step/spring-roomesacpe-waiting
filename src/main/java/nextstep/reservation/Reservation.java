@@ -44,6 +44,25 @@ public class Reservation {
         }
     }
 
+    public void cancelByAdmin() {
+        if (this.status == WAIT_PAYMENT) {
+            this.status = CANCEL;
+        }
+        if (this.status == APPROVED) {
+            this.status = CANCEL;
+        }
+    }
+
+    public void cancelApproveByAdmin() {
+        if (this.status == WAIT_ADMIN_CANCEL) {
+            this.status = WITHDRAW;
+        }
+    }
+
+    public boolean isWithDrawOrCancel() {
+        return this.status == WITHDRAW || this.status == CANCEL;
+    }
+
     public int getThemePrice() {
         return schedule.getThemePrice();
     }

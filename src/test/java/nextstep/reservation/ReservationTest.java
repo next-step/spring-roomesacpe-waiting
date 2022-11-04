@@ -29,6 +29,30 @@ class ReservationTest {
         assertThat(reservation.getStatus()).isEqualTo(WAIT_ADMIN_CANCEL);
     }
 
+    @DisplayName("예약이 입금 대기 상태일 때 관리자가 취소를 승인하면 예약이 취소된다.")
+    @Test
+    void cancelByAdminFromWaitPayment() {
+        Reservation reservation = new Reservation(1L, schedule(), member(), WAIT_PAYMENT);
+        reservation.cancelByAdmin();
+        assertThat(reservation.getStatus()).isEqualTo(CANCEL);
+    }
+
+    @DisplayName("예약이 승인 상태일 때 관리자가 취소를 승인하면 예약이 취소된다.")
+    @Test
+    void cancelByAdminFromApproved() {
+        Reservation reservation = new Reservation(1L, schedule(), member(), APPROVED);
+        reservation.cancelByAdmin();
+        assertThat(reservation.getStatus()).isEqualTo(CANCEL);
+    }
+
+    @DisplayName("예약이 관리자 취소 대기 상태일 때 관리자가 취소를 승인하면 예약이 철회된다.")
+    @Test
+    void cancelApproveByAdminFromWaitAdminCancel() {
+        Reservation reservation = new Reservation(1L, schedule(), member(), WAIT_ADMIN_CANCEL);
+        reservation.cancelApproveByAdmin();
+        assertThat(reservation.getStatus()).isEqualTo(WITHDRAW);
+    }
+
     private Member member() {
         return new Member("hyeon9mak", "1234", "최현구", "010-1234-5678", "USER");
     }

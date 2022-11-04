@@ -28,12 +28,6 @@ public class UserDetailsDao implements UserDetailsRepository {
     }
 
     @Override
-    public UserDetails findAdminById(Long id) {
-        String sql = "SELECT id, username, password, role from member where id = ? and role = ?;";
-        return jdbcTemplate.queryForObject(sql, rowMapper, id, "ADMIN");
-    }
-
-    @Override
     public UserDetails findByUsername(String username) {
         String sql = "SELECT id, username, password, role from member where username = ?;";
         return jdbcTemplate.queryForObject(sql, rowMapper, username);

@@ -1,7 +1,5 @@
 package nextstep.sales;
 
-import static nextstep.sales.SalesStatus.SALES;
-
 import java.util.Objects;
 
 public class Sales {
@@ -11,8 +9,8 @@ public class Sales {
     private SalesStatus status;
     private Long reservationId;
 
-    public Sales(int price, Long reservationId) {
-        this(null, price, SALES, reservationId);
+    public Sales(int price, SalesStatus status, Long reservationId) {
+        this(null, price, status, reservationId);
     }
 
     public Sales(Long id, int price, SalesStatus status, Long reservationId) {

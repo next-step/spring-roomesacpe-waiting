@@ -31,9 +31,4 @@ public class LoginService {
         Long id = Long.parseLong(jwtTokenProvider.getPrincipal(credential));
         return userDetailsRepository.findMemberById(id);
     }
-
-    public UserDetails extractAdmin(String credential) {
-        Long id = Long.parseLong(jwtTokenProvider.getPrincipal(credential));
-        return userDetailsRepository.findAdminById(id);
-    }
 }
