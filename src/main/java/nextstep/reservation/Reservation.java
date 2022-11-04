@@ -75,6 +75,10 @@ public class Reservation {
         return schedule;
     }
 
+    public Long getScheduleId() {
+        return schedule.getId();
+    }
+
     public Member getMember() {
         return member;
     }

@@ -2,7 +2,8 @@ package nextstep.reservation;
 
 import auth.AuthenticationException;
 import auth.UserDetails;
-import nextstep.reservationwaiting.ReservationWaitingRepresentationRepository;
+import nextstep.reservationwaiting.ReservationWaiting;
+import nextstep.reservationwaiting.ReservationWaitingCommandRepository;
 import nextstep.sales.SalesCreateService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,18 +14,18 @@ public class ReservationCommandService {
 
     private final ReservationCreateService reservationCreateService;
     private final ReservationUpdateService reservationUpdateService;
-    private final ReservationWaitingRepresentationRepository reservationWaitingRepresentationRepository;
+    private final ReservationWaitingCommandRepository reservationWaitingCommandRepository;
     private final SalesCreateService salesCreateService;
 
     public ReservationCommandService(
         ReservationCreateService reservationCreateService,
         ReservationUpdateService reservationUpdateService,
-        ReservationWaitingRepresentationRepository reservationWaitingRepresentationRepository,
+        ReservationWaitingCommandRepository reservationWaitingCommandRepository,
         SalesCreateService salesCreateService
     ) {
         this.reservationCreateService = reservationCreateService;
         this.reservationUpdateService = reservationUpdateService;
-        this.reservationWaitingRepresentationRepository = reservationWaitingRepresentationRepository;
+        this.reservationWaitingCommandRepository = reservationWaitingCommandRepository;
         this.salesCreateService = salesCreateService;
     }
 
@@ -56,17 +57,29 @@ public class ReservationCommandService {
         if (reservation.isWithDrawOrCancel()) {
             salesCreateService.createRefundByReservation(reservation);
         }
+        promoteWaitingIfExists(reservation);
     }
 
-    public void adminCancelReservation(Long reservationId) {
+    private void adminCancelReservation(Long reservationId) {
         Reservation reservation = reservationUpdateService.adminCancelById(reservationId);
         salesCreateService.createRefundByReservation(reservation);
+        promoteWaitingIfExists(reservation);
     }
 
     public void cancelApproveReservation(UserDetails userDetails, Long reservationId) {
         if (userDetails.checkNotAdmin()) {
             throw new AuthenticationException();
         }
-        reservationUpdateService.cancelApproveById(reservationId);
+        Reservation reservation = reservationUpdateService.cancelApproveById(reservationId);
+        promoteWaitingIfExists(reservation);
+    }
+
+    private void promoteWaitingIfExists(Reservation reservation) {
+        ReservationWaiting waiting = reservationWaitingCommandRepository.findFirstWaitingReservationWaitingByScheduleId(reservation.getScheduleId());
+        if (waiting != null) {
+            waiting.promote();
+            reservationWaitingCommandRepository.updateStatus(waiting);
+            reservationCreateService.create(waiting.getMemberId(), waiting.getScheduleId());
+        }
     }
 }

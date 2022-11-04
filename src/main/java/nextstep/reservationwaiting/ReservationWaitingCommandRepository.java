@@ -1,5 +1,7 @@
 package nextstep.reservationwaiting;
 
+import static nextstep.reservationwaiting.ReservationWaitingStatus.WAITING;
+
 import java.sql.PreparedStatement;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -39,7 +41,7 @@ public class ReservationWaitingCommandRepository {
         return keyHolder.getKey().longValue();
     }
 
-    public void updateCanceled(ReservationWaiting reservationWaiting) {
+    public void updateStatus(ReservationWaiting reservationWaiting) {
         String sql = "UPDATE reservation_waiting SET status = ? WHERE id = ?;";
         jdbcTemplate.update(sql, reservationWaiting.getStatusName(), reservationWaiting.getId());
     }
@@ -47,5 +49,14 @@ public class ReservationWaitingCommandRepository {
     public ReservationWaiting findById(Long id) {
         String sql = "SELECT * FROM reservation_waiting WHERE id = ?;";
         return jdbcTemplate.queryForObject(sql, rowMapper, id);
+    }
+
+    public ReservationWaiting findFirstWaitingReservationWaitingByScheduleId(Long scheduleId) {
+        String sql = "SELECT * FROM reservation_waiting WHERE schedule_id = ? AND status = ? ORDER BY id ASC LIMIT 1;";
+        try {
+            return jdbcTemplate.queryForObject(sql, rowMapper, scheduleId, WAITING.name());
+        } catch (Exception e) {
+            return null;
+        }
     }
 }
