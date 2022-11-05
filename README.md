@@ -130,3 +130,65 @@ authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjYzMjk5MDcwL
 ```http request
 HTTP/1.1 204
 ```
+
+## 3단계 - 예약 승인
+
+### 기능 요구사항
+
+- [ ] 예약 승인
+    - [ ] 예약 사용자가 예약금을 입금을 하면 예약 승인을 한다
+    - [ ] 이 때 예약금이 매출로 기록된다.
+    - [ ] 예약의 상태가 입금 대기에서 예약 승인 상태로 변경된다.
+- [ ] 사용자 예약 취소
+    - [ ] 사용자가 예약을 취소하는 경우 예약 미승인 상태와 승인 상태로 구분이 된다.
+    - [ ] 예약 미승인 상태면 예약의 상태가 예약 철회로 변경된다.
+    - [ ] 예약이 승인된 상태라면 관리자의 승인이 필요하다.
+        - [ ] 관리자가 예약 취소를 승인하면 예약 취소가 진행된다.
+        - [ ] 매출에 환불이 기록된다.
+        - [ ] 예약의 상태가 예약 철회로 변경된다.
+        - [ ] 예약 대기자가 있는 경우 예약자로 변경할 수 있다.
+- [ ] 관리자 예약 취소
+    - [ ] 관리자도 예약을 취소할 수 있는데 이 역시 예약 미승인 상태와 승인 상태로 구분이 된다.
+    - [ ] 예약 미승인 상태면 예약의 상태가 예약 취소된다.
+        - [ ] 사용자 예약 취소와 같은 프로세스를 진행한다.
+
+### 프로그래밍 요구사항
+
+- [ ] 트랜잭션을 설정하고 적절한 옵션을 이용한다.
+
+### API 설계
+
+#### 예약 승인 (관리자)
+
+```http request
+PATCH /reservations/1/approve HTTP/1.1
+authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjYzMjk4NTkwLCJleHAiOjE2NjMzMDIxOTAsInJvbGUiOiJBRE1JTiJ9.-OO1QxEpcKhmC34HpmuBhlnwhKdZ39U8q91QkTdH9i0
+content-type: application/json; charset=UTF-8
+host: localhost:8080
+```
+
+```http request
+HTTP/1.1 200
+```
+
+#### 예약 취소 (사용자 + 관리자)
+
+```http request
+PATCH /reservations/1/cancel HTTP/1.1
+authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjYzMjk4NTkwLCJleHAiOjE2NjMzMDIxOTAsInJvbGUiOiJBRE1JTiJ9.-OO1QxEpcKhmC34HpmuBhlnwhKdZ39U8q91QkTdH9i0
+```
+
+```http request
+HTTP/1.1 200
+```
+
+#### 예약 취소 승인 (관리자)
+
+```http request
+GET /reservations/1/cancel-approve HTTP/1.1
+authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjYzMjk4NTkwLCJleHAiOjE2NjMzMDIxOTAsInJvbGUiOiJBRE1JTiJ9.-OO1QxEpcKhmC34HpmuBhlnwhKdZ39U8q91QkTdH9i0
+```
+
+```http request
+HTTP/1.1 200
+```
