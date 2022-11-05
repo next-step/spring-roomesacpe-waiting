@@ -1,6 +1,7 @@
 package nextstep.theme;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -13,10 +14,12 @@ public class ThemeService {
         this.themeDao = themeDao;
     }
 
+    @Transactional
     public Long create(ThemeRequest themeRequest) {
         return themeDao.save(themeRequest.toEntity());
     }
 
+    @Transactional(readOnly = true)
     public List<ThemeResponse> findAll() {
         List<Theme> themes = themeDao.findAll();
         return themes.stream()
@@ -24,6 +27,7 @@ public class ThemeService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional
     public void delete(Long id) {
         Theme theme = themeDao.findById(id);
         if (theme == null) {

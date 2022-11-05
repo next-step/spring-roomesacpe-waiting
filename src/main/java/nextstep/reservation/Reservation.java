@@ -40,7 +40,15 @@ public class Reservation {
         return member;
     }
 
+    public ReservationStatus getStatus() {
+        return status;
+    }
+
     public boolean sameMember(Member member) {
         return member != null && Objects.equals(this.member.getId(), member.getId());
+    }
+
+    public void canceled() {
+        this.status = ReservationStatus.CANCELED;
     }
 }

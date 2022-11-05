@@ -12,6 +12,8 @@ import org.springframework.stereotype.Component;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Time;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 
 @Component
@@ -86,6 +88,25 @@ public class ReservationWaitingDao {
     public void deleteById(Long id) {
         String sql = "DELETE FROM reservation_waiting where id = ?;";
         jdbcTemplate.update(sql, id);
+    }
+
+    public List<ReservationWaiting> findByMemberIdOrderByDateTimeAsc(Long memberId) {
+        String sql = "SELECT " +
+                "reservation_waiting.id, reservation_waiting.schedule_id, reservation_waiting.member_id, reservation_waiting.request_date, reservation_waiting.request_date" +
+                "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+                "theme.id, theme.name, theme.desc, theme.price, " +
+                "member.id, member.username, member.password, member.name, member.phone, member.role " +
+                "from reservation_waiting " +
+                "inner join schedule on reservation_waiting.schedule_id = schedule.id " +
+                "inner join theme on schedule.theme_id = theme.id " +
+                "inner join member on reservation_waiting.member_id = member.id " +
+                "where member.id = ?" +
+                "order by request_date asc, request_time asc;";
+        try {
+            return jdbcTemplate.query(sql, rowMapper, memberId);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
     }
 /*
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {

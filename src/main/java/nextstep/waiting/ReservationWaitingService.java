@@ -9,9 +9,11 @@ import nextstep.reservation.ReservationStatus;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Service
 public class ReservationWaitingService {
@@ -27,6 +29,7 @@ public class ReservationWaitingService {
         this.memberDao = memberDao;
     }
 
+    @Transactional
     public Long create(Member member, ReservationWaitingRequest request) {
         if (member == null) {
             throw new AuthenticationException();
@@ -58,7 +61,11 @@ public class ReservationWaitingService {
         }
     }
 
+    @Transactional
     public void deleteById(Member member, Long id) {
+        if (member == null) {
+            throw new AuthenticationException();
+        }
         ReservationWaiting waiting = reservationWaitingDao.findById(id);
         if (waiting == null) {
             throw new NullPointerException();
@@ -69,5 +76,15 @@ public class ReservationWaitingService {
         }
 
         reservationWaitingDao.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ReservationWaitingResponse> findMine(Member member) {
+        if (member == null) {
+            throw new AuthenticationException();
+        }
+        List<ReservationWaiting> waitings = reservationWaitingDao.findByMemberIdOrderByDateTimeAsc(member.getId());
+
+        return ReservationWaitingResponse.fromList(waitings);
     }
 }
