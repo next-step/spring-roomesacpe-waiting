@@ -1,5 +1,6 @@
 package nextstep.reservation;
 
+import java.util.NoSuchElementException;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 import nextstep.theme.Theme;
@@ -17,7 +18,7 @@ import java.util.List;
 @Component
 public class ReservationDao {
 
-    public final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
     public ReservationDao(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -43,17 +44,19 @@ public class ReservationDao {
                     resultSet.getString("member.name"),
                     resultSet.getString("member.phone"),
                     resultSet.getString("member.role")
-            )
+            ),
+            ReservationStatus.valueOf(resultSet.getString("reservation.status"))
     );
 
     public Long save(Reservation reservation) {
-        String sql = "INSERT INTO reservation (schedule_id, member_id) VALUES (?, ?);";
+        String sql = "INSERT INTO reservation (schedule_id, member_id, status) VALUES (?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setLong(1, reservation.getSchedule().getId());
             ps.setLong(2, reservation.getMember().getId());
+            ps.setString(3, reservation.getStatusName());
             return ps;
 
         }, keyHolder);
@@ -63,7 +66,7 @@ public class ReservationDao {
 
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
         String sql = "SELECT " +
-                "reservation.id, reservation.schedule_id, reservation.member_id, " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, reservation.status, " +
                 "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
                 "theme.id, theme.name, theme.desc, theme.price, " +
                 "member.id, member.username, member.password, member.name, member.phone, member.role " +
@@ -78,7 +81,7 @@ public class ReservationDao {
 
     public Reservation findById(Long id) {
         String sql = "SELECT " +
-                "reservation.id, reservation.schedule_id, reservation.member_id, " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, reservation.status, " +
                 "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
                 "theme.id, theme.name, theme.desc, theme.price, " +
                 "member.id, member.username, member.password, member.name, member.phone, member.role " +
@@ -90,13 +93,18 @@ public class ReservationDao {
         try {
             return jdbcTemplate.queryForObject(sql, rowMapper, id);
         } catch (Exception e) {
-            return null;
+            throw new NoSuchElementException();
         }
+    }
+
+    public void updateStatus(Reservation reservation) {
+        String sql = "UPDATE reservation SET status = ? WHERE id = ?;";
+        jdbcTemplate.update(sql, reservation.getStatusName(), reservation.getId());
     }
 
     public List<Reservation> findByScheduleId(Long id) {
         String sql = "SELECT " +
-                "reservation.id, reservation.schedule_id, reservation.member_id, " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, reservation.status, " +
                 "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
                 "theme.id, theme.name, theme.desc, theme.price, " +
                 "member.id, member.username, member.password, member.name, member.phone, member.role " +
@@ -113,8 +121,27 @@ public class ReservationDao {
         }
     }
 
-    public void deleteById(Long id) {
-        String sql = "DELETE FROM reservation where id = ?;";
-        jdbcTemplate.update(sql, id);
+    public List<Reservation> findAllByMemberId(Long memberId) {
+        String sql = "SELECT " +
+            "reservation.id, reservation.schedule_id, reservation.member_id, reservation.status, " +
+            "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+            "theme.id, theme.name, theme.desc, theme.price, " +
+            "member.id, member.username, member.password, member.name, member.phone, member.role " +
+            "from reservation " +
+            "inner join schedule on reservation.schedule_id = schedule.id " +
+            "inner join theme on schedule.theme_id = theme.id " +
+            "inner join member on reservation.member_id = member.id " +
+            "where member.id = ?;";
+
+        try {
+            return jdbcTemplate.query(sql, rowMapper, memberId);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    public boolean existsByScheduleId(Long scheduleId) {
+        String sql = "SELECT count(*) from reservation where schedule_id = ?;";
+        return jdbcTemplate.queryForObject(sql, Integer.class, scheduleId) > 0;
     }
 }

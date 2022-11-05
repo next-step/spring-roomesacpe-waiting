@@ -3,6 +3,25 @@ CREATE TABLE RESERVATION
     id          bigint not null auto_increment,
     schedule_id bigint not null,
     member_id   bigint not null,
+    status      varchar(100) not null,
+    primary key (id)
+);
+
+CREATE TABLE reservation_waiting
+(
+    id          bigint not null auto_increment,
+    schedule_id bigint not null,
+    member_id   bigint not null,
+    status      varchar(100) not null,
+    primary key (id)
+);
+
+CREATE TABLE sales
+(
+    id          bigint not null auto_increment,
+    price       int not null,
+    status      varchar(100) not null,
+    reservation_id bigint not null,
     primary key (id)
 );
 

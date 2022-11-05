@@ -58,6 +58,36 @@ class ReservationE2ETest extends AbstractE2ETest {
         );
     }
 
+    @DisplayName("관리자가 예약을 승인한다")
+    @Test
+    void acceptByAdmin() {
+        ExtractableResponse<Response> reservation = createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().patch(reservation.header("Location") + "/approve")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @DisplayName("관리자가 아닌 사람이 예약을 승인을 시도한다")
+    @Test
+    void acceptByNotAdmin() {
+        ExtractableResponse<Response> reservation = createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2("another-token")
+            .when().patch(reservation.header("Location") + "/approve")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
     @DisplayName("예약을 생성한다")
     @Test
     void create() {
@@ -100,11 +130,27 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .extract();
 
-        List<Reservation> reservations = response.jsonPath().getList(".", Reservation.class);
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
         assertThat(reservations.size()).isEqualTo(1);
     }
 
-    @DisplayName("예약을 삭제한다")
+    @DisplayName("나의 예약을 조회한다")
+    @Test
+    void showMine() {
+        createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().get("/reservations/mine")
+            .then().log().all()
+            .extract();
+
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
+        assertThat(reservations.size()).isEqualTo(1);
+    }
+
+    @DisplayName("예약을 취소한다")
     @Test
     void delete() {
         var reservation = createReservation();
@@ -112,11 +158,33 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().delete(reservation.header("Location"))
+                .when().patch(reservation.header("Location") + "/cancel")
                 .then().log().all()
                 .extract();
 
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @DisplayName("취소된 나의 예약도 조회된다")
+    @Test
+    void showMineWithDelete() {
+        ExtractableResponse<Response> createdResponse = createReservation();
+        RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().delete(createdResponse.header("Location"))
+            .then().log().all()
+            .extract();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().get("/reservations/mine")
+            .then().log().all()
+            .extract();
+
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
+        assertThat(reservations.size()).isEqualTo(1);
     }
 
     @DisplayName("중복 예약을 생성한다")
@@ -147,24 +215,24 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .extract();
 
-        List<Reservation> reservations = response.jsonPath().getList(".", Reservation.class);
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
         assertThat(reservations.size()).isEqualTo(0);
     }
 
-    @DisplayName("없는 예약을 삭제한다")
+    @DisplayName("없는 예약을 취소한다")
     @Test
     void createNotExistReservation() {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
-                .when().delete("/reservations/1")
+                .when().patch("/reservations/1/cancel")
                 .then().log().all()
                 .extract();
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
-    @DisplayName("다른 사람이 예약을삭제한다")
+    @DisplayName("다른 사람이 예약을 취소한다")
     @Test
     void deleteReservationOfOthers() {
         createReservation();
@@ -172,7 +240,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         var response = RestAssured
                 .given().log().all()
                 .auth().oauth2("other-token")
-                .when().delete("/reservations/1")
+                .when().patch("/reservations/1/cancel")
                 .then().log().all()
                 .extract();
 
