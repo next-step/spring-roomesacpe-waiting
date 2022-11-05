@@ -54,6 +54,13 @@ public class ReservationController {
         return ResponseEntity.noContent().build();
     }
 
+    @DeleteMapping("/reservations-watings/{id}")
+    public ResponseEntity deleteReservationWaitings(@LoginMember Member member, @PathVariable Long id) {
+        reservationService.deleteById(member, id);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity onException(Exception e) {
         return ResponseEntity.badRequest().build();

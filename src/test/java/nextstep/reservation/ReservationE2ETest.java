@@ -165,6 +165,21 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }
 
+    @DisplayName("예약 대기를 삭제한다")
+    @Test
+    void deleteWaitings() {
+        var reservation = createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().delete(reservation.header("Location"))
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
     @DisplayName("중복 예약을 생성한다")
     @Test
     void createDuplicateReservation() {
