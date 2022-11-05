@@ -133,6 +133,23 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(reservations.size()).isEqualTo(1);
     }
 
+    @DisplayName("예약 대기를 조회한다")
+    @Test
+    void showWaitings() {
+        createReservation();
+
+        var response = RestAssured
+            .given().log().all()
+            .param("themeId", themeId)
+            .param("date", DATE)
+            .when().get("/reservations-waitings")
+            .then().log().all()
+            .extract();
+
+        List<Reservation> reservations = response.jsonPath().getList(".", Reservation.class);
+        assertThat(reservations.size()).isEqualTo(1);
+    }
+
     @DisplayName("예약을 삭제한다")
     @Test
     void delete() {

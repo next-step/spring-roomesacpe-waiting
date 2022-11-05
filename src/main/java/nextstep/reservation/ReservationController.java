@@ -41,6 +41,12 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
+    @GetMapping("/reservations-waitings")
+    public ResponseEntity readReservationsWaitings(@RequestParam Long themeId, @RequestParam String date) {
+        List<Reservation> results = reservationWaitingService.findAllByThemeIdAndDate(themeId, date);
+        return ResponseEntity.ok().body(results);
+    }
+
     @DeleteMapping("/reservations/{id}")
     public ResponseEntity deleteReservation(@LoginMember Member member, @PathVariable Long id) {
         reservationService.deleteById(member, id);
