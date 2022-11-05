@@ -43,7 +43,8 @@ public class ReservationDao {
                     resultSet.getString("member.name"),
                     resultSet.getString("member.phone"),
                     resultSet.getString("member.role")
-            )
+            ),
+            ReservationStatus.valueOf(resultSet.getString("reservation.status"))
     );
 
     public Long save(Reservation reservation) {

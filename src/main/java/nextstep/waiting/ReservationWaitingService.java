@@ -5,6 +5,7 @@ import nextstep.member.Member;
 import nextstep.member.MemberDao;
 import nextstep.reservation.Reservation;
 import nextstep.reservation.ReservationDao;
+import nextstep.reservation.ReservationStatus;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import nextstep.theme.ThemeDao;
@@ -52,14 +53,16 @@ public class ReservationWaitingService {
             // 예약이 없는 스케줄에 대해서 예약 대기 신청을 할 경우 예약이 된다.
             Reservation newReservation = new Reservation(
                     schedule,
-                    member
+                    member,
+                    ReservationStatus.COMPLETED
             );
             reservationDao.save(newReservation);
         }
 
         Reservation newReservation = new Reservation(
                 schedule,
-                member
+                member,
+                ReservationStatus.COMPLETED
         );
 
         return reservationDao.save(newReservation);

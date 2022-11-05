@@ -10,20 +10,22 @@ public class Reservation {
     private Schedule schedule;
     private Member member;
 
-    private Boolean canceled;
+    private ReservationStatus status;
 
     public Reservation() {
     }
 
-    public Reservation(Schedule schedule, Member member) {
+    public Reservation(Schedule schedule, Member member, ReservationStatus status) {
         this.schedule = schedule;
         this.member = member;
+        this.status = status;
     }
 
-    public Reservation(Long id, Schedule schedule, Member member) {
+    public Reservation(Long id, Schedule schedule, Member member, ReservationStatus status) {
         this.id = id;
         this.schedule = schedule;
         this.member = member;
+        this.status = status;
     }
 
     public Long getId() {
