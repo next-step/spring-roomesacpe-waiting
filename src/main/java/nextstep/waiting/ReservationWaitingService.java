@@ -8,7 +8,6 @@ import nextstep.reservation.ReservationDao;
 import nextstep.reservation.ReservationStatus;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
-import nextstep.theme.ThemeDao;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -16,18 +15,16 @@ import java.time.LocalTime;
 
 @Service
 public class ReservationWaitingService {
+    public final ReservationWaitingDao reservationWaitingDao;
     public final ReservationDao reservationDao;
-    public final ThemeDao themeDao;
     public final ScheduleDao scheduleDao;
     public final MemberDao memberDao;
-    public final ReservationWaitingDao reservationWaitingDao;
 
-    public ReservationWaitingService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao, ReservationWaitingDao reservationWaitingDao) {
+    public ReservationWaitingService(ReservationWaitingDao reservationWaitingDao, ReservationDao reservationDao, ScheduleDao scheduleDao, MemberDao memberDao) {
+        this.reservationWaitingDao = reservationWaitingDao;
         this.reservationDao = reservationDao;
-        this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
-        this.reservationWaitingDao = reservationWaitingDao;
     }
 
     public Long create(Member member, ReservationWaitingRequest request) {
@@ -41,7 +38,7 @@ public class ReservationWaitingService {
 
         // 이미 예약이 된 스케줄 대상으로 예약 대기를 신청할 수 있다.
         if (reservationDao.existsByScheduleId(schedule.getId())) {
-            reservationWaitingDao.save(
+            return reservationWaitingDao.save(
                     new ReservationWaiting(schedule,
                             member,
                             LocalDate.now(),
@@ -56,16 +53,21 @@ public class ReservationWaitingService {
                     member,
                     ReservationStatus.COMPLETED
             );
-            reservationDao.save(newReservation);
+            return reservationDao.save(newReservation);
+
         }
-
-        Reservation newReservation = new Reservation(
-                schedule,
-                member,
-                ReservationStatus.COMPLETED
-        );
-
-        return reservationDao.save(newReservation);
     }
 
+    public void deleteById(Member member, Long id) {
+        ReservationWaiting waiting = reservationWaitingDao.findById(id);
+        if (waiting == null) {
+            throw new NullPointerException();
+        }
+
+        if (!waiting.sameMember(member)) {
+            throw new AuthenticationException();
+        }
+
+        reservationWaitingDao.deleteById(id);
+    }
 }
