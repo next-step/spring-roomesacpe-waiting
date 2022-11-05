@@ -110,4 +110,14 @@ public class ReservationService {
 
         reservationDao.update(reservation);
     }
+
+    public void cancelApprove(Long reservationId) {
+        Reservation reservation = reservationDao.findById(reservationId);
+        if (reservation == null) {
+            throw new NullPointerException();
+        }
+
+        reservation.cancel();
+        reservationDao.update(reservation);
+    }
 }

@@ -2,10 +2,7 @@ package nextstep.admin;
 
 import nextstep.reservation.ReservationService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/admin")
@@ -20,6 +17,12 @@ public class AdminController {
     @PatchMapping("/reservations/{reservationId}/approve")
     public ResponseEntity<Void> approveReservation(@PathVariable("reservationId") Long reservationId) {
         reservationService.approveReservation(reservationId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/reservations/{reservationId}/cancel-approve")
+    public ResponseEntity<Void> cancelApprove(@PathVariable("reservationId") Long reservationId) {
+        reservationService.cancelApprove(reservationId);
         return ResponseEntity.ok().build();
     }
 }

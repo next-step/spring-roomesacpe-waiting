@@ -297,4 +297,15 @@ public class ReservationE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .extract();
     }
+
+    public static ExtractableResponse<Response> 예약_취소를_요청한다(TokenResponse token, Long reservationId) {
+        return RestAssured
+                .given().log().all()
+                .pathParam("reservationId", reservationId)
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().patch("/reservations/{reservationId}/cancel")
+                .then().log().all()
+                .extract();
+    }
 }

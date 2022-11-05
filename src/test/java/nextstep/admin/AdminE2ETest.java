@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
+import static nextstep.reservation.ReservationE2ETest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdminE2ETest extends AbstractE2ETest {
@@ -61,7 +62,7 @@ public class AdminE2ETest extends AbstractE2ETest {
                 scheduleId
         );
 
-        ExtractableResponse<Response> reservationResponse = ReservationE2ETest.예약을_생성한다(scheduleId, token);
+        ExtractableResponse<Response> reservationResponse = 예약을_생성한다(scheduleId, token);
         String[] reservationLocation = reservationResponse.header("Location").split("/");
         reservationId = Long.parseLong(reservationLocation[reservationLocation.length - 1]);
     }
@@ -93,6 +94,37 @@ public class AdminE2ETest extends AbstractE2ETest {
                 .extract();
         assertThat(getReservationResponse.jsonPath().getList("status"))
                 .containsExactly(ReservationStatus.APPROVE.name());
+    }
+
+    @DisplayName("예약 승인된 예약에 취소 요청이 들어왔을 때, 관리자가 예약 취소를 승인하면 예약 취소가 진행된다")
+    @Test
+    void cancelApprove() {
+        관리자가_예약을_승인한다(reservationId, token);
+        예약_취소를_요청한다(token, reservationId);
+
+        // when
+        var response = RestAssured
+                .given().log().all()
+                .pathParam("reservationId", reservationId)
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/admin/reservations/{reservationId}/cancel-approve")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        var getReservationResponse = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+        assertThat(getReservationResponse.jsonPath().getList("status"))
+                .containsExactly(ReservationStatus.CANCEL.name());
     }
 
     public static ExtractableResponse<Response> 관리자가_예약을_승인한다(Long reservationId, TokenResponse token) {
