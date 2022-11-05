@@ -5,6 +5,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import nextstep.AbstractE2ETest;
+import nextstep.admin.AdminE2ETest;
 import nextstep.schedule.ScheduleRequest;
 import nextstep.theme.ThemeRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -229,6 +230,39 @@ public class ReservationE2ETest extends AbstractE2ETest {
                 .extract();
         assertThat(getReservationResponse.jsonPath().getList("status"))
                 .containsExactly(ReservationStatus.CANCEL.name());
+    }
+
+    @DisplayName("입금 대기 상태인 예약을 취소요청 하면, 즉시 예약 철회상태로 변경된다")
+    @Test
+    void cancelApproveReservation() {
+        // given
+        ExtractableResponse<Response> createResponse = createReservation();
+        String location = createResponse.header("Location");
+        Long reservationId = Long.parseLong(location.split("/")[2]);
+        AdminE2ETest.관리자가_예약을_승인한다(reservationId, token);
+
+        // when
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().patch(location + "/cancel")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        var getReservationResponse = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+        assertThat(getReservationResponse.jsonPath().getList("status"))
+                .containsExactly(ReservationStatus.CANCEL_REQUEST.name());
     }
 
     private ExtractableResponse<Response> createReservation() {

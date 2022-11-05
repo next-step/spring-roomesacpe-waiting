@@ -1,5 +1,6 @@
 package nextstep.admin;
 
+import auth.TokenResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -92,5 +93,17 @@ public class AdminE2ETest extends AbstractE2ETest {
                 .extract();
         assertThat(getReservationResponse.jsonPath().getList("status"))
                 .containsExactly(ReservationStatus.APPROVE.name());
+    }
+
+    public static ExtractableResponse<Response> 관리자가_예약을_승인한다(Long reservationId, TokenResponse token) {
+        return RestAssured
+                .given().log().all()
+                .pathParam("reservationId", reservationId)
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().patch("/admin/reservations/{reservationId}/approve")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
     }
 }
