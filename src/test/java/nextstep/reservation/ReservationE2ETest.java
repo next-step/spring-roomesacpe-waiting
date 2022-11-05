@@ -73,6 +73,21 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
     }
 
+    @DisplayName("예약 대기를 생성한다")
+    @Test
+    void createReservationWaiting() {
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .body(request)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when().post("/reservations-waitings")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+    }
+
     @DisplayName("비로그인 사용자가 예약을 생성한다")
     @Test
     void createWithoutLogin() {
@@ -83,6 +98,20 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .when().post("/reservations")
                 .then().log().all()
                 .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @DisplayName("비로그인 사용자가 예약 대기를 생성한다")
+    @Test
+    void createReservationWaitingWithoutLogin() {
+        var response = RestAssured
+            .given().log().all()
+            .body(request)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when().post("/reservations-waitings")
+            .then().log().all()
+            .extract();
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }

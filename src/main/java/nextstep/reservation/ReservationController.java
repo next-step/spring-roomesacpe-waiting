@@ -14,9 +14,12 @@ import java.util.List;
 public class ReservationController {
 
     public final ReservationService reservationService;
+    public final ReservationWaitingService reservationWaitingService;
 
-    public ReservationController(ReservationService reservationService) {
+    public ReservationController(ReservationService reservationService,
+        ReservationWaitingService reservationWaitingService) {
         this.reservationService = reservationService;
+        this.reservationWaitingService = reservationWaitingService;
     }
 
     @PostMapping("/reservations")
@@ -24,6 +27,13 @@ public class ReservationController {
         Long id = reservationService.create(member, reservationRequest);
         return ResponseEntity.created(URI.create("/reservations/" + id)).build();
     }
+
+    @PostMapping("/reservations-waitings")
+    public ResponseEntity createReservationWaiting(@LoginMember Member member, @RequestBody ReservationWaitingRequest reservationWaitingRequest) {
+        Long id = reservationWaitingService.create(member, reservationWaitingRequest);
+        return ResponseEntity.created(URI.create("/reservations-waitings/" + id)).build();
+    }
+
 
     @GetMapping("/reservations")
     public ResponseEntity readReservations(@RequestParam Long themeId, @RequestParam String date) {
