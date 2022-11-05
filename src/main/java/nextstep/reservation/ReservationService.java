@@ -87,7 +87,7 @@ public class ReservationService {
         Reservation reservation = reservationDao.findById(reservationId);
         reservation.approve();
         reservationDao.update(reservation);
-        salesService.createApproveSales(reservationId, reservation.getSchedule().getTheme().getPrice());
+        salesService.createApproveSale(reservationId, reservation.getSchedule().getTheme().getPrice());
     }
 
     public void cancelReservation(Member member, Long id) {
@@ -119,5 +119,7 @@ public class ReservationService {
 
         reservation.cancel();
         reservationDao.update(reservation);
+
+        salesService.cancelSale(reservationId);
     }
 }

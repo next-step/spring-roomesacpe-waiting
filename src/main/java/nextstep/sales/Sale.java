@@ -1,17 +1,17 @@
 package nextstep.sales;
 
-public class Sales {
+public class Sale {
 
     private Long id;
     private Long reservationId;
     private int amount;
     private SalesStatus status;
 
-    public Sales(Long reservationId, int amount, SalesStatus status) {
+    public Sale(Long reservationId, int amount, SalesStatus status) {
         this(null, reservationId, amount, status);
     }
 
-    public Sales(Long id, Long reservationId, int amount, SalesStatus status) {
+    public Sale(Long id, Long reservationId, int amount, SalesStatus status) {
         this.id = id;
         this.reservationId = reservationId;
         this.amount = amount;
@@ -32,5 +32,19 @@ public class Sales {
 
     public SalesStatus getStatus() {
         return status;
+    }
+
+    public void cancel() {
+        this.status = SalesStatus.CANCEL;
+    }
+
+    @Override
+    public String toString() {
+        return "Sale{" +
+                "id=" + id +
+                ", reservationId=" + reservationId +
+                ", amount=" + amount +
+                ", status=" + status +
+                '}';
     }
 }
