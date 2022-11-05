@@ -6,6 +6,7 @@ import io.restassured.response.Response;
 import nextstep.AbstractE2ETest;
 import nextstep.reservation.ReservationE2ETest;
 import nextstep.reservation.ReservationRequest;
+import nextstep.reservation.ReservationStatus;
 import nextstep.schedule.ScheduleRequest;
 import nextstep.theme.ThemeRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,5 +81,16 @@ public class AdminE2ETest extends AbstractE2ETest {
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        var getReservationResponse = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+        assertThat(getReservationResponse.jsonPath().getList("status"))
+                .containsExactly(ReservationStatus.APPROVE.name());
     }
 }

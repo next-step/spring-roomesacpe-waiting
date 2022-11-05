@@ -3,6 +3,7 @@ package nextstep.reservation;
 import auth.AuthenticationException;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
+import nextstep.sales.SalesService;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import nextstep.support.DuplicateEntityException;
@@ -20,12 +21,14 @@ public class ReservationService {
     public final ThemeDao themeDao;
     public final ScheduleDao scheduleDao;
     public final MemberDao memberDao;
+    public final SalesService salesService;
 
-    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao) {
+    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao, SalesService salesService) {
         this.reservationDao = reservationDao;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
+        this.salesService = salesService;
     }
 
     public Long create(Member member, ReservationRequest reservationRequest) {
@@ -44,9 +47,9 @@ public class ReservationService {
 
         Reservation newReservation = new Reservation(
                 schedule,
-                member
+                member,
+                ReservationStatus.PAYMENT_WAITING
         );
-
         return reservationDao.save(newReservation);
     }
 
@@ -84,5 +87,6 @@ public class ReservationService {
         Reservation reservation = reservationDao.findById(reservationId);
         reservation.approve();
         reservationDao.update(reservation);
+        salesService.createApproveSales(reservationId, reservation.getSchedule().getTheme().getPrice());
     }
 }

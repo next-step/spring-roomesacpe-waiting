@@ -3,7 +3,7 @@ package nextstep.reservation;
 import java.util.Arrays;
 
 public enum ReservationStatus {
-    REQUEST("예약 대기"), APPROVE("예약 승인");
+    PAYMENT_WAITING("입금 대기"), APPROVE("예약 승인");
 
     private final String desc;
 

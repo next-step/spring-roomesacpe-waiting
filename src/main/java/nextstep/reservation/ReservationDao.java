@@ -48,13 +48,14 @@ public class ReservationDao {
     );
 
     public Long save(Reservation reservation) {
-        String sql = "INSERT INTO reservation (schedule_id, member_id) VALUES (?, ?);";
+        String sql = "INSERT INTO reservation (schedule_id, member_id, status) VALUES (?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setLong(1, reservation.getSchedule().getId());
             ps.setLong(2, reservation.getMember().getId());
+            ps.setString(3, reservation.getStatus().name());
             return ps;
 
         }, keyHolder);
@@ -115,7 +116,7 @@ public class ReservationDao {
     }
 
     public void deleteById(Long id) {
-        String sql = "UPDATE reservation SET deleted = true where id = ?;";
+        String sql = "UPDATE reservation SET deleted = true WHERE id = ?;";
         jdbcTemplate.update(sql, id);
     }
 

@@ -14,10 +14,6 @@ public class Reservation {
     public Reservation() {
     }
 
-    public Reservation(Schedule schedule, Member member) {
-        this(null, schedule, member, ReservationStatus.REQUEST);
-    }
-
     public Reservation(Schedule schedule, Member member, ReservationStatus status) {
         this(null, schedule, member, status);
     }
