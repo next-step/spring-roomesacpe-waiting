@@ -48,4 +48,20 @@ public class Reservation {
     public void approve() {
         this.status = ReservationStatus.APPROVE;
     }
+
+    public void cancelRequest() {
+        this.status = ReservationStatus.CANCEL_REQUEST;
+    }
+
+    public void cancel() {
+        this.status = ReservationStatus.CANCEL;
+    }
+
+    public boolean isPaymentWaiting() {
+        return ReservationStatus.PAYMENT_WAITING.equals(this.status);
+    }
+
+    public boolean isApprove() {
+        return ReservationStatus.APPROVE.equals(this.status);
+    }
 }

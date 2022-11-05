@@ -116,8 +116,8 @@ public class ReservationDao {
     }
 
     public void deleteById(Long id) {
-        String sql = "UPDATE reservation SET deleted = true WHERE id = ?;";
-        jdbcTemplate.update(sql, id);
+        String sql = "UPDATE reservation SET deleted = true, status = ? WHERE id = ?;";
+        jdbcTemplate.update(sql, ReservationStatus.CANCEL.name(), id);
     }
 
     public boolean existReservationByScheduleId(Long scheduleId) {

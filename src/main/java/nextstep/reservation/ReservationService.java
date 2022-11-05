@@ -89,4 +89,25 @@ public class ReservationService {
         reservationDao.update(reservation);
         salesService.createApproveSales(reservationId, reservation.getSchedule().getTheme().getPrice());
     }
+
+    public void cancelReservation(Member member, Long id) {
+        Reservation reservation = reservationDao.findById(id);
+        if (reservation == null) {
+            throw new NullPointerException();
+        }
+
+        if (!reservation.sameMember(member)) {
+            throw new AuthenticationException();
+        }
+
+        if (reservation.isApprove()) {
+            reservation.cancelRequest();
+        }
+
+        if (reservation.isPaymentWaiting()) {
+            reservation.cancel();
+        }
+
+        reservationDao.update(reservation);
+    }
 }

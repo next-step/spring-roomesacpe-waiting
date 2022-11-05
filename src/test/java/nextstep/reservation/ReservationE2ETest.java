@@ -200,6 +200,37 @@ public class ReservationE2ETest extends AbstractE2ETest {
         assertThat(response.jsonPath().getList("id")).hasSize(1);
     }
 
+    @DisplayName("입금 대기 상태인 예약을 취소요청 하면, 즉시 예약 철회상태로 변경된다")
+    @Test
+    void cancelPaymentWaitingReservation() {
+        // given
+        ExtractableResponse<Response> createResponse = createReservation();
+        String location = createResponse.header("Location");
+
+        // when
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().patch(location + "/cancel")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        var getReservationResponse = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+        assertThat(getReservationResponse.jsonPath().getList("status"))
+                .containsExactly(ReservationStatus.CANCEL.name());
+    }
+
     private ExtractableResponse<Response> createReservation() {
         return RestAssured
                 .given().log().all()
