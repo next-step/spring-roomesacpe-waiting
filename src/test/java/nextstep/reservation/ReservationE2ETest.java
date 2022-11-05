@@ -102,7 +102,7 @@ public class ReservationE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .extract();
 
-        List<Reservation> reservations = response.jsonPath().getList(".", Reservation.class);
+        List<Reservation> reservations = response.jsonPath().getList("id");
         assertThat(reservations.size()).isEqualTo(1);
     }
 

@@ -17,7 +17,7 @@ import org.springframework.http.MediaType;
 import static nextstep.reservation.ReservationE2ETest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReservationWaitingE2ETest extends AbstractE2ETest {
+public class ReservationWaitingE2ETest extends AbstractE2ETest {
 
     public static final String DATE = "2022-08-11";
     public static final String TIME = "13:00";

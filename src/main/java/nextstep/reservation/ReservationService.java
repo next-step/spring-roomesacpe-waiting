@@ -3,6 +3,9 @@ package nextstep.reservation;
 import auth.AuthenticationException;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
+import nextstep.reservation_waiting.ReservationWaiting;
+import nextstep.reservation_waiting.ReservationWaitingDao;
+import nextstep.reservation_waiting.ReservationWaitingService;
 import nextstep.sales.SalesService;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -22,13 +26,22 @@ public class ReservationService {
     public final ScheduleDao scheduleDao;
     public final MemberDao memberDao;
     public final SalesService salesService;
+    public final ReservationWaitingDao reservationWaitingDao;
 
-    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao, SalesService salesService) {
+    public ReservationService(
+            ReservationDao reservationDao,
+            ThemeDao themeDao,
+            ScheduleDao scheduleDao,
+            MemberDao memberDao,
+            SalesService salesService,
+            ReservationWaitingDao reservationWaitingDao
+    ) {
         this.reservationDao = reservationDao;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
         this.salesService = salesService;
+        this.reservationWaitingDao = reservationWaitingDao;
     }
 
     public Long create(Member member, ReservationRequest reservationRequest) {
@@ -45,11 +58,7 @@ public class ReservationService {
             throw new DuplicateEntityException();
         }
 
-        Reservation newReservation = new Reservation(
-                schedule,
-                member,
-                ReservationStatus.PAYMENT_WAITING
-        );
+        Reservation newReservation = new Reservation(schedule, member, ReservationStatus.PAYMENT_WAITING);
         return reservationDao.save(newReservation);
     }
 
@@ -121,5 +130,13 @@ public class ReservationService {
         reservationDao.update(reservation);
 
         salesService.cancelSale(reservationId);
+
+        ReservationWaiting reservationWaiting = reservationWaitingDao.findByScheduleId(reservation.getSchedule().getId());
+        if (Objects.isNull(reservationWaiting)) {
+            return;
+        }
+        Member member = memberDao.findById(reservationWaiting.getId());
+        Reservation newReservation = Reservation.from(reservationWaiting, member, ReservationStatus.PAYMENT_WAITING);
+        reservationDao.save(newReservation);
     }
 }

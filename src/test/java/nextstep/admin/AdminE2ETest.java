@@ -8,6 +8,8 @@ import nextstep.AbstractE2ETest;
 import nextstep.reservation.ReservationE2ETest;
 import nextstep.reservation.ReservationRequest;
 import nextstep.reservation.ReservationStatus;
+import nextstep.reservation_waiting.ReservationWaitingE2ETest;
+import nextstep.reservation_waiting.ReservationWaitingRequest;
 import nextstep.schedule.ScheduleRequest;
 import nextstep.theme.ThemeRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 
 import static nextstep.reservation.ReservationE2ETest.*;
+import static nextstep.reservation_waiting.ReservationWaitingE2ETest.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdminE2ETest extends AbstractE2ETest {
@@ -114,7 +117,9 @@ public class AdminE2ETest extends AbstractE2ETest {
 
         // then
         assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+    }
 
+    private void ㅁㄴㅇ() {
         var getReservationResponse = RestAssured
                 .given().log().all()
                 .auth().oauth2(token.getAccessToken())
@@ -125,6 +130,39 @@ public class AdminE2ETest extends AbstractE2ETest {
                 .extract();
         assertThat(getReservationResponse.jsonPath().getList("status"))
                 .containsExactly(ReservationStatus.CANCEL.name());
+    }
+
+    @DisplayName("관리자가 예약 취소를 승인하면 예약 취소가 진행되고, 예약 대기자가 있다면 예약자로 변경된다")
+    @Test
+    void cancelApproveAfterPromotionReservationWaiting() {
+        TokenResponse otherToken = 회원가입하고_토큰을_반환한다("other user", "password");
+        예약대기를_생성한다(new ReservationWaitingRequest(scheduleId), otherToken);
+        관리자가_예약을_승인한다(reservationId, token);
+        예약_취소를_요청한다(token, reservationId);
+
+        // when
+        var response = RestAssured
+                .given().log().all()
+                .pathParam("reservationId", reservationId)
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/admin/reservations/{reservationId}/cancel-approve")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        var getReservationResponse = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+        assertThat(getReservationResponse.jsonPath().getList("status"))
+                .contains(ReservationStatus.PAYMENT_WAITING.name());
     }
 
     public static ExtractableResponse<Response> 관리자가_예약을_승인한다(Long reservationId, TokenResponse token) {
