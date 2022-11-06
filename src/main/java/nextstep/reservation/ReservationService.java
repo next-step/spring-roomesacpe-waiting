@@ -50,8 +50,8 @@ public class ReservationService {
         return reservationDao.save(newReservation);
     }
 
-    public boolean existsReservation(Long scheduleId) {
-        List<Reservation> reservation = reservationDao.findByScheduleId(scheduleId);
+    public boolean existsReservation(Schedule schedule) {
+        List<Reservation> reservation = reservationDao.findByScheduleId(schedule.getId());
         return !reservation.isEmpty();
     }
 

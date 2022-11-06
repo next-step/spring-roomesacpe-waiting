@@ -5,6 +5,8 @@ import java.net.URI;
 import nextstep.member.Member;
 import nextstep.reservation.ReservationRequest;
 import nextstep.reservation.ReservationService;
+import nextstep.schedule.Schedule;
+import nextstep.schedule.ScheduleDao;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,26 +18,31 @@ public class ReservationWaitingService {
 
     private final ReservationService reservationService;
     private final ReservationWaitingDao reservationWaitingDao;
+    private final ScheduleDao scheduleDao;
 
-    public ReservationWaitingService(ReservationService reservationService,
-        ReservationWaitingDao reservationWaitingDao) {
+    public ReservationWaitingService(
+        ReservationService reservationService, ReservationWaitingDao reservationWaitingDao, ScheduleDao scheduleDao) {
         this.reservationService = reservationService;
         this.reservationWaitingDao = reservationWaitingDao;
+        this.scheduleDao = scheduleDao;
     }
-
 
     @Transactional
     public URI create(Member member, ReservationWaitingRequest reservationWaitingRequest) {
-        Long scheduleId = reservationWaitingRequest.getScheduleId();
-        if (reservationService.existsReservation(scheduleId)) {
+        Schedule schedule = scheduleDao.findById(reservationWaitingRequest.getScheduleId());
+        if (schedule == null) {
+            throw new NullPointerException();
+        }
+
+        if (reservationService.existsReservation(schedule)) {
             return URI.create(
                 RESERVATION_WAITING_URI_PREFIX + reservationWaitingDao.save(
-                    new ReservationWaiting(scheduleId, member.getId(), false)
+                    new ReservationWaiting(schedule, member, false)
                 )
             );
         }
         return URI.create(
-            RESERVATION_URI_PREFIX + reservationService.create(member, new ReservationRequest(scheduleId))
+            RESERVATION_URI_PREFIX + reservationService.create(member, new ReservationRequest(schedule.getId()))
         );
     }
 

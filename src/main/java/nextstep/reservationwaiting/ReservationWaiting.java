@@ -1,33 +1,35 @@
 package nextstep.reservationwaiting;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import nextstep.member.Member;
+import nextstep.schedule.Schedule;
 
 public class ReservationWaiting {
 
     private Long id;
-    private Long scheduleId;
-    private Long memberId;
+    private Schedule schedule;
+    private Member member;
     private boolean canceled;
     private LocalDateTime createdAt;
 
     public ReservationWaiting() {
     }
 
-    public ReservationWaiting(Long scheduleId, Long memberId, boolean canceled) {
-        this(null, scheduleId, memberId, canceled, null);
+    public ReservationWaiting(Schedule schedule, Member member, boolean canceled) {
+        this(null, schedule, member, canceled, null);
     }
 
-    public ReservationWaiting(Long id, Long scheduleId, Long memberId, boolean canceled, LocalDateTime createdAt) {
+    public ReservationWaiting(Long id, Schedule schedule, Member member, boolean canceled, LocalDateTime createdAt) {
         this.id = id;
-        this.scheduleId = scheduleId;
-        this.memberId = memberId;
+        this.schedule = schedule;
+        this.member = member;
         this.canceled = canceled;
         this.createdAt = createdAt;
     }
 
     public boolean sameMember(Member member) {
-        return memberId.equals(member.getId());
+        return member != null && Objects.equals(this.member.getId(), member.getId());
     }
 
     public Long getId() {
@@ -35,11 +37,11 @@ public class ReservationWaiting {
     }
 
     public Long getScheduleId() {
-        return scheduleId;
+        return schedule.getId();
     }
 
     public Long getMemberId() {
-        return memberId;
+        return member.getId();
     }
 
     public boolean isCanceled() {
