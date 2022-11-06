@@ -46,9 +46,15 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
-    @GetMapping("/reservations-waitings")
-    public ResponseEntity readReservationsWaitings(@RequestParam Long themeId, @RequestParam String date) {
-        List<Reservation> results = reservationWaitingService.findAllByThemeIdAndDate(themeId, date);
+    @GetMapping("/reservations/mine")
+    public ResponseEntity readMyReservations(@LoginMember Member member) {
+        List<Reservation> results = reservationService.findAllByMember(member);
+        return ResponseEntity.ok().body(results);
+    }
+
+    @GetMapping("/reservations-waitings/mine")
+    public ResponseEntity readMyReservationsWaitings(@LoginMember Member member) {
+        var results = reservationWaitingService.findAllByScheduleIdAndMemberId(1L, member.getId());
         return ResponseEntity.ok().body(results);
     }
 

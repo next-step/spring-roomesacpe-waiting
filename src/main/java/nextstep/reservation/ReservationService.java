@@ -55,6 +55,9 @@ public class ReservationService {
 
         return reservationDao.findAllByThemeIdAndDate(themeId, date);
     }
+    public List<Reservation> findAllByMember(Member member) {
+        return reservationDao.findAllByMember(member.getId());
+    }
 
     public void deleteById(Member member, Long id) {
         Reservation reservation = reservationDao.findById(id);
