@@ -6,11 +6,14 @@ import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 
 public class ReservationWaiting {
-    private final Long id;
-    private final Schedule schedule;
-    private final Member member;
-    private final WaitingEventType eventType;
-    private final LocalDateTime createdAt;
+    private Long id;
+    private Schedule schedule;
+    private Member member;
+    private WaitingEventType eventType;
+    private LocalDateTime createdAt;
+
+    private ReservationWaiting() {
+    }
 
     public ReservationWaiting(Long id, Schedule schedule, Member member, WaitingEventType eventType,
         LocalDateTime createdAt) {

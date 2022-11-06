@@ -1,5 +1,6 @@
 package nextstep.reservation;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -8,6 +9,10 @@ import org.springframework.lang.Nullable;
 public record ReservationWaitings(List<ReservationWaiting> reservationWaitings) {
 
   public ReservationWaitings {
+    if (reservationWaitings == null) {
+      reservationWaitings = new ArrayList<>();
+    }
+
     reservationWaitings = reservationWaitings.stream()
         .sorted(Comparator.comparing(ReservationWaiting::getCreatedAt))
         .collect(Collectors.toList())

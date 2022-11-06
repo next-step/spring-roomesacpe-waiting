@@ -54,7 +54,7 @@ public class ReservationController {
 
     @GetMapping("/reservations-waitings/mine")
     public ResponseEntity readMyReservationsWaitings(@LoginMember Member member) {
-        var results = reservationWaitingService.findAllByScheduleIdAndMemberId(1L, member.getId());
+        var results = reservationWaitingService.findAllByMemberId(member).reservationWaitings();
         return ResponseEntity.ok().body(results);
     }
 
