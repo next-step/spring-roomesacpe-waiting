@@ -1,5 +1,7 @@
 package nextstep.domain.reservation;
 
+import nextstep.domain.member.Member;
+
 public class ApprovedReservationStatus implements ReservationStatus{
     private static final String STATUS = "APPROVED";
 
@@ -9,7 +11,11 @@ public class ApprovedReservationStatus implements ReservationStatus{
     }
 
     @Override
-    public ReservationStatus cancel() {
+    public ReservationStatus cancel(Member member) {
+        if (member.isAdmin()) {
+            return new CancelledReservationStatus();
+        }
+
         return new CancelledWaitingReservationStatus();
     }
 

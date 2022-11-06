@@ -1,5 +1,7 @@
 package nextstep.domain.reservation;
 
+import nextstep.domain.member.Member;
+
 public class BeforeDepositedReservationStatus implements ReservationStatus {
     private static final String STATUS = "BEFORE_DEPOSITED";
 
@@ -9,7 +11,7 @@ public class BeforeDepositedReservationStatus implements ReservationStatus {
     }
 
     @Override
-    public ReservationStatus cancel() {
+    public ReservationStatus cancel(Member member) {
         return new CancelledReservationStatus();
     }
 

@@ -53,8 +53,8 @@ public class Reservation {
         return new Reservation(this.id, this.schedule, this.reservationTime, reservationStatus.approve(), this.member);
     }
 
-    public Reservation cancel() {
-        return new Reservation(this.id, this.schedule, this.reservationTime, reservationStatus.cancel(), this.member);
+    public Reservation cancel(Member member) {
+        return new Reservation(this.id, this.schedule, this.reservationTime, reservationStatus.cancel(member), this.member);
     }
 
     public boolean isCancelled() {

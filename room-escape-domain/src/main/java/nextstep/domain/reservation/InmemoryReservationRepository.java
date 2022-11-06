@@ -39,4 +39,9 @@ public class InmemoryReservationRepository implements ReservationRepository {
     public void delete(Long id) {
         reservations.remove(id);
     }
+
+    @Override
+    public void update(Reservation reservation) {
+
+    }
 }

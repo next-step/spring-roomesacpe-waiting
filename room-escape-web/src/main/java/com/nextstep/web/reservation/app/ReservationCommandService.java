@@ -70,16 +70,17 @@ public class ReservationCommandService {
         Reservation reservation = getReservation(id);
         validateReservationMember(reservation, member);
 
-        Reservation cancelledReservation = reservation.cancel();
+        Reservation cancelledReservation = reservation.cancel(member);
         if (cancelledReservation.isCancelled()) {
             waitingCommandService.moveUp(reservation.getSchedule());
         }
     }
 
-    public void approveCancel(Long id) {
+    public void approveCancel(Long id, LoginMember loginMember) {
+        Member member = validateMember(loginMember);
         Reservation reservation = getReservation(id);
-        Reservation cancelledReservation = reservation.cancel();
-        reservationRepository.update(reservation);
+        Reservation cancelledReservation = reservation.cancel(member);
+        reservationRepository.update(cancelledReservation);
 
         Long amount = reservation.getSchedule().getTheme().getPrice();
         salesRepository.save(new Sales(null, amount, SalesStatus.REFUND));

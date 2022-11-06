@@ -49,4 +49,9 @@ public class Member {
             throw new BusinessException("비밀번호가 일치하지 않습니다.");
         }
     }
+
+    public boolean isAdmin() {
+        return roles.stream()
+                .anyMatch(role -> role == Role.ADMIN);
+    }
 }

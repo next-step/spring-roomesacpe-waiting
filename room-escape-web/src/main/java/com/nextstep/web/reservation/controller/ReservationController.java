@@ -37,16 +37,22 @@ public class ReservationController {
         return ResponseEntity.created(URI.create("/reservation/" + id)).build();
     }
 
-    @PatchMapping("/{id}/approval")
+    @PatchMapping("/{id}/approve")
     public ResponseEntity<Void> approve(@PathVariable Long id) {
         reservationCommandService.approve(id);
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{id}")
+    @PatchMapping("/{id}/cancel")
     private ResponseEntity<Void> cancel(@PathVariable Long id, @LoginMemberPrincipal LoginMember loginMember) {
         reservationCommandService.cancel(id, loginMember);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}/cancel-approve")
+    private ResponseEntity<Void> cancelApprove(@PathVariable Long id, @LoginMemberPrincipal LoginMember loginMember) {
+        reservationCommandService.approveCancel(id, loginMember);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
