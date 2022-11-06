@@ -2,58 +2,47 @@ package nextstep.reservation.controller;
 
 import auth.AuthenticationException;
 import java.net.URI;
-import java.util.List;
 import nextstep.member.LoginMember;
 import nextstep.member.Member;
-import nextstep.reservation.domain.Reservation;
-import nextstep.reservation.dto.ReservationRequest;
-import nextstep.reservation.service.ReservationService;
+import nextstep.reservation.dto.ReservationWaitingRequest;
+import nextstep.reservation.service.ReservationWaitingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-@RequestMapping("/reservations")
+@RequestMapping("/reservation-waitings")
 @RestController
-public class ReservationController {
+public class ReservationWaitingController {
 
-    private final ReservationService reservationService;
+    private final ReservationWaitingService reservationWaitingService;
 
-    public ReservationController(ReservationService reservationService) {
-        this.reservationService = reservationService;
+    public ReservationWaitingController(
+        ReservationWaitingService reservationWaitingService
+    ) {
+        this.reservationWaitingService = reservationWaitingService;
     }
 
     @PostMapping
-    public ResponseEntity<Void> createReservation(
+    public ResponseEntity<Void> putOnWaitingList(
         @LoginMember Member member,
-        @RequestBody ReservationRequest request
+        @RequestBody ReservationWaitingRequest request
     ) {
-        Long reservationId = reservationService.create(member, request);
-        return ResponseEntity.created(URI.create("/reservations/" + reservationId)).build();
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Reservation>> readReservations(
-        @RequestParam Long themeId,
-        @RequestParam String date
-    ) {
-        List<Reservation> reservations = reservationService.findAllByThemeIdAndDate(themeId, date);
-        return ResponseEntity.ok().body(reservations);
+        Long waitingId = reservationWaitingService.putOnWaitingList(member, request);
+        return ResponseEntity.created(URI.create("/reservation-waitings/" + waitingId)).build();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReservation(
+    public ResponseEntity<Void> deleteFromWaitingList(
         @LoginMember Member member,
         @PathVariable Long id
     ) {
-        reservationService.deleteById(member, id);
+        reservationWaitingService.deleteFromWaitingListById(member, id);
         return ResponseEntity.noContent().build();
     }
 

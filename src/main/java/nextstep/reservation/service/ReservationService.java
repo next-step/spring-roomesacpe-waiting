@@ -4,12 +4,9 @@ import auth.AuthenticationException;
 import java.util.List;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
-import nextstep.reservation.domain.Reservation;
-import nextstep.reservation.domain.ReservationWaiting;
 import nextstep.reservation.dao.ReservationDao;
-import nextstep.reservation.dao.ReservationWaitingDao;
+import nextstep.reservation.domain.Reservation;
 import nextstep.reservation.dto.ReservationRequest;
-import nextstep.reservation.dto.ReservationWaitingRequest;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import nextstep.support.DuplicateEntityException;
@@ -22,24 +19,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ReservationService {
 
-    public final ReservationDao reservationDao;
-    public final ThemeDao themeDao;
-    public final ScheduleDao scheduleDao;
+    private final ReservationDao reservationDao;
+    private final ThemeDao themeDao;
+    private final ScheduleDao scheduleDao;
     public final MemberDao memberDao;
-    public final ReservationWaitingDao reservationWaitingDao;
 
     public ReservationService(
         ReservationDao reservationDao,
         ThemeDao themeDao,
         ScheduleDao scheduleDao,
-        MemberDao memberDao,
-        ReservationWaitingDao reservationWaitingDao
+        MemberDao memberDao
     ) {
         this.reservationDao = reservationDao;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
-        this.reservationWaitingDao = reservationWaitingDao;
     }
 
     @Transactional
@@ -86,46 +80,5 @@ public class ReservationService {
         }
 
         reservationDao.deleteById(id);
-    }
-
-    @Transactional
-    public Long putOnWaitingList(Member member, ReservationWaitingRequest request) {
-        Schedule schedule = scheduleDao.findById(request.getScheduleId());
-        List<Reservation> reservations = reservationDao.findByScheduleId(schedule.getId());
-
-        if (reservations.isEmpty()) {
-            Reservation newReservation = new Reservation(schedule, member);
-            reservationDao.save(newReservation);
-
-            return Long.MAX_VALUE;
-        }
-
-        List<ReservationWaiting> reservationWaitings = reservationWaitingDao
-            .findByScheduleId(schedule.getId());
-
-        ReservationWaiting newReservationWaiting = new ReservationWaiting(
-            schedule,
-            member,
-            calculateWaitNum(reservationWaitings)
-        );
-        return reservationWaitingDao.save(newReservationWaiting);
-    }
-
-    private int calculateWaitNum(List<ReservationWaiting> waitings) {
-        return waitings.size() + 1;
-    }
-
-    @Transactional
-    public void deleteFromWaitingListById(Member member, Long id) {
-        ReservationWaiting reservationWaiting = reservationWaitingDao.findById(id);
-
-        if (reservationWaiting == null) {
-            throw new NullPointerException();
-        }
-        if (!reservationWaiting.sameMember(member)) {
-            throw new AuthenticationException();
-        }
-
-        reservationWaitingDao.deleteById(id);
     }
 }
