@@ -2,18 +2,20 @@ package nextstep.member;
 
 import auth.UserDetail;
 
+import java.util.Objects;
+
 public class Member implements UserDetail {
     private Long id;
     private String username;
     private String password;
     private String name;
     private String phone;
-    private String role;
+    private MemberRole role;
 
     public Member() {
     }
 
-    public Member(Long id, String username, String password, String name, String phone, String role) {
+    public Member(Long id, String username, String password, String name, String phone, MemberRole role) {
         this.id = id;
         this.username = username;
         this.password = password;
@@ -22,7 +24,7 @@ public class Member implements UserDetail {
         this.role = role;
     }
 
-    public Member(String username, String password, String name, String phone, String role) {
+    public Member(String username, String password, String name, String phone, MemberRole role) {
         this.username = username;
         this.password = password;
         this.name = name;
@@ -53,12 +55,24 @@ public class Member implements UserDetail {
     }
 
     @Override
-    public String getRole() {
+    public MemberRole getRole() {
         return role;
     }
 
     @Override
     public boolean checkWrongPassword(String password) {
         return !this.password.equals(password);
+    }
+
+    public boolean isAdmin() {
+        return this.role == MemberRole.ADMIN;
+    }
+
+    public boolean checkCancelAble(Member member) {
+        if (isAdmin()) {
+            return true;
+        } else {
+            return Objects.equals(this.id, member.getId());
+        }
     }
 }

@@ -1,6 +1,7 @@
 package nextstep.reservation;
 
 import nextstep.member.Member;
+import nextstep.member.MemberRole;
 import nextstep.schedule.Schedule;
 import nextstep.theme.Theme;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,7 +43,7 @@ public class ReservationDao {
                     resultSet.getString("member.password"),
                     resultSet.getString("member.name"),
                     resultSet.getString("member.phone"),
-                    resultSet.getString("member.role")
+                    MemberRole.valueOf(resultSet.getString("member.role"))
             ),
             ReservationStatus.valueOf(resultSet.getString("reservation.status"))
     );

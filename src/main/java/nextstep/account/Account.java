@@ -1,15 +1,15 @@
-package nextstep.sales;
+package nextstep.account;
 
-public class Sales {
+public class Account {
     private final Long id;
     private final Long reservationId;
     private final Integer txAmount;
 
-    public Sales(Long reservationId, Integer txAmount) {
+    public Account(Long reservationId, Integer txAmount) {
         this(null, reservationId, txAmount);
     }
 
-    public Sales(Long id, Long reservationId, Integer txAmount) {
+    public Account(Long id, Long reservationId, Integer txAmount) {
         this.id = id;
         this.reservationId = reservationId;
         this.txAmount = txAmount;

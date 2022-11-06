@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservationWaitingService {
@@ -83,8 +85,27 @@ public class ReservationWaitingService {
         if (member == null) {
             throw new AuthenticationException();
         }
-        List<ReservationWaiting> waitings = reservationWaitingDao.findByMemberIdOrderByDateTimeAsc(member.getId());
+        List<ReservationWaiting> myWaitings = reservationWaitingDao.findByMemberId(member.getId());
+        List<Long> scheduleIds = myWaitings.stream().map(waiting ->
+                waiting.getSchedule().getId()
+        ).collect(Collectors.toList());
+        List<ReservationWaiting> allWaiting = reservationWaitingDao.findByScheduleIdsOrderByDateTimeAsc(scheduleIds);
 
-        return ReservationWaitingResponse.fromList(waitings);
+        return ReservationWaitingResponse.fromList(myWaitings, allWaiting);
+    }
+
+    @Transactional
+    public void changeFirstToReservation(Long scheduleId) {
+        Optional<ReservationWaiting> waiting = reservationWaitingDao.findByScheduleIdOrderByDateTimeAsc(scheduleId);
+        if (waiting.isPresent()) {
+            reservationWaitingDao.deleteById(waiting.get().getId());
+
+            Reservation newReservation = new Reservation(
+                    waiting.get().getSchedule(),
+                    waiting.get().getMember(),
+                    ReservationStatus.REQUESTED
+            );
+            reservationDao.save(newReservation);
+        }
     }
 }

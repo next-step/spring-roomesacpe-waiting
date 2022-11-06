@@ -5,7 +5,6 @@ import auth.LoginMember;
 import nextstep.member.Member;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -39,9 +38,9 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
-    @DeleteMapping("/reservations/{id}")
-    public ResponseEntity<Void> deleteReservation(@LoginMember Member member, @PathVariable Long id) {
-        reservationService.cancelById(member, id);
+    @PatchMapping("/reservations/{id}/cancel")
+    public ResponseEntity<Void> cancelReservation(@LoginMember Member member, @PathVariable Long id) {
+        reservationService.cancel(member, id);
 
         return ResponseEntity.noContent().build();
     }
@@ -55,6 +54,12 @@ public class ReservationController {
     @PatchMapping("/reservations/{id}/approve")
     public ResponseEntity<Void> readMyReservations(@LoginMember Member member, @PathVariable Long id) {
         reservationService.approve(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/reservations/{id}/cancel-approve")
+    public ResponseEntity<List<ReservationResponse>> cancelApproveReservation(@LoginMember Member member, @PathVariable Long id) {
+        reservationService.cancelApprove(id);
         return ResponseEntity.ok().build();
     }
 

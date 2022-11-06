@@ -1,11 +1,13 @@
 package auth;
 
+import nextstep.member.MemberRole;
+
 public interface UserDetail {
     Long getId();
 
     String getUsername();
 
-    String getRole();
+    MemberRole getRole();
 
     boolean checkWrongPassword(String password);
 }
