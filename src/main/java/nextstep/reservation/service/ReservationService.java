@@ -1,9 +1,13 @@
-package nextstep.reservation;
+package nextstep.reservation.service;
 
 import auth.AuthenticationException;
 import java.util.List;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
+import nextstep.reservation.domain.Reservation;
+import nextstep.reservation.domain.ReservationWaiting;
+import nextstep.reservation.dao.ReservationDao;
+import nextstep.reservation.dao.ReservationWaitingDao;
 import nextstep.reservation.dto.ReservationRequest;
 import nextstep.reservation.dto.ReservationWaitingRequest;
 import nextstep.schedule.Schedule;

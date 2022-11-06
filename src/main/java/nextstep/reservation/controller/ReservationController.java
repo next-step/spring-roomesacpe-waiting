@@ -1,12 +1,14 @@
-package nextstep.reservation;
+package nextstep.reservation.controller;
 
 import auth.AuthenticationException;
 import java.net.URI;
 import java.util.List;
 import nextstep.member.LoginMember;
 import nextstep.member.Member;
+import nextstep.reservation.domain.Reservation;
 import nextstep.reservation.dto.ReservationRequest;
 import nextstep.reservation.dto.ReservationWaitingRequest;
+import nextstep.reservation.service.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;

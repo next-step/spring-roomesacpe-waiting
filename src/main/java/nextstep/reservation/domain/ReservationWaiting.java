@@ -1,26 +1,25 @@
-package nextstep.reservation;
+package nextstep.reservation.domain;
 
 import java.util.Objects;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 
-public class Reservation {
+public class ReservationWaiting {
 
-    private Long id;
-    private Schedule schedule;
-    private Member member;
+    public Long id;
+    public Schedule schedule;
+    public Member member;
+    public Integer waitNum;
 
-    public Reservation() {
+    public ReservationWaiting(Schedule schedule, Member member, Integer waitNum) {
+        this(null, schedule, member, waitNum);
     }
 
-    public Reservation(Schedule schedule, Member member) {
-        this(null, schedule, member);
-    }
-
-    public Reservation(Long id, Schedule schedule, Member member) {
+    public ReservationWaiting(Long id, Schedule schedule, Member member, Integer waitNum) {
         this.id = id;
         this.schedule = schedule;
         this.member = member;
+        this.waitNum = waitNum;
     }
 
     public Long getId() {
@@ -33,6 +32,10 @@ public class Reservation {
 
     public Member getMember() {
         return member;
+    }
+
+    public Integer getWaitNum() {
+        return waitNum;
     }
 
     public boolean sameMember(Member member) {

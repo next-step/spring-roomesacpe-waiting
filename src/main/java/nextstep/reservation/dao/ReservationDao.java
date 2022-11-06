@@ -1,10 +1,11 @@
-package nextstep.reservation;
+package nextstep.reservation.dao;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.util.Collections;
 import java.util.List;
 import nextstep.member.Member;
+import nextstep.reservation.domain.Reservation;
 import nextstep.schedule.Schedule;
 import nextstep.theme.Theme;
 import org.springframework.jdbc.core.JdbcTemplate;
