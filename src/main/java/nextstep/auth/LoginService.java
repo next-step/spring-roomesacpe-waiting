@@ -21,6 +21,7 @@ public class LoginService {
 
     public TokenResponse createToken(TokenRequest tokenRequest) {
         Member member = memberDao.findByUsername(tokenRequest.getUsername());
+
         if (member == null || member.checkWrongPassword(tokenRequest.getPassword())) {
             throw new AuthenticationException();
         }
@@ -30,12 +31,21 @@ public class LoginService {
         return new TokenResponse(accessToken);
     }
 
-    public Long extractPrincipal(String credential) {
-        return Long.parseLong(jwtTokenProvider.getPrincipal(credential));
+    public Member extractMember(String credential) {
+        if (isInvalid(credential)) {
+            throw new AuthenticationException();
+        }
+
+        Long id = extractPrincipal(credential);
+
+        return memberDao.findById(id);
     }
 
-    public Member extractMember(String credential) {
-        Long id = Long.parseLong(jwtTokenProvider.getPrincipal(credential));
-        return memberDao.findById(id);
+    private boolean isInvalid(String credential) {
+        return !jwtTokenProvider.validateToken(credential);
+    }
+
+    private Long extractPrincipal(String credential) {
+        return Long.parseLong(jwtTokenProvider.getPrincipal(credential));
     }
 }

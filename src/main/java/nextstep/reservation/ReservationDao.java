@@ -22,7 +22,7 @@ public class ReservationDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    private final RowMapper<Reservation> rowMapper = (resultSet, rowNum) -> new Reservation(
+    private final RowMapper<Reservation> reservation = (resultSet, rowNum) -> new Reservation(
         resultSet.getLong("reservation.id"),
         new Schedule(
             resultSet.getLong("schedule.id"),
@@ -51,8 +51,10 @@ public class ReservationDao {
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
+
             ps.setLong(1, reservation.getSchedule().getId());
             ps.setLong(2, reservation.getMember().getId());
+
             return ps;
 
         }, keyHolder);
@@ -72,7 +74,7 @@ public class ReservationDao {
             "inner join member on reservation.member_id = member.id " +
             "where theme.id = ? and schedule.date = ?;";
 
-        return jdbcTemplate.query(sql, rowMapper, themeId, Date.valueOf(date));
+        return jdbcTemplate.query(sql, reservation, themeId, Date.valueOf(date));
     }
 
     public Reservation findById(Long id) {
@@ -86,8 +88,9 @@ public class ReservationDao {
             "inner join theme on schedule.theme_id = theme.id " +
             "inner join member on reservation.member_id = member.id " +
             "where reservation.id = ?;";
+
         try {
-            return jdbcTemplate.queryForObject(sql, rowMapper, id);
+            return jdbcTemplate.queryForObject(sql, reservation, id);
         } catch (Exception e) {
             return null;
         }
@@ -106,7 +109,7 @@ public class ReservationDao {
             "where schedule.id = ?;";
 
         try {
-            return jdbcTemplate.query(sql, rowMapper, id);
+            return jdbcTemplate.query(sql, reservation, id);
         } catch (Exception e) {
             return Collections.emptyList();
         }

@@ -5,6 +5,8 @@ import java.net.URI;
 import java.util.List;
 import nextstep.member.LoginMember;
 import nextstep.member.Member;
+import nextstep.reservation.dto.ReservationRequest;
+import nextstep.reservation.dto.ReservationWaitingRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -26,32 +28,48 @@ public class ReservationController {
     }
 
     @PostMapping("/reservations")
-    public ResponseEntity createReservation(@LoginMember Member member,
-        @RequestBody ReservationRequest reservationRequest) {
-        Long id = reservationService.create(member, reservationRequest);
-        return ResponseEntity.created(URI.create("/reservations/" + id)).build();
+    public ResponseEntity<Void> createReservation(
+        @LoginMember Member member,
+        @RequestBody ReservationRequest request
+    ) {
+        Long reservationId = reservationService.create(member, request);
+        return ResponseEntity.created(URI.create("/reservations/" + reservationId)).build();
     }
 
     @GetMapping("/reservations")
-    public ResponseEntity readReservations(@RequestParam Long themeId, @RequestParam String date) {
-        List<Reservation> results = reservationService.findAllByThemeIdAndDate(themeId, date);
-        return ResponseEntity.ok().body(results);
+    public ResponseEntity<List<Reservation>> readReservations(
+        @RequestParam Long themeId,
+        @RequestParam String date
+    ) {
+        List<Reservation> reservations = reservationService.findAllByThemeIdAndDate(themeId, date);
+        return ResponseEntity.ok().body(reservations);
     }
 
     @DeleteMapping("/reservations/{id}")
-    public ResponseEntity deleteReservation(@LoginMember Member member, @PathVariable Long id) {
+    public ResponseEntity<Void> deleteReservation(
+        @LoginMember Member member,
+        @PathVariable Long id
+    ) {
         reservationService.deleteById(member, id);
-
         return ResponseEntity.noContent().build();
     }
 
+    @PostMapping("/reservation-waitings")
+    public ResponseEntity<Void> putOnWaitingList(
+        @LoginMember Member member,
+        @RequestBody ReservationWaitingRequest request
+    ) {
+        Long waitingId = reservationService.putOnWaitingList(member, request);
+        return ResponseEntity.created(URI.create("/reservation-waitings/" + waitingId)).build();
+    }
+
     @ExceptionHandler(Exception.class)
-    public ResponseEntity onException(Exception e) {
+    public ResponseEntity<Void> onException(Exception e) {
         return ResponseEntity.badRequest().build();
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity onAuthenticationException(AuthenticationException e) {
+    public ResponseEntity<Void> onAuthenticationException(AuthenticationException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
