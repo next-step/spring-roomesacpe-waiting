@@ -36,6 +36,7 @@ public class ReservationController {
 
     @PostMapping("/reservations-waitings")
     public ResponseEntity createReservationWaiting(@LoginMember Member member, @RequestBody ReservationWaitingRequest reservationWaitingRequest) {
+        // todo : 예약으로 생성되었을 경우 URI 분기처리 (예약 조회로 가도록)
         Long id = reservationWaitingService.create(member, reservationWaitingRequest);
         return ResponseEntity.created(URI.create("/reservations-waitings/" + id)).build();
     }

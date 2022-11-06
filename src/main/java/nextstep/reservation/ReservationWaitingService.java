@@ -3,6 +3,7 @@ package nextstep.reservation;
 import static java.time.LocalDateTime.now;
 
 import auth.AuthenticationException;
+import java.util.List;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleService;
@@ -29,6 +30,12 @@ public class ReservationWaitingService {
     }
     Long scheduleId = reservationWaitingRequest.getScheduleId();
     Schedule schedule = scheduleService.findById(scheduleId);
+    List<Reservation> reservations = reservationService.findByScheduleId(scheduleId);
+
+    if (reservations.isEmpty()) {
+      return reservationService.create(member, reservationWaitingRequest.toReservationRequest());
+    }
+
     ReservationWaiting reservationWaiting = new ReservationWaiting(schedule, member, WaitingEventType.CREATED,
         now());
 

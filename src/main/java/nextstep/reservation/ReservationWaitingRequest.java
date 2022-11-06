@@ -13,4 +13,8 @@ public class ReservationWaitingRequest {
     public Long getScheduleId() {
         return scheduleId;
     }
+
+    public ReservationRequest toReservationRequest(){
+        return new ReservationRequest(scheduleId);
+    }
 }
