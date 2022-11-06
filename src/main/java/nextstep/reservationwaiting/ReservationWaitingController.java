@@ -3,11 +3,13 @@ package nextstep.reservationwaiting;
 import auth.AuthenticationException;
 import auth.LoginMember;
 import java.net.URI;
+import java.util.List;
 import nextstep.member.Member;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,6 +39,13 @@ public class ReservationWaitingController {
     public ResponseEntity<Void> cancelReservationWaiting(@LoginMember Member member, @PathVariable Long id) {
         reservationWaitingService.cancelById(member, id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<ReservationWaitingResponse>> readMyReservationWaitings(@LoginMember Member member) {
+        return ResponseEntity.ok(
+            reservationWaitingService.findAllByMember(member)
+        );
     }
 
     @ExceptionHandler(AuthenticationException.class)

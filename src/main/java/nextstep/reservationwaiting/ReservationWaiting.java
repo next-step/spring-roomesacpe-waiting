@@ -36,6 +36,10 @@ public class ReservationWaiting {
         return id;
     }
 
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
     public Long getScheduleId() {
         return schedule.getId();
     }

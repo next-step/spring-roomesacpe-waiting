@@ -1,6 +1,7 @@
 package nextstep.reservationwaiting;
 
 import java.sql.PreparedStatement;
+import java.util.List;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 import nextstep.theme.Theme;
@@ -76,6 +77,36 @@ public class ReservationWaitingDao {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public List<ReservationWaiting> findAllByScheduleId(Long scheduleId) {
+        String sql = "SELECT " +
+            "reservation_waiting.id, reservation_waiting.schedule_id, reservation_waiting.member_id, " +
+            "reservation_waiting.canceled, reservation_waiting.created_at, " +
+            "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+            "theme.id, theme.name, theme.desc, theme.price, " +
+            "member.id, member.username, member.password, member.name, member.phone, member.role " +
+            "from reservation_waiting " +
+            "inner join schedule on reservation_waiting.schedule_id = schedule.id " +
+            "inner join theme on schedule.theme_id = theme.id " +
+            "inner join member on reservation_waiting.member_id = member.id " +
+            "where reservation_waiting.schedule_id = ?;";
+        return jdbcTemplate.query(sql, rowMapper, scheduleId);
+    }
+
+    public List<ReservationWaiting> findAllByMemberId(Long memberId) {
+        String sql = "SELECT " +
+            "reservation_waiting.id, reservation_waiting.schedule_id, reservation_waiting.member_id, " +
+            "reservation_waiting.canceled, reservation_waiting.created_at, " +
+            "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+            "theme.id, theme.name, theme.desc, theme.price, " +
+            "member.id, member.username, member.password, member.name, member.phone, member.role " +
+            "from reservation_waiting " +
+            "inner join schedule on reservation_waiting.schedule_id = schedule.id " +
+            "inner join theme on schedule.theme_id = theme.id " +
+            "inner join member on reservation_waiting.member_id = member.id " +
+            "where reservation_waiting.member_id = ?;";
+        return jdbcTemplate.query(sql, rowMapper, memberId);
     }
 
     public void updateCanceledById(boolean canceled, Long id) {

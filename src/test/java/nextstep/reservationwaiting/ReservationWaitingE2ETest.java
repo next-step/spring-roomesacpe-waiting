@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import auth.TokenResponse;
 import io.restassured.RestAssured;
+import java.util.List;
 import java.util.regex.Pattern;
 import nextstep.AbstractE2ETest;
 import nextstep.reservation.ReservationRequest;
@@ -143,23 +144,32 @@ public class ReservationWaitingE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
-    // TODO ggyool 순번도 비교해야함
-    @DisplayName("자신의 예약 목록을 조회할 수 있다")
+    @DisplayName("자신의 취소되지 않은 예약 대기 목록을 조회한다")
     @Test
     void readMine() {
+        // given
+        createReservation(new ReservationRequest(scheduleId), otherToken);
+        createReservationWaiting(new ReservationWaitingRequest(scheduleId), otherToken);
+        Long createdId = createReservationWaiting(new ReservationWaitingRequest(scheduleId), token);
+        cancelReservationWaiting(createdId);
+        createReservationWaiting(new ReservationWaitingRequest(scheduleId), token);
 
-    }
+        // when
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().get("/reservation-waitings/mine")
+            .then().log().all()
+            .extract();
 
-    @DisplayName("취소된 예약 대기 목록을 조회할 수 있다")
-    @Test
-    void readCanceledWaitings() {
+        // then
+        List<ReservationWaitingResponse> reservationWaitingResponses =
+            response.jsonPath().getList(".", ReservationWaitingResponse.class);
 
-    }
-
-    @DisplayName("자신의 예약 대기가 아니면 목록을 조회할 수 없다")
-    @Test
-    void readNotMine() {
-
+        assertThat(reservationWaitingResponses).hasSize(1);
+        assertThat(reservationWaitingResponses.get(0))
+            .extracting(ReservationWaitingResponse::getWaitNum)
+            .isEqualTo(2L);
     }
 
     private void createReservation(ReservationRequest reservationRequest, TokenResponse tokenResponse) {
@@ -190,5 +200,16 @@ public class ReservationWaitingE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
         String[] location = response.header("Location").split("/");
         return Long.parseLong(location[location.length - 1]);
+    }
+
+    private void cancelReservationWaiting(Long id) {
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().delete("/reservation-waitings/{id}", id)
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }
 }

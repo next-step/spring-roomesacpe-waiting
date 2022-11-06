@@ -2,6 +2,8 @@ package nextstep.reservationwaiting;
 
 import auth.AuthenticationException;
 import java.net.URI;
+import java.util.List;
+import java.util.stream.Collectors;
 import nextstep.member.Member;
 import nextstep.reservation.ReservationRequest;
 import nextstep.reservation.ReservationService;
@@ -55,5 +57,23 @@ public class ReservationWaitingService {
             throw new AuthenticationException();
         }
         reservationWaitingDao.updateCanceledById(true, id);
+    }
+
+    public List<ReservationWaitingResponse> findAllByMember(Member member) {
+        List<ReservationWaiting> myWaitings = reservationWaitingDao.findAllByMemberId(member.getId());
+        return myWaitings.stream()
+            .filter(it -> !it.isCanceled())
+            .map(
+                it -> new ReservationWaitingResponse(it.getId(), it.getSchedule(), calculateWaitNum(it))
+            )
+            .collect(Collectors.toList());
+    }
+
+    private Long calculateWaitNum(ReservationWaiting reservationWaiting) {
+        return reservationWaitingDao.findAllByScheduleId(reservationWaiting.getScheduleId())
+            .stream()
+            .filter(it -> !it.isCanceled())
+            .filter(it -> it.getCreatedAt().isBefore(reservationWaiting.getCreatedAt()))
+            .count() + 1;
     }
 }
