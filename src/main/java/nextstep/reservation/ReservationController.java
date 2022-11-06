@@ -34,7 +34,6 @@ public class ReservationController {
         return ResponseEntity.created(URI.create("/reservations-waitings/" + id)).build();
     }
 
-
     @GetMapping("/reservations")
     public ResponseEntity readReservations(@RequestParam Long themeId, @RequestParam String date) {
         List<Reservation> results = reservationService.findAllByThemeIdAndDate(themeId, date);
@@ -54,9 +53,9 @@ public class ReservationController {
         return ResponseEntity.noContent().build();
     }
 
-    @DeleteMapping("/reservations-watings/{id}")
-    public ResponseEntity deleteReservationWaitings(@LoginMember Member member, @PathVariable Long id) {
-        reservationService.deleteById(member, id);
+    @DeleteMapping("/reservations-watings/{scheduleId}")
+    public ResponseEntity deleteReservationWaitings(@LoginMember Member member, @PathVariable Long scheduleId) {
+        reservationWaitingService.deleteById(member, scheduleId);
 
         return ResponseEntity.noContent().build();
     }

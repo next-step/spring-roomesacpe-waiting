@@ -10,15 +10,15 @@ public class ReservationWaiting {
     private final Schedule schedule;
     private final Member member;
     private final WaitingEventType eventType;
-    private final LocalDateTime created_at;
+    private final LocalDateTime createdAt;
 
     public ReservationWaiting(Long id, Schedule schedule, Member member, WaitingEventType eventType,
-        LocalDateTime created_at) {
+        LocalDateTime createdAt) {
         this.id = id;
         this.schedule = schedule;
         this.member = member;
         this.eventType = eventType;
-        this.created_at = created_at;
+        this.createdAt = createdAt;
     }
 
     public ReservationWaiting(Schedule schedule, Member member, WaitingEventType eventType,
@@ -38,7 +38,19 @@ public class ReservationWaiting {
         return member;
     }
 
+    public WaitingEventType getEventType() {
+        return eventType;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
     public boolean sameMember(Member member) {
         return member != null && Objects.equals(this.member.getId(), member.getId());
+    }
+
+    public boolean sameSchedule(Long scheduleId) {
+        return schedule != null && Objects.equals(this.schedule.getId(), scheduleId);
     }
 }
