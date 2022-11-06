@@ -1,5 +1,8 @@
 package nextstep.domain.reservation;
 
-public enum ReservationStatus {
-    RESERVATION, CANCELLED,
+public interface ReservationStatus {
+    ReservationStatus cancel();
+    ReservationStatus approve();
+    boolean isCancelled();
+    String status();
 }

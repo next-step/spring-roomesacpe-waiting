@@ -18,6 +18,6 @@ public class Waitings {
     }
 
     public void moveUp() {
-        waitings.stream().forEach(waiting -> waiting.moveUp());
+        waitings.forEach(Waiting::moveUp);
     }
 }

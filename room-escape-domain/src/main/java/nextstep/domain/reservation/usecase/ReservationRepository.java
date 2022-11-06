@@ -12,4 +12,5 @@ public interface ReservationRepository {
      List<Reservation> findByMemberName(String name);
      List<Reservation> findAllBy(String date);
      void delete(Long id);
+     void update(Reservation approve);
 }

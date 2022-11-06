@@ -1,5 +1,6 @@
 package com.nextstep.web.reservation.controller;
 
+import com.nextstep.web.auth.UserDetail;
 import com.nextstep.web.member.LoginMember;
 import com.nextstep.web.auth.LoginMemberPrincipal;
 import com.nextstep.web.reservation.app.ReservationCommandService;
@@ -34,6 +35,18 @@ public class ReservationController {
                                        @LoginMemberPrincipal LoginMember loginMember) {
         Long id = reservationCommandService.save(request, loginMember);
         return ResponseEntity.created(URI.create("/reservation/" + id)).build();
+    }
+
+    @PatchMapping("/{id}/approval")
+    public ResponseEntity<Void> approve(@PathVariable Long id) {
+        reservationCommandService.approve(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{id}")
+    private ResponseEntity<Void> cancel(@PathVariable Long id, @LoginMemberPrincipal LoginMember loginMember) {
+        reservationCommandService.cancel(id, loginMember);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")

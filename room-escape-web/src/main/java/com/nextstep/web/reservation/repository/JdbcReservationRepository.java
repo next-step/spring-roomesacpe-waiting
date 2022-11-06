@@ -27,22 +27,12 @@ public class JdbcReservationRepository implements ReservationRepository {
 
     @Override
     public Long save(Reservation reservation) {
-        Schedule schedule =  reservation.getSchedule();
-        Theme theme = schedule.getTheme();
-        ThemeEntity themeEntity = new ThemeEntity(theme.getId().getNumber(), theme.getName(), theme.getDesc(), theme.getPrice());
-        ScheduleEntity scheduleEntity =
-                new ScheduleEntity(schedule.getId().getNumber(),
-                        themeEntity, schedule.getDate().toString(), schedule.getTime().toString());
-        return reservationDao.save(new ReservationEntity(null, scheduleEntity, reservation.getReservationTime(),
-                reservation.getName()));
+        return reservationDao.save(ReservationEntity.of(reservation));
     }
 
     @Override
     public Optional<Reservation> findById(Long id) {
-        return reservationDao.findById(id).map(
-                entity -> new Reservation(new Identity(entity.getId()),
-                        entity.getScheduleEntity().fromThis(), entity.getReservationTime(), entity.getName())
-        );
+        return reservationDao.findById(id).map(ReservationEntity::fromThis);
     }
 
     @Override
@@ -53,26 +43,29 @@ public class JdbcReservationRepository implements ReservationRepository {
     @Override
     public List<Reservation> findByMemberName(String name) {
         return reservationDao.findByMemberName(name).stream()
-                .map(entity -> new Reservation(new Identity(entity.getId()),
-                        entity.getScheduleEntity().fromThis(), entity.getReservationTime(), entity.getName()))
+                .map(ReservationEntity::fromThis)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<Reservation> findAllBy(String date) {
         List<Long> scheduleIds = scheduleDao.findAllBy(date).stream()
-                .map(scheduleEntity -> scheduleEntity.getId())
+                .map(ScheduleEntity::getId)
                 .collect(Collectors.toList());
 
         return reservationDao.findAllBy(scheduleIds).stream()
-                .map(entity -> new Reservation(new Identity(entity.getId()),
-                        entity.getScheduleEntity().fromThis(), entity.getReservationTime(), entity.getName()))
+                .map(ReservationEntity::fromThis)
                 .collect(Collectors.toList());
     }
 
     @Override
     public void delete(Long id) {
         reservationDao.delete(id);
+    }
+
+    @Override
+    public void update(Reservation reservation) {
+
     }
 
 }

@@ -7,10 +7,12 @@ import nextstep.domain.member.Member;
 import nextstep.domain.schedule.Schedule;
 import nextstep.domain.waiting.Waiting;
 import nextstep.domain.waiting.WaitingRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Repository
 public class JdbcWaitingRepository implements WaitingRepository {
     private final WaitingDao waitingDao;
 

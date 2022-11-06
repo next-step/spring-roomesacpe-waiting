@@ -40,9 +40,10 @@ public class WaitingCommandService {
         Waitings waitings = new Waitings(waitingRepository.findBySchedule(schedule));
 
         return reservationRepository.findByScheduleId(waitingRequest.getScheduleId())
-                .map(reservation -> "/reservation-waiting/" + waitingRepository.save(new Waiting(null, schedule, memberEntity.fromThis(), waitings.nextWaitingNumber()))
+                .map(reservation -> "/reservation-waiting/" +
+                        waitingRepository.save(new Waiting(null, schedule, memberEntity.fromThis(), waitings.nextWaitingNumber()))
                         .getId().getNumber())
-                .orElse("reservation/" + reservationRepository.save(new Reservation(null, schedule, memberEntity.getName())));
+                .orElse("reservation/" + reservationRepository.save(new Reservation(null, schedule, memberEntity.fromThis())));
     }
 
     public void delete(Long id, LoginMember loginMember) {
@@ -54,5 +55,10 @@ public class WaitingCommandService {
                 .orElseThrow(() -> new BusinessException("해당 예약대기가 걸려있지 않습니다."));
 
         waitingRepository.delete(waiting);
+    }
+
+    public void moveUp(Schedule schedule) {
+        Waitings waitings = new Waitings(waitingRepository.findBySchedule(schedule));
+        waitings.moveUp();
     }
 }

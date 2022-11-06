@@ -1,6 +1,7 @@
 package nextstep.domain.reservation;
 
 import nextstep.domain.Identity;
+import nextstep.domain.member.Member;
 import nextstep.domain.schedule.Schedule;
 
 import java.time.LocalDateTime;
@@ -9,18 +10,19 @@ public class Reservation {
     private final Identity id;
     private final Schedule schedule;
     private final LocalDateTime reservationTime;
-    private final ReservationStatus reservationStatus = ReservationStatus.RESERVATION;
-    private final String name;
+    private final ReservationStatus reservationStatus;
+    private final Member member;
 
-    public Reservation(Identity id, Schedule schedule, LocalDateTime reservationTime, String name) {
+    public Reservation(Identity id, Schedule schedule, LocalDateTime reservationTime, ReservationStatus reservationStatus, Member member) {
         this.id = id;
         this.schedule = schedule;
         this.reservationTime = reservationTime;
-        this.name = name;
+        this.reservationStatus = reservationStatus;
+        this.member = member;
     }
 
-    public Reservation(Identity id, Schedule schedule, String name) {
-        this(id, schedule, LocalDateTime.now(), name);
+    public Reservation(Identity id, Schedule schedule, Member member) {
+        this(id, schedule, LocalDateTime.now(), new BeforeDepositedReservationStatus(), member);
     }
 
     public Identity getId() {
@@ -35,11 +37,27 @@ public class Reservation {
         return reservationTime;
     }
 
-    public String getName() {
-        return name;
+    public Member getMember() {
+        return member;
     }
 
-    public boolean isReservationBy(String name) {
-       return this.name.equals(name);
+    public ReservationStatus getReservationStatus() {
+        return reservationStatus;
+    }
+
+    public boolean isReservationBy(Member member) {
+       return this.member.equals(member);
+    }
+
+    public Reservation approve() {
+        return new Reservation(this.id, this.schedule, this.reservationTime, reservationStatus.approve(), this.member);
+    }
+
+    public Reservation cancel() {
+        return new Reservation(this.id, this.schedule, this.reservationTime, reservationStatus.cancel(), this.member);
+    }
+
+    public boolean isCancelled() {
+        return reservationStatus.isCancelled();
     }
 }
