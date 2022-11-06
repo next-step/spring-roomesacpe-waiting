@@ -1,6 +1,8 @@
 package nextstep.reservation;
 
 import auth.AuthenticationException;
+import auth.UserDetail;
+import java.util.List;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
 import nextstep.schedule.Schedule;
@@ -9,8 +11,6 @@ import nextstep.support.DuplicateEntityException;
 import nextstep.theme.Theme;
 import nextstep.theme.ThemeDao;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ReservationService {
@@ -26,16 +26,14 @@ public class ReservationService {
         this.memberDao = memberDao;
     }
 
-    public Long create(Member member, ReservationRequest reservationRequest) {
-        if (member == null) {
-            throw new AuthenticationException();
-        }
+    public Long create(UserDetail userDetail, ReservationRequest reservationRequest) {
+        Member member = getMemberFromUserDetail(userDetail);
         Schedule schedule = scheduleDao.findById(reservationRequest.getScheduleId());
         if (schedule == null) {
             throw new NullPointerException();
         }
 
-        List<Reservation> reservation = reservationDao.findByScheduleId(schedule.getId());
+        List<Reservation> reservation = reservationDao.findAllAliveByScheduleId(schedule.getId());
         if (!reservation.isEmpty()) {
             throw new DuplicateEntityException();
         }
@@ -54,11 +52,12 @@ public class ReservationService {
             throw new NullPointerException();
         }
 
-        return reservationDao.findAllByThemeIdAndDate(themeId, date);
+        return reservationDao.findAllAliveByThemeIdAndDate(themeId, date);
     }
 
-    public void deleteById(Member member, Long id) {
-        Reservation reservation = reservationDao.findById(id);
+    public void deleteById(UserDetail userDetail, Long id) {
+        Member member = getMemberFromUserDetail(userDetail);
+        Reservation reservation = reservationDao.findAliveById(id);
         if (reservation == null) {
             throw new NullPointerException();
         }
@@ -68,5 +67,18 @@ public class ReservationService {
         }
 
         reservationDao.deleteById(id);
+    }
+
+    public List<ReservationResponse> findAllByMember(UserDetail userDetail) {
+        Member member = getMemberFromUserDetail(userDetail);
+        return ReservationResponse.listOf(reservationDao.findByMemberId(member.getId()));
+    }
+
+    private Member getMemberFromUserDetail(UserDetail userDetail) {
+        if (userDetail == null) {
+            throw new AuthenticationException();
+        }
+
+        return memberDao.findByUsername(userDetail.getUsername());
     }
 }

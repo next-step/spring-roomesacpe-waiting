@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class ReservationE2ETest extends AbstractE2ETest {
     public static final String DATE = "2022-08-11";
-    public static final String TIME = "13:00";
 
     private ReservationRequest request;
     private Long themeId;
@@ -27,35 +26,10 @@ class ReservationE2ETest extends AbstractE2ETest {
     @BeforeEach
     public void setUp() {
         super.setUp();
-        ThemeRequest themeRequest = new ThemeRequest("테마이름", "테마설명", 22000);
-        var themeResponse = RestAssured
-                .given().log().all()
-                .auth().oauth2(token.getAccessToken())
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(themeRequest)
-                .when().post("/admin/themes")
-                .then().log().all()
-                .statusCode(HttpStatus.CREATED.value())
-                .extract();
-        String[] themeLocation = themeResponse.header("Location").split("/");
-        themeId = Long.parseLong(themeLocation[themeLocation.length - 1]);
 
-        ScheduleRequest scheduleRequest = new ScheduleRequest(themeId, DATE, TIME);
-        var scheduleResponse = RestAssured
-                .given().log().all()
-                .auth().oauth2(token.getAccessToken())
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(scheduleRequest)
-                .when().post("/admin/schedules")
-                .then().log().all()
-                .statusCode(HttpStatus.CREATED.value())
-                .extract();
-        String[] scheduleLocation = scheduleResponse.header("Location").split("/");
-        scheduleId = Long.parseLong(scheduleLocation[scheduleLocation.length - 1]);
-
-        request = new ReservationRequest(
-                scheduleId
-        );
+        themeId = createThemeRequest(new ThemeRequest("name", "desc", 22000));
+        scheduleId = createScheduleRequest(new ScheduleRequest(themeId, "2022-08-11", "13:00"));
+        request = new ReservationRequest(scheduleId);
     }
 
     @DisplayName("예약을 생성한다")
@@ -63,7 +37,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     void create() {
         var response = RestAssured
                 .given().log().all()
-                .auth().oauth2(token.getAccessToken())
+                .auth().oauth2(adminToken.getAccessToken())
                 .body(request)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/reservations")
@@ -104,6 +78,22 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(reservations.size()).isEqualTo(1);
     }
 
+    @DisplayName("본인의 예약을 확인한다.")
+    @Test
+    void showMine() {
+        createReservation();
+
+        var response = RestAssured
+                .given().log().all()
+                .auth().oauth2(adminToken.getAccessToken())
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .extract();
+
+        List<ReservationResponse> reservations = response.jsonPath().getList(".", ReservationResponse.class);
+        assertThat(reservations.size()).isEqualTo(1);
+    }
+
     @DisplayName("예약을 삭제한다")
     @Test
     void delete() {
@@ -111,7 +101,7 @@ class ReservationE2ETest extends AbstractE2ETest {
 
         var response = RestAssured
                 .given().log().all()
-                .auth().oauth2(token.getAccessToken())
+                .auth().oauth2(adminToken.getAccessToken())
                 .when().delete(reservation.header("Location"))
                 .then().log().all()
                 .extract();
@@ -126,7 +116,7 @@ class ReservationE2ETest extends AbstractE2ETest {
 
         var response = RestAssured
                 .given().log().all()
-                .auth().oauth2(token.getAccessToken())
+                .auth().oauth2(adminToken.getAccessToken())
                 .body(request)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/reservations")
@@ -153,10 +143,10 @@ class ReservationE2ETest extends AbstractE2ETest {
 
     @DisplayName("없는 예약을 삭제한다")
     @Test
-    void createNotExistReservation() {
+    void deleteNotExistReservation() {
         var response = RestAssured
                 .given().log().all()
-                .auth().oauth2(token.getAccessToken())
+                .auth().oauth2(adminToken.getAccessToken())
                 .when().delete("/reservations/1")
                 .then().log().all()
                 .extract();
@@ -164,7 +154,7 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
-    @DisplayName("다른 사람이 예약을삭제한다")
+    @DisplayName("다른 사람이 예약을 삭제한다")
     @Test
     void deleteReservationOfOthers() {
         createReservation();
@@ -182,7 +172,7 @@ class ReservationE2ETest extends AbstractE2ETest {
     private ExtractableResponse<Response> createReservation() {
         return RestAssured
                 .given().log().all()
-                .auth().oauth2(token.getAccessToken())
+                .auth().oauth2(adminToken.getAccessToken())
                 .body(request)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/reservations")

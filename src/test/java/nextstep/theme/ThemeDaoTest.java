@@ -9,8 +9,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
 public class ThemeDaoTest {
-    @Autowired
-    private JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
+
+    public ThemeDaoTest(@Autowired JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
     @Test
     void save() {
