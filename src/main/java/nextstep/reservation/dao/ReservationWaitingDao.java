@@ -95,6 +95,22 @@ public class ReservationWaitingDao {
         }
     }
 
+    public List<ReservationWaiting> findByMemberId(Long id) {
+        String sql = "SELECT "
+            + "reservation_waiting.id, "
+            + "schedule.id, schedule.theme_id, schedule.date, schedule.time, "
+            + "member.id, member.username, member.password, member.name, member.phone, member.role "
+            + "reservation_waiting.wait_num"
+            + "FROM reservation_waiting"
+            + "WHERE member.id = ?;";
+
+        try {
+            return jdbcTemplate.query(sql, reservationWaiting, id);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
     public void deleteById(Long id) {
         String sql = "DELETE FROM reservation_waiting WHERE id = ?;";
         jdbcTemplate.update(sql, id);

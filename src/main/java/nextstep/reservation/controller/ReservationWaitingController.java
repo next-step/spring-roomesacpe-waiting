@@ -2,14 +2,17 @@ package nextstep.reservation.controller;
 
 import auth.AuthenticationException;
 import java.net.URI;
+import java.util.List;
 import nextstep.member.LoginMember;
 import nextstep.member.Member;
 import nextstep.reservation.dto.ReservationWaitingRequest;
+import nextstep.reservation.dto.ReservationWaitingResponse;
 import nextstep.reservation.service.ReservationWaitingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -44,6 +47,16 @@ public class ReservationWaitingController {
     ) {
         reservationWaitingService.deleteFromWaitingListById(member, id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<ReservationWaitingResponse>> readMyWaitingList(
+        @LoginMember Member member
+    ) {
+        List<ReservationWaitingResponse> responses = reservationWaitingService
+            .readMyWaitingList(member);
+
+        return ResponseEntity.ok(responses);
     }
 
     @ExceptionHandler(Exception.class)

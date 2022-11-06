@@ -2,11 +2,13 @@ package nextstep.reservation.service;
 
 import auth.AuthenticationException;
 import java.util.List;
+import java.util.stream.Collectors;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
 import nextstep.reservation.dao.ReservationDao;
 import nextstep.reservation.domain.Reservation;
 import nextstep.reservation.dto.ReservationRequest;
+import nextstep.reservation.dto.ReservationResponse;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import nextstep.support.DuplicateEntityException;
@@ -80,5 +82,15 @@ public class ReservationService {
         }
 
         reservationDao.deleteById(id);
+    }
+
+    public List<ReservationResponse> readMyReservations(Member member) {
+        return reservationDao.findByMemberId(member.getId()).stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+    }
+
+    private ReservationResponse toResponse(Reservation reservation) {
+        return new ReservationResponse(reservation.getId(), reservation.getSchedule());
     }
 }

@@ -2,12 +2,14 @@ package nextstep.reservation.service;
 
 import auth.AuthenticationException;
 import java.util.List;
+import java.util.stream.Collectors;
 import nextstep.member.Member;
 import nextstep.reservation.dao.ReservationDao;
 import nextstep.reservation.dao.ReservationWaitingDao;
 import nextstep.reservation.domain.Reservation;
 import nextstep.reservation.domain.ReservationWaiting;
 import nextstep.reservation.dto.ReservationWaitingRequest;
+import nextstep.reservation.dto.ReservationWaitingResponse;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import org.springframework.stereotype.Service;
@@ -70,5 +72,19 @@ public class ReservationWaitingService {
         }
 
         reservationWaitingDao.deleteById(id);
+    }
+
+    public List<ReservationWaitingResponse> readMyWaitingList(Member member) {
+        return reservationWaitingDao.findByMemberId(member.getId()).stream()
+            .map(this::toResponse)
+            .collect(Collectors.toList());
+    }
+
+    private ReservationWaitingResponse toResponse(ReservationWaiting reservationWaiting) {
+        return new ReservationWaitingResponse(
+            reservationWaiting.getId(),
+            reservationWaiting.getSchedule(),
+            reservationWaiting.getWaitNum()
+        );
     }
 }

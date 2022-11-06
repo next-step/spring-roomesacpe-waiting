@@ -7,6 +7,7 @@ import nextstep.member.LoginMember;
 import nextstep.member.Member;
 import nextstep.reservation.domain.Reservation;
 import nextstep.reservation.dto.ReservationRequest;
+import nextstep.reservation.dto.ReservationResponse;
 import nextstep.reservation.service.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,14 @@ public class ReservationController {
     ) {
         reservationService.deleteById(member, id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<ReservationResponse>> readMyReservations(
+        @LoginMember Member member
+    ) {
+        List<ReservationResponse> responses = reservationService.readMyReservations(member);
+        return ResponseEntity.ok(responses);
     }
 
     @ExceptionHandler(Exception.class)
