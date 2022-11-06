@@ -44,3 +44,11 @@ CREATE TABLE reservation_waiting
     created_at  timestamp not null default current_timestamp,
     primary key (id)
 );
+
+CREATE TABLE reservation_cancellation
+(
+    id          bigint not null,
+    schedule_id bigint not null,
+    member_id   bigint not null,
+    primary key (id)
+);

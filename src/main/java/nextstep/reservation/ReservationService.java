@@ -2,8 +2,9 @@ package nextstep.reservation;
 
 import auth.AuthenticationException;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import nextstep.member.Member;
-import nextstep.member.MemberDao;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import nextstep.support.DuplicateEntityException;
@@ -15,16 +16,18 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ReservationService {
 
-    public final ReservationDao reservationDao;
-    public final ThemeDao themeDao;
-    public final ScheduleDao scheduleDao;
-    public final MemberDao memberDao;
+    private final ReservationDao reservationDao;
+    private final ThemeDao themeDao;
+    private final ScheduleDao scheduleDao;
+    private final ReservationCancellationDao reservationCancellationDao;
 
-    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao) {
+
+    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao,
+        ReservationCancellationDao reservationCancellationDao) {
         this.reservationDao = reservationDao;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
-        this.memberDao = memberDao;
+        this.reservationCancellationDao = reservationCancellationDao;
     }
 
     @Transactional
@@ -43,8 +46,8 @@ public class ReservationService {
         }
 
         Reservation newReservation = new Reservation(
-                schedule,
-                member
+            schedule,
+            member
         );
 
         return reservationDao.save(newReservation);
@@ -64,6 +67,18 @@ public class ReservationService {
         return reservationDao.findAllByThemeIdAndDate(themeId, date);
     }
 
+    public List<ReservationResponse> findAllByMember(Member member) {
+        return Stream.concat(
+            reservationDao.findByMemberId(member.getId())
+                .stream()
+                .map(it -> new ReservationResponse(it.getId(), it.getSchedule(), false)),
+            reservationCancellationDao.findByMemberId(member.getId())
+                .stream()
+                .map(it -> new ReservationResponse(it.getId(), it.getSchedule(), true))
+        ).collect(Collectors.toList());
+    }
+
+    @Transactional
     public void deleteById(Member member, Long id) {
         Reservation reservation = reservationDao.findById(id);
         if (reservation == null) {
@@ -75,5 +90,6 @@ public class ReservationService {
         }
 
         reservationDao.deleteById(id);
+        reservationCancellationDao.save(reservation);
     }
 }
