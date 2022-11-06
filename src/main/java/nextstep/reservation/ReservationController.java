@@ -63,6 +63,15 @@ public class ReservationController {
         return ResponseEntity.created(URI.create("/reservation-waitings/" + waitingId)).build();
     }
 
+    @DeleteMapping("/reservation-waitings/{id}")
+    public ResponseEntity<Void> deleteFromWaitingList(
+        @LoginMember Member member,
+        @PathVariable Long id
+    ) {
+        reservationService.deleteFromWaitingListById(member, id);
+        return ResponseEntity.noContent().build();
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Void> onException(Exception e) {
         return ResponseEntity.badRequest().build();

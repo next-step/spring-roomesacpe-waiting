@@ -22,20 +22,20 @@ public class ReservationService {
     public final ThemeDao themeDao;
     public final ScheduleDao scheduleDao;
     public final MemberDao memberDao;
-    public final ReservationWaitingsDao waitingsDao;
+    public final ReservationWaitingDao reservationWaitingDao;
 
     public ReservationService(
         ReservationDao reservationDao,
         ThemeDao themeDao,
         ScheduleDao scheduleDao,
         MemberDao memberDao,
-        ReservationWaitingsDao waitingsDao
-        ) {
+        ReservationWaitingDao reservationWaitingDao
+    ) {
         this.reservationDao = reservationDao;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
-        this.waitingsDao = waitingsDao;
+        this.reservationWaitingDao = reservationWaitingDao;
     }
 
     @Transactional
@@ -56,7 +56,8 @@ public class ReservationService {
             throw new DuplicateEntityException();
         }
 
-        return reservationDao.save(new Reservation(schedule, member));
+        Reservation newReservation = new Reservation(schedule, member);
+        return reservationDao.save(newReservation);
     }
 
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
@@ -89,16 +90,38 @@ public class ReservationService {
         List<Reservation> reservations = reservationDao.findByScheduleId(schedule.getId());
 
         if (reservations.isEmpty()) {
-            reservationDao.save(new Reservation(schedule, member));
-            return schedule.getId();
+            Reservation newReservation = new Reservation(schedule, member);
+            reservationDao.save(newReservation);
+
+            return Long.MAX_VALUE;
         }
 
-        List<ReservationWaitings> waitings = waitingsDao.findByScheduleId(schedule.getId());
+        List<ReservationWaiting> reservationWaitings = reservationWaitingDao
+            .findByScheduleId(schedule.getId());
 
-        return waitingsDao.save(new ReservationWaitings(schedule, calculateWaitNum(waitings)));
+        ReservationWaiting newReservationWaiting = new ReservationWaiting(
+            schedule,
+            member,
+            calculateWaitNum(reservationWaitings)
+        );
+        return reservationWaitingDao.save(newReservationWaiting);
     }
 
-    private int calculateWaitNum(List<ReservationWaitings> waitings) {
+    private int calculateWaitNum(List<ReservationWaiting> waitings) {
         return waitings.size() + 1;
+    }
+
+    @Transactional
+    public void deleteFromWaitingListById(Member member, Long id) {
+        ReservationWaiting reservationWaiting = reservationWaitingDao.findById(id);
+
+        if (reservationWaiting == null) {
+            throw new NullPointerException();
+        }
+        if (!reservationWaiting.sameMember(member)) {
+            throw new AuthenticationException();
+        }
+
+        reservationWaitingDao.deleteById(id);
     }
 }
