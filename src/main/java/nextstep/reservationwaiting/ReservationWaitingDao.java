@@ -25,7 +25,6 @@ public class ReservationWaitingDao {
     );
 
     public Long save(ReservationWaiting reservationWaiting) {
-
         String sql = "INSERT INTO reservation_waiting (schedule_id, member_id, canceled) VALUES (?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -38,5 +37,23 @@ public class ReservationWaitingDao {
         }, keyHolder);
 
         return keyHolder.getKey().longValue();
+    }
+
+    public ReservationWaiting findById(Long id) {
+        String sql = "SELECT " +
+            "reservation_waiting.id, reservation_waiting.schedule_id, reservation_waiting.member_id, " +
+            "reservation_waiting.canceled, reservation_waiting.created_at " +
+            "from reservation_waiting " +
+            "where reservation_waiting.id = ?;";
+        try {
+            return jdbcTemplate.queryForObject(sql, rowMapper, id);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    public void updateCanceledById(boolean canceled, Long id) {
+        String sql = "UPDATE reservation_waiting SET canceled = ? where id = ?;";
+        jdbcTemplate.update(sql, canceled, id);
     }
 }

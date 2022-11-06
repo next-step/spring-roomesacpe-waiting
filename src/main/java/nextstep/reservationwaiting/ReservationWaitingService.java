@@ -1,5 +1,6 @@
 package nextstep.reservationwaiting;
 
+import auth.AuthenticationException;
 import java.net.URI;
 import nextstep.member.Member;
 import nextstep.reservation.ReservationRequest;
@@ -36,5 +37,16 @@ public class ReservationWaitingService {
         return URI.create(
             RESERVATION_URI_PREFIX + reservationService.create(member, new ReservationRequest(scheduleId))
         );
+    }
+
+    public void cancelById(Member member, Long id) {
+        ReservationWaiting reservationWaiting = reservationWaitingDao.findById(id);
+        if (reservationWaiting == null) {
+            throw new NullPointerException();
+        }
+        if (!reservationWaiting.sameMember(member)) {
+            throw new AuthenticationException();
+        }
+        reservationWaitingDao.updateCanceledById(true, id);
     }
 }

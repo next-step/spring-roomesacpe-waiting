@@ -1,6 +1,7 @@
 package nextstep.reservationwaiting;
 
 import java.time.LocalDateTime;
+import nextstep.member.Member;
 
 public class ReservationWaiting {
 
@@ -23,6 +24,10 @@ public class ReservationWaiting {
         this.memberId = memberId;
         this.canceled = canceled;
         this.createdAt = createdAt;
+    }
+
+    public boolean sameMember(Member member) {
+        return memberId.equals(member.getId());
     }
 
     public Long getId() {

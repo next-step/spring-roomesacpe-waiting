@@ -95,13 +95,52 @@ public class ReservationWaitingE2ETest extends AbstractE2ETest {
     @DisplayName("자신의 예약 대기를 취소할 수 있다")
     @Test
     void cancelMine() {
+        // given
+        createReservation(new ReservationRequest(scheduleId), otherToken);
+        Long createdId = createReservationWaiting(new ReservationWaitingRequest(scheduleId), token);
 
+        // when
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().delete("/reservation-waitings/{id}", createdId)
+            .then().log().all()
+            .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    @DisplayName("없는 예약을 삭제한다")
+    @Test
+    void createNotExistReservation() {
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().delete("/reservation-waitings/999")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     @DisplayName("자신의 예약 대기가 아니면 취소할 수 없다")
     @Test
     void cancelNotMine() {
+        // given
+        createReservation(new ReservationRequest(scheduleId), token);
+        Long createdId = createReservationWaiting(new ReservationWaitingRequest(scheduleId), otherToken);
 
+        // when
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(token.getAccessToken())
+            .when().delete("/reservation-waitings/{id}", createdId)
+            .then().log().all()
+            .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
     // TODO ggyool 순번도 비교해야함
@@ -134,5 +173,22 @@ public class ReservationWaitingE2ETest extends AbstractE2ETest {
             .extract();
 
         assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+    }
+
+    private Long createReservationWaiting(
+        ReservationWaitingRequest reservationWaitingRequest, TokenResponse tokenResponse
+    ) {
+        var response = RestAssured
+            .given().log().all()
+            .auth().oauth2(tokenResponse.getAccessToken())
+            .body(reservationWaitingRequest)
+            .contentType(MediaType.APPLICATION_JSON_VALUE)
+            .when().post("/reservation-waitings")
+            .then().log().all()
+            .extract();
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.CREATED.value());
+        String[] location = response.header("Location").split("/");
+        return Long.parseLong(location[location.length - 1]);
     }
 }
