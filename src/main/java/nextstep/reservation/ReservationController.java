@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,6 +50,12 @@ public class ReservationController {
     public ResponseEntity<List<ReservationResponse>> readMyReservations(@LoginMember Member member) {
         List<ReservationResponse> results = reservationService.findMine(member);
         return ResponseEntity.ok().body(results);
+    }
+
+    @PatchMapping("/reservations/{id}/approve")
+    public ResponseEntity<Void> readMyReservations(@LoginMember Member member, @PathVariable Long id) {
+        reservationService.approve(id);
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(Exception.class)

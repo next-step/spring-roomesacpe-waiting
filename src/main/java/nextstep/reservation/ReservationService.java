@@ -3,6 +3,8 @@ package nextstep.reservation;
 import auth.AuthenticationException;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
+import nextstep.sales.Sales;
+import nextstep.sales.SalesDao;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleDao;
 import nextstep.support.DuplicateEntityException;
@@ -19,12 +21,14 @@ public class ReservationService {
     public final ThemeDao themeDao;
     public final ScheduleDao scheduleDao;
     public final MemberDao memberDao;
+    public final SalesDao salesDao;
 
-    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao) {
+    public ReservationService(ReservationDao reservationDao, ThemeDao themeDao, ScheduleDao scheduleDao, MemberDao memberDao, SalesDao salesDao) {
         this.reservationDao = reservationDao;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
+        this.salesDao = salesDao;
     }
 
     @Transactional
@@ -45,7 +49,7 @@ public class ReservationService {
         Reservation newReservation = new Reservation(
                 schedule,
                 member,
-                ReservationStatus.COMPLETED
+                ReservationStatus.REQUESTED
         );
 
         return reservationDao.save(newReservation);
@@ -85,5 +89,19 @@ public class ReservationService {
         List<Reservation> reservations = reservationDao.findByMemberId(member.getId());
 
         return ReservationResponse.fromList(reservations);
+    }
+
+    @Transactional
+    public void approve(Long id) {
+        Reservation reservation = reservationDao.findById(id);
+        if (reservation == null) {
+            throw new NullPointerException();
+        }
+
+        reservation.approved();
+        reservationDao.update(reservation);
+
+        Sales newSales = new Sales(reservation.getId(), reservation.getSchedule().getTheme().getPrice());
+        salesDao.save(newSales);
     }
 }

@@ -1,6 +1,7 @@
 package nextstep.reservation;
 
 public enum ReservationStatus {
-    COMPLETED,
+    REQUESTED,
+    APPROVED,
     CANCELED
 }

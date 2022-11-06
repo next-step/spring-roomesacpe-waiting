@@ -51,4 +51,8 @@ public class Reservation {
     public void canceled() {
         this.status = ReservationStatus.CANCELED;
     }
+
+    public void approved() {
+        this.status = ReservationStatus.APPROVED;
+    }
 }

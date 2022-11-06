@@ -54,7 +54,7 @@ public class ReservationWaitingService {
             Reservation newReservation = new Reservation(
                     schedule,
                     member,
-                    ReservationStatus.COMPLETED
+                    ReservationStatus.REQUESTED
             );
             return reservationDao.save(newReservation);
 
