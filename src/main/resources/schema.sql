@@ -6,6 +6,16 @@ CREATE TABLE RESERVATION
     primary key (id)
 );
 
+CREATE TABLE RESERVATION_WAITING
+(
+    id          bigint not null auto_increment,
+    schedule_id bigint not null,
+    event_type  varchar(255) not null,
+    member_id   bigint not null,
+    created_at  timestamp not null,
+    primary key (id)
+);
+
 CREATE TABLE theme
 (
     id    bigint not null auto_increment,
