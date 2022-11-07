@@ -48,11 +48,27 @@ public class ReservationWaitingService {
   }
 
   public ReservationWaitings findAllByScheduleIdAndMemberId(Member member, Long scheduleId) {
-    return new ReservationWaitings(reservationWaitingDao.findByMemberIdAndScheduleId(member.getId(), scheduleId));
+    return new ReservationWaitings(
+        reservationWaitingDao.findByMemberIdAndScheduleId(scheduleId), member);
   }
 
   public ReservationWaitings findAllByMemberId(Member member) {
-    return new ReservationWaitings(reservationWaitingDao.findByMemberId(member.getId()));
+    return new ReservationWaitings(reservationWaitingDao.findAll(), member);
+  }
+
+  public void completeReservation(Member member, Long scheduleId) {
+    var reservationWaitings = findAllByScheduleIdAndMemberId(member, scheduleId);
+    reservationWaitings.findFirstWait()
+        .ifPresent(
+            reservationWaiting ->
+                reservationWaitingDao.save(
+                    new ReservationWaiting(
+                        reservationWaiting.getSchedule(),
+                        reservationWaiting.getMember(),
+                        WaitingEventType.COMPLETED,
+                        now())
+                )
+        );
   }
 
   public void deleteById(Member member, Long scheduleId) {

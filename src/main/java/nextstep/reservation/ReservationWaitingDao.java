@@ -64,7 +64,7 @@ public class ReservationWaitingDao {
     return keyHolder.getKey().longValue();
   }
 
-  public List<ReservationWaiting> findByMemberIdAndScheduleId(Long memberId, Long scheduleId) {
+  public List<ReservationWaiting> findByMemberIdAndScheduleId(Long scheduleId) {
     String sql = "SELECT " +
                  "reservation_waiting.id, reservation_waiting.schedule_id, reservation_waiting.member_id, reservation_waiting.event_type, reservation_waiting.created_at," +
                  "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
@@ -74,15 +74,15 @@ public class ReservationWaitingDao {
                  "inner join schedule on reservation_waiting.schedule_id = schedule.id " +
                  "inner join theme on schedule.theme_id = theme.id " +
                  "inner join member on reservation_waiting.member_id = member.id " +
-                 "where schedule.id = ? and member.id = ?;";
+                 "where schedule.id = ?;";
     try {
-      return jdbcTemplate.query(sql, rowMapper, scheduleId, memberId);
+      return jdbcTemplate.query(sql, rowMapper, scheduleId);
     } catch (Exception e) {
       return Collections.emptyList();
     }
   }
 
-  public List<ReservationWaiting> findByMemberId(Long memberId) {
+  public List<ReservationWaiting> findAll() {
     String sql = "SELECT " +
                  "reservation_waiting.id, reservation_waiting.schedule_id, reservation_waiting.member_id, reservation_waiting.event_type, reservation_waiting.created_at," +
                  "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
@@ -92,9 +92,9 @@ public class ReservationWaitingDao {
                  "inner join schedule on reservation_waiting.schedule_id = schedule.id " +
                  "inner join theme on schedule.theme_id = theme.id " +
                  "inner join member on reservation_waiting.member_id = member.id " +
-                 "where member.id = ?;";
+                 ";";
     try {
-      return jdbcTemplate.query(sql, rowMapper, memberId);
+      return jdbcTemplate.query(sql, rowMapper);
     } catch (Exception e) {
       return Collections.emptyList();
     }

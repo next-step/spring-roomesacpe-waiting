@@ -11,6 +11,7 @@ public class ReservationWaiting {
     private Member member;
     private WaitingEventType eventType;
     private LocalDateTime createdAt;
+    private Integer waitNumber;
 
     private ReservationWaiting() {
     }
@@ -47,6 +48,14 @@ public class ReservationWaiting {
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public Integer getWaitNumber() {
+        return waitNumber;
+    }
+
+    public void setWaitNumber(int waitNumber) {
+        this.waitNumber = waitNumber;
     }
 
     public boolean sameMember(Member member) {

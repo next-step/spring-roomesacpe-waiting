@@ -3,10 +3,14 @@ package nextstep.reservation;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import nextstep.member.Member;
+import nextstep.schedule.Schedule;
 import org.springframework.lang.Nullable;
 
-public record ReservationWaitings(List<ReservationWaiting> reservationWaitings) {
+public record ReservationWaitings(List<ReservationWaiting> reservationWaitings, Member member) {
 
   public ReservationWaitings {
     if (reservationWaitings == null) {
@@ -17,6 +21,15 @@ public record ReservationWaitings(List<ReservationWaiting> reservationWaitings) 
         .sorted(Comparator.comparing(ReservationWaiting::getCreatedAt))
         .collect(Collectors.toList())
     ;
+
+    setWaitCount(reservationWaitings);
+  }
+
+  @Override
+  public List<ReservationWaiting> reservationWaitings() {
+    return reservationWaitings.stream()
+        .filter(reservationWaiting -> reservationWaiting.sameMember(member))
+        .toList();
   }
 
   public boolean isExistWaiting(Long scheduleId) {
@@ -29,14 +42,27 @@ public record ReservationWaitings(List<ReservationWaiting> reservationWaitings) 
     return reservationWaiting.getEventType() == WaitingEventType.CREATED;
   }
 
-  public boolean isCanceledWaiting(Long scheduleId) {
-    var reservationWaiting = getLastElement(scheduleId);
+  public Optional<ReservationWaiting> findFirstWait() {
+    return reservationWaitings.stream()
+        .filter(reservationWaiting -> reservationWaiting.getWaitNumber() == 1)
+        .max(Comparator.comparing(ReservationWaiting::getCreatedAt));
+  }
 
-    if (reservationWaiting == null) {
-      return false;
-    }
+  private void setWaitCount(List<ReservationWaiting> reservationWaitings) {
+    Map<Schedule, List<ReservationWaiting>> groupBySchedule = reservationWaitings.stream()
+        .collect(Collectors.groupingBy(ReservationWaiting::getSchedule));
 
-    return reservationWaiting.getEventType() == WaitingEventType.CANCELED;
+    // 이벤트가 CREATED 인 경우 waitNumber가 필요하고, 나머지는 필요하지 않다.
+    groupBySchedule.forEach((schedule, reservationWaitingList) -> {
+          int count = 0;
+          for (ReservationWaiting reservationWaiting : reservationWaitingList) {
+            switch (reservationWaiting.getEventType()) {
+              case CREATED -> reservationWaiting.setWaitNumber(++count);
+              case CANCELED, COMPLETED -> count--;
+            }
+          }
+        }
+    );
   }
 
   @Nullable

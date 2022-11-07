@@ -19,11 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ReservationController {
 
+    public final ReservationFacade reservationFacade;
     public final ReservationService reservationService;
     public final ReservationWaitingService reservationWaitingService;
 
-    public ReservationController(ReservationService reservationService,
-        ReservationWaitingService reservationWaitingService) {
+    public ReservationController(ReservationFacade reservationFacade,
+        ReservationService reservationService, ReservationWaitingService reservationWaitingService) {
+        this.reservationFacade = reservationFacade;
         this.reservationService = reservationService;
         this.reservationWaitingService = reservationWaitingService;
     }
@@ -61,7 +63,7 @@ public class ReservationController {
 
     @DeleteMapping("/reservations/{id}")
     public ResponseEntity deleteReservation(@LoginMember Member member, @PathVariable Long id) {
-        reservationService.deleteById(member, id);
+        reservationFacade.deleteReservation(member, id);
 
         return ResponseEntity.noContent().build();
     }

@@ -34,7 +34,7 @@ public class ReservationService {
             throw new NullPointerException();
         }
 
-        List<Reservation> reservation = reservationDao.findByScheduleId(schedule.getId());
+        List<Reservation> reservation = reservationDao.findByScheduleId(schedule.getId(), false);
         if (!reservation.isEmpty()) {
             throw new DuplicateEntityException();
         }
@@ -53,7 +53,7 @@ public class ReservationService {
             throw new NullPointerException();
         }
 
-        return reservationDao.findAllByThemeIdAndDate(themeId, date);
+        return reservationDao.findAllByThemeIdAndDate(themeId, date, false);
     }
 
     public List<Reservation> findAllByMember(Member member) {
@@ -61,11 +61,11 @@ public class ReservationService {
     }
 
     public List<Reservation> findByScheduleId(Long scheduleId) {
-        return reservationDao.findByScheduleId(scheduleId);
+        return reservationDao.findByScheduleId(scheduleId, false);
     }
 
     public void deleteById(Member member, Long id) {
-        Reservation reservation = reservationDao.findById(id);
+        Reservation reservation = reservationDao.findById(id, false);
         if (reservation == null) {
             throw new NullPointerException();
         }
