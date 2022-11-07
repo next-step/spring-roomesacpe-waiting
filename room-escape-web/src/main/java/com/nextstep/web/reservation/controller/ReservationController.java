@@ -1,8 +1,8 @@
 package com.nextstep.web.reservation.controller;
 
+import com.nextstep.web.auth.LoginMemberPrincipal;
 import com.nextstep.web.auth.UserDetail;
 import com.nextstep.web.member.LoginMember;
-import com.nextstep.web.auth.LoginMemberPrincipal;
 import com.nextstep.web.reservation.app.ReservationCommandService;
 import com.nextstep.web.reservation.app.ReservationQueryService;
 import com.nextstep.web.reservation.dto.CreateReservationRequest;
@@ -32,9 +32,9 @@ public class ReservationController {
 
     @PostMapping
     public ResponseEntity<Void> create(@RequestBody CreateReservationRequest request,
-                                       @LoginMemberPrincipal LoginMember loginMember) {
-        Long id = reservationCommandService.save(request, loginMember);
-        return ResponseEntity.created(URI.create("/reservation/" + id)).build();
+                                       @LoginMemberPrincipal UserDetail userDetail) {
+        Long id = reservationCommandService.save(request, LoginMember.from(userDetail));
+        return ResponseEntity.created(URI.create("/reservations/" + id)).build();
     }
 
     @PatchMapping("/{id}/approve")
@@ -50,14 +50,14 @@ public class ReservationController {
     }
 
     @PatchMapping("/{id}/cancel-approve")
-    private ResponseEntity<Void> cancelApprove(@PathVariable Long id, @LoginMemberPrincipal LoginMember loginMember) {
-        reservationCommandService.approveCancel(id, loginMember);
+    private ResponseEntity<Void> cancelApprove(@PathVariable Long id, @LoginMemberPrincipal UserDetail userDetail) {
+        reservationCommandService.approveCancel(id, LoginMember.from(userDetail));
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
-    private ResponseEntity<Void> delete(@PathVariable Long id, @LoginMemberPrincipal LoginMember loginMember) {
-        reservationCommandService.delete(id, loginMember);
+    private ResponseEntity<Void> delete(@PathVariable Long id, @LoginMemberPrincipal UserDetail userDetail) {
+        reservationCommandService.delete(id, LoginMember.from(userDetail));
         return ResponseEntity.noContent().build();
     }
 }

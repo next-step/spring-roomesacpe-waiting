@@ -10,10 +10,8 @@ import lombok.Setter;
 public class CreateReservationRequest {
 
     private Long scheduleId;
-    private String name;
 
-    public CreateReservationRequest(Long scheduleId,  String name) {
+    public CreateReservationRequest(Long scheduleId) {
         this.scheduleId = scheduleId;
-        this.name = name;
     }
 }

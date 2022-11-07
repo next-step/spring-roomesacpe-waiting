@@ -5,6 +5,8 @@ import com.nextstep.web.reservation.repository.entity.ReservationEntity;
 import com.nextstep.web.reservation.repository.entity.ReservationStatusEntity;
 import com.nextstep.web.schedule.repository.ScheduleDao;
 import nextstep.common.BusinessException;
+import org.springframework.context.annotation.Profile;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -32,17 +34,20 @@ public class ReservationDao {
         this.scheduleDao = scheduleDao;
         this.memberDao = memberDao;
         this.rowMapper = new ReservationRowMapper();
-        this.jdbcInsert = new SimpleJdbcInsert(dataSource).withTableName(TABLE_NAME);
+        this.jdbcInsert = new SimpleJdbcInsert(dataSource)
+                .withTableName(TABLE_NAME)
+                .usingGeneratedKeyColumns("id");
 
     }
 
     public Long save(ReservationEntity reservationEntity) {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("scheduleId", reservationEntity.getScheduleEntity().getId());
-        parameters.put("reservationTime", reservationEntity.getReservationTime());
-        parameters.put("name", reservationEntity.getMemberEntity().getName());
+        parameters.put("schedule_id", reservationEntity.getScheduleEntity().getId());
+        parameters.put("reservation_time", reservationEntity.getReservationTime());
+        parameters.put("member_id", reservationEntity.getMemberEntity().getId());
+        parameters.put("status", reservationEntity.getReservationStatusEntity().name());
 
-        return (long) jdbcInsert.execute(parameters);
+        return jdbcInsert.executeAndReturnKey(parameters).longValue();
     }
 
     public List<ReservationEntity> findByMemberName(String name) {
@@ -57,28 +62,45 @@ public class ReservationDao {
             return Collections.emptyList();
         }
 
-        String query = "SELECT * FROM RESERVATION WHERE scheduleId IN :scheduleIds";
+        String query = "SELECT * FROM RESERVATION WHERE schedule_id IN :scheduleIds";
         SqlParameterSource namedParameters = new MapSqlParameterSource()
-                .addValue("scheduleId", scheduleIds);
+                .addValue("scheduleIds", scheduleIds);
 
         return jdbcTemplate.query(query, namedParameters, rowMapper);
     }
 
+    public Optional<ReservationEntity> findByScheduleId(Long scheduleId) {
+        try {
+            String query = "SELECT * FROM RESERVATION WHERE schedule_id = :scheduleId";
+            SqlParameterSource namedParameters = new MapSqlParameterSource()
+                    .addValue("scheduleId", scheduleId);
+
+            return Optional.ofNullable(jdbcTemplate.queryForObject(query, namedParameters, rowMapper));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
+
+    }
+
     public void delete(Long id) {
-        String query = "DELETE FROM RESERVATION WHERE id = :id AND time = :time";
+        String query = "DELETE FROM RESERVATION WHERE id = :id";
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("id", id);
         jdbcTemplate.update(query, namedParameters);
     }
 
     public Optional<ReservationEntity> findById(Long id) {
-        String query = "SELECT * FROM RESERVATION WHERE id = :id";
-        SqlParameterSource namedParameters = new MapSqlParameterSource()
-                .addValue("id", id);
-        return Optional.ofNullable(jdbcTemplate.queryForObject(query, namedParameters, rowMapper));
+        try {
+            String query = "SELECT * FROM RESERVATION WHERE id = :id";
+            SqlParameterSource namedParameters = new MapSqlParameterSource()
+                    .addValue("id", id);
+            return Optional.ofNullable(jdbcTemplate.queryForObject(query, namedParameters, rowMapper));
+        } catch (EmptyResultDataAccessException e) {
+            return Optional.empty();
+        }
     }
 
-    public void findById(ReservationEntity reservationEntity) {
+    public void update(ReservationEntity reservationEntity) {
         String query = "UPDATE RESERVATION SET reservationStatus = :reservationStatus WHERE id = :id";
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("id", reservationEntity.getId())
@@ -92,11 +114,11 @@ public class ReservationDao {
 
             ReservationEntity reservationEntity = new ReservationEntity(
                     rs.getLong("ID"),
-                    scheduleDao.findById(rs.getLong("scheduleId"))
+                    scheduleDao.findById(rs.getLong("schedule_id"))
                             .orElseThrow(() -> new BusinessException("")),
-                    rs.getObject("reservationTime", LocalDateTime.class),
-                    ReservationStatusEntity.valueOf(rs.getString("reservationStatus")),
-                    memberDao.findByUsername(rs.getString("name"))
+                    rs.getObject("reservation_time", LocalDateTime.class),
+                    ReservationStatusEntity.valueOf(rs.getString("status")),
+                    memberDao.findById(rs.getLong("member_id"))
                             .orElseThrow(() -> new BusinessException(""))
             );
             return reservationEntity;

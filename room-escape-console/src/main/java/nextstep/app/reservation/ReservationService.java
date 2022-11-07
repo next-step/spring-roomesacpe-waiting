@@ -1,6 +1,8 @@
 package nextstep.app.reservation;
 
+import nextstep.domain.reservation.BeforeDepositedReservationStatus;
 import nextstep.domain.reservation.Reservation;
+import nextstep.domain.reservation.ReservationStatus;
 import nextstep.domain.reservation.usecase.ReservationRepository;
 import nextstep.domain.reservation.exception.DuplicationReservationException;
 import nextstep.domain.schedule.Schedule;
@@ -11,6 +13,7 @@ import java.util.List;
 public class ReservationService {
     private final ReservationRepository reservationRepository;
 
+
     public ReservationService(ReservationRepository reservationRepository) {
         this.reservationRepository = reservationRepository;
     }
@@ -20,11 +23,14 @@ public class ReservationService {
             throw new DuplicationReservationException();
         }));
 
+
+
         Reservation reservation = new Reservation(
                 null,
                 Schedule.empty(),
                 LocalDateTime.now(),
-                name);
+                new BeforeDepositedReservationStatus(),
+                null);
 
         reservationRepository.save(reservation);
     }

@@ -3,12 +3,13 @@ package com.nextstep.web.common;
 import com.nextstep.web.member.repository.MemberDao;
 import com.nextstep.web.member.repository.entity.MemberEntity;
 import nextstep.domain.member.Role;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 @Component
+@Profile("!test")
 public class DataLoader  {
     private final MemberDao memberDao;
 

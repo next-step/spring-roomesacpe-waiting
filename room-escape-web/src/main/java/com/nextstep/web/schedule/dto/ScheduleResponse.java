@@ -40,7 +40,7 @@ public class ScheduleResponse {
     public static List<ScheduleResponse> toListFromEntity(List<ScheduleEntity> scheduleEntities, ThemeEntity themeEntity) {
         return scheduleEntities.stream()
                 .map(scheduleEntity -> new ScheduleResponse(scheduleEntity.getId(), ThemeResponse.of(themeEntity),
-                        LocalDate.parse(scheduleEntity.getDate()), LocalTime.parse(scheduleEntity.getTime())))
+                        scheduleEntity.getDate(), scheduleEntity.getTime()))
                 .collect(Collectors.toList());
     }
 }

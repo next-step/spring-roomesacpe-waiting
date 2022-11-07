@@ -9,9 +9,26 @@ public class Sales {
     private SalesStatus salesStatus;
     private Reservation reservation;
 
-    public Sales(Identity id, Long amount, SalesStatus salesStatus) {
+    public Sales(Identity id, Long amount, SalesStatus salesStatus, Reservation reservation) {
         this.id = id;
         this.amount = amount;
         this.salesStatus = salesStatus;
+        this.reservation = reservation;
+    }
+
+    public Identity getId() {
+        return id;
+    }
+
+    public Long getAmount() {
+        return amount;
+    }
+
+    public SalesStatus getSalesStatus() {
+        return salesStatus;
+    }
+
+    public Reservation getReservation() {
+        return reservation;
     }
 }

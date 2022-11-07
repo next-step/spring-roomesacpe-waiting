@@ -6,8 +6,6 @@ import com.nextstep.web.schedule.repository.ScheduleDao;
 import com.nextstep.web.schedule.repository.entity.ScheduleEntity;
 import com.nextstep.web.waiting.repository.entitiy.WaitingEntity;
 import nextstep.common.BusinessException;
-import nextstep.domain.waiting.Waiting;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;

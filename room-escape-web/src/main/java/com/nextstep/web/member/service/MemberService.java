@@ -10,11 +10,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MemberService {
-    private final JwtTokenProvider jwtTokenProvider;
     private final MemberDao memberDao;
 
-    public MemberService(JwtTokenProvider jwtTokenProvider, MemberDao memberDao) {
-        this.jwtTokenProvider = jwtTokenProvider;
+    public MemberService(MemberDao memberDao) {
         this.memberDao = memberDao;
     }
 
@@ -26,7 +24,7 @@ public class MemberService {
     }
 
     public Member read(LoginMember loginMember) {
-        return memberDao.findById(Long.valueOf(loginMember.getId())).orElseThrow(() ->
+        return memberDao.findById(loginMember.getId()).orElseThrow(() ->
                 new BusinessException("")).fromThis();
     }
 }

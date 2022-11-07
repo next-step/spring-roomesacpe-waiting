@@ -5,6 +5,7 @@ import nextstep.domain.member.Member;
 import nextstep.domain.schedule.Schedule;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Reservation {
     private final Identity id;
@@ -29,6 +30,13 @@ public class Reservation {
         return id;
     }
 
+    public Long getIdNumber() {
+        if (Objects.isNull(id)) {
+            return null;
+        }
+        return id.getNumber();
+    }
+
     public Schedule getSchedule() {
         return schedule;
     }
@@ -46,6 +54,7 @@ public class Reservation {
     }
 
     public boolean isReservationBy(Member member) {
+        System.out.println(this.member.equals(member));
        return this.member.equals(member);
     }
 
@@ -59,5 +68,18 @@ public class Reservation {
 
     public boolean isCancelled() {
         return reservationStatus.isCancelled();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Reservation that = (Reservation) o;
+        return Objects.equals(id.getNumber(), that.id.getNumber());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id.getNumber());
     }
 }

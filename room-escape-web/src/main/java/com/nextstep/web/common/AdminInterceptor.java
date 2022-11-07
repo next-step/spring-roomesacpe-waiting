@@ -1,5 +1,6 @@
 package com.nextstep.web.common;
 
+import nextstep.common.AuthException;
 import nextstep.common.BusinessException;
 import nextstep.domain.member.Role;
 import org.springframework.stereotype.Component;
@@ -27,7 +28,7 @@ public class AdminInterceptor implements HandlerInterceptor {
         roles.stream()
                 .filter(Role.ADMIN.name()::equals)
                 .findAny()
-                .orElseThrow(() ->  new BusinessException("어드민 계정이 아닙니다."));
+                .orElseThrow(() ->  new AuthException());
         return true;
     }
 

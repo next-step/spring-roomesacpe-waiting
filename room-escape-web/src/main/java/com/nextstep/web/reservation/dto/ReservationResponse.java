@@ -1,17 +1,12 @@
 package com.nextstep.web.reservation.dto;
 
-import com.nextstep.web.reservation.repository.entity.ReservationEntity;
-import com.nextstep.web.schedule.repository.entity.ScheduleEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import nextstep.domain.reservation.Reservation;
-import nextstep.domain.schedule.Schedule;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Getter
@@ -36,7 +31,7 @@ public class ReservationResponse {
                         new ReservationResponse(reservation.getId().getNumber(),
                                 reservation.getSchedule().getDate(),
                                 reservation.getSchedule().getTime(),
-                                reservation.getName()))
+                                reservation.getMember().getName()))
                 .collect(Collectors.toList());
     }
 }

@@ -5,12 +5,12 @@ import com.nextstep.web.member.repository.MemberDao;
 import com.nextstep.web.member.repository.entity.MemberEntity;
 import com.nextstep.web.reservation.dto.CreateReservationRequest;
 import com.nextstep.web.waiting.service.WaitingCommandService;
+import nextstep.common.AuthException;
 import nextstep.common.BusinessException;
 import nextstep.domain.member.Member;
 import nextstep.domain.reservation.Reservation;
-import nextstep.domain.reservation.ReservationStatus;
-import nextstep.domain.reservation.usecase.ReservationRepository;
 import nextstep.domain.reservation.exception.DuplicationReservationException;
+import nextstep.domain.reservation.usecase.ReservationRepository;
 import nextstep.domain.sales.Sales;
 import nextstep.domain.sales.SalesRepository;
 import nextstep.domain.sales.SalesStatus;
@@ -55,7 +55,7 @@ public class ReservationCommandService {
         Reservation reservation = getReservation(id);
         reservationRepository.update(reservation.approve());
         Long amount = reservation.getSchedule().getTheme().getPrice();
-        salesRepository.save(new Sales(null, amount, SalesStatus.REVENUE));
+        salesRepository.save(new Sales(null, amount, SalesStatus.REVENUE, reservation));
     }
 
     public void delete(Long id, LoginMember loginMember) {
@@ -83,12 +83,12 @@ public class ReservationCommandService {
         reservationRepository.update(cancelledReservation);
 
         Long amount = reservation.getSchedule().getTheme().getPrice();
-        salesRepository.save(new Sales(null, amount, SalesStatus.REFUND));
+        salesRepository.save(new Sales(null, amount, SalesStatus.REFUND, reservation));
     }
 
     private void validateReservationMember(Reservation reservation, Member member) {
         if (!reservation.isReservationBy(member)) {
-            throw new BusinessException("멤버가 등록한 예약이 아닙니다.");
+            throw new AuthException();
         }
     }
 

@@ -1,38 +1,24 @@
 package com.nextstep.web.member.dto;
 
 import com.nextstep.web.member.repository.entity.MemberEntity;
-import nextstep.domain.member.Role;
+import lombok.Getter;
 
+@Getter
 public class MemberRequest {
     private String username;
     private String password;
     private String name;
     private String phone;
+    private String role;
 
-    public MemberRequest(String username, String password, String name, String phone) {
+    public MemberRequest(String username, String password, String name, String phone, String role) {
         this.username = username;
         this.password = password;
         this.name = name;
         this.phone = phone;
+        this.role = role;
     }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
     public MemberEntity toEntity() {
-        return new MemberEntity(null, username, password, name, phone, Role.USER.name());
+        return new MemberEntity(null, username, password, name, phone, role);
     }
 }

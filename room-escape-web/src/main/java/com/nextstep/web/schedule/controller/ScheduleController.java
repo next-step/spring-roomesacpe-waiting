@@ -13,7 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Controller
-@RequestMapping("/admin/schedules")
+@RequestMapping()
 public class ScheduleController {
     private final ScheduleQueryService scheduleQueryService;
     private final ScheduleCommandService scheduleCommandService;
@@ -23,18 +23,18 @@ public class ScheduleController {
         this.scheduleCommandService = scheduleCommandService;
     }
 
-    @GetMapping
+    @GetMapping("/schedules")
     public ResponseEntity<List<ScheduleResponse>> read(@RequestParam Long themeId, @RequestParam String date) {
         return ResponseEntity.ok(scheduleQueryService.findAllBy(themeId, LocalDate.parse(date)));
     }
 
-    @PostMapping
+    @PostMapping("/admin/schedules")
     public ResponseEntity<Void> create(@RequestBody CreateScheduleRequest request) {
         Long id = scheduleCommandService.save(request);
         return ResponseEntity.created(URI.create("/reservation/" + id)).build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/schedules/{id}")
     private ResponseEntity<Void> delete(@PathVariable Long id) {
         scheduleCommandService.delete(id);
         return ResponseEntity.noContent().build();

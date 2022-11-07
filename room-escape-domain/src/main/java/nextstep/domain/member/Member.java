@@ -4,6 +4,7 @@ import nextstep.common.BusinessException;
 import nextstep.domain.Identity;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Member {
     private final Identity id;
@@ -53,5 +54,18 @@ public class Member {
     public boolean isAdmin() {
         return roles.stream()
                 .anyMatch(role -> role == Role.ADMIN);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Member member = (Member) o;
+        return Objects.equals(id.getNumber(), member.id.getNumber());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id.getNumber());
     }
 }

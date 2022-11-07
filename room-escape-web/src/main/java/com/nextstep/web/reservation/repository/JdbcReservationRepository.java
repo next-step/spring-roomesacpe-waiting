@@ -3,14 +3,11 @@ package com.nextstep.web.reservation.repository;
 import com.nextstep.web.reservation.repository.entity.ReservationEntity;
 import com.nextstep.web.schedule.repository.ScheduleDao;
 import com.nextstep.web.schedule.repository.entity.ScheduleEntity;
-import com.nextstep.web.theme.repository.entity.ThemeEntity;
-import nextstep.domain.Identity;
 import nextstep.domain.reservation.Reservation;
 import nextstep.domain.reservation.usecase.ReservationRepository;
-import nextstep.domain.schedule.Schedule;
-import nextstep.domain.theme.Theme;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,8 +33,8 @@ public class JdbcReservationRepository implements ReservationRepository {
     }
 
     @Override
-    public Optional<Reservation> findByScheduleId(Long id) {
-        return Optional.empty();
+    public Optional<Reservation> findByScheduleId(Long scheduleId) {
+        return reservationDao.findByScheduleId(scheduleId).map(ReservationEntity::fromThis);
     }
 
     @Override
@@ -65,7 +62,7 @@ public class JdbcReservationRepository implements ReservationRepository {
 
     @Override
     public void update(Reservation reservation) {
-
+        reservationDao.update(ReservationEntity.of(reservation));
     }
 
 }

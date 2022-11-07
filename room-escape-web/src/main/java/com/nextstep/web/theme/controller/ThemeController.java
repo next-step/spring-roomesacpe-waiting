@@ -12,7 +12,7 @@ import java.net.URI;
 import java.util.List;
 
 @Controller
-@RequestMapping("/admin/themes")
+@RequestMapping()
 public class ThemeController {
     private final ThemeQueryService themeQueryService;
     private final ThemeCommandService themeCommandService;
@@ -22,18 +22,18 @@ public class ThemeController {
         this.themeCommandService = themeCommandService;
     }
 
-    @GetMapping
+    @GetMapping("/themes")
     public ResponseEntity<List<ThemeResponse>> read() {
         return ResponseEntity.ok(themeQueryService.findAll());
     }
 
-    @PostMapping
+    @PostMapping("/admin/themes")
     public ResponseEntity<Void> create(@RequestBody CreateThemeRequest request) {
         Long id = themeCommandService.save(request);
-        return ResponseEntity.created(URI.create("/reservation/" + id)).build();
+        return ResponseEntity.created(URI.create("/theme/" + id)).build();
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/themes/{id}")
     private ResponseEntity<Void> delete(@PathVariable Long id) {
         themeCommandService.delete(id);
         return ResponseEntity.noContent().build();

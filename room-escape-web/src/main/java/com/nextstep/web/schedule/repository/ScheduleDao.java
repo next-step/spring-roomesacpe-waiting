@@ -30,16 +30,18 @@ public class ScheduleDao {
         this.jdbcTemplate = jdbcTemplate;
         this.themeDao = themeDao;
         this.rowMapper = new ScheduleRowMapper();
-        this.jdbcInsert = new SimpleJdbcInsert(dataSource).withTableName(TABLE_NAME);
+        this.jdbcInsert = new SimpleJdbcInsert(dataSource)
+                .withTableName(TABLE_NAME)
+                .usingGeneratedKeyColumns("id");
     }
 
     public Long save(ScheduleEntity scheduleEntity) {
         Map<String, Object> parameters = new HashMap<String, Object>();
-        parameters.put("THEMEID", scheduleEntity.getThemeEntity().getId());
+        parameters.put("THEME_ID", scheduleEntity.getThemeEntity().getId());
         parameters.put("DATE", scheduleEntity.getDate());
         parameters.put("TIME", scheduleEntity.getTime());
 
-        return (long) jdbcInsert.execute(parameters);
+        return jdbcInsert.executeAndReturnKey(parameters).longValue();
     }
 
     public List<ScheduleEntity> findAllBy(String date) {
@@ -50,7 +52,7 @@ public class ScheduleDao {
     }
 
     public List<ScheduleEntity> findAllBy(Long themeId, String date) {
-        String query = "SELECT * FROM " + TABLE_NAME + " WHERE themeid = :themeId AND date = :date";
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE theme_id = :themeId AND date = :date";
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("themeId", themeId)
                 .addValue("date", date);
@@ -65,7 +67,7 @@ public class ScheduleDao {
     }
 
     public Optional<ScheduleEntity> findById(long scheduleId) {
-        String query = "SELECT * FROM " + TABLE_NAME + " WHERE scheduleId = :scheduleId";
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE id = :scheduleId";
         SqlParameterSource namedParameters = new MapSqlParameterSource()
                 .addValue("scheduleId", scheduleId);
         return Optional.ofNullable(jdbcTemplate.queryForObject(query, namedParameters, rowMapper));
@@ -76,10 +78,10 @@ public class ScheduleDao {
         public ScheduleEntity mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new ScheduleEntity(
                     rs.getLong("id"),
-                    themeDao.findById(rs.getLong("themeId"))
+                    themeDao.findById(rs.getLong("theme_id"))
                     .orElseThrow(() -> new BusinessException("")),
-                    rs.getString("date"),
-                    rs.getString("time")
+                    rs.getDate("date").toLocalDate(),
+                    rs.getTime("time").toLocalTime()
             );
         }
     }

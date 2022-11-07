@@ -6,11 +6,12 @@ import com.nextstep.web.auth.service.AuthMemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("auth")
+@RequestMapping()
 public class AuthController {
 
     private final AuthMemberService authMemberService;
@@ -19,7 +20,7 @@ public class AuthController {
         this.authMemberService = authMemberService;
     }
 
-    @GetMapping("/login")
+    @PostMapping("/login/token")
     public ResponseEntity<TokenResponse> login(@RequestBody TokenRequest request) {
         return ResponseEntity.ok(
                 authMemberService.login(request)

@@ -1,7 +1,7 @@
 package com.nextstep.web.auth;
 
-import com.nextstep.web.common.JwtTokenProvider;
 import com.nextstep.web.common.AuthorizationExtractor;
+import com.nextstep.web.common.JwtTokenProvider;
 import org.springframework.core.MethodParameter;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;

@@ -12,10 +12,10 @@ import java.time.LocalTime;
 public class ScheduleEntity {
     private Long id;
     private ThemeEntity themeEntity;
-    private String date;
-    private String time;
+    private LocalDate date;
+    private LocalTime time;
 
-    public ScheduleEntity(Long id, ThemeEntity themeEntity, String date, String time) {
+    public ScheduleEntity(Long id, ThemeEntity themeEntity, LocalDate date, LocalTime time) {
         this.id = id;
         this.themeEntity = themeEntity;
         this.date = date;
@@ -24,10 +24,10 @@ public class ScheduleEntity {
 
     public static ScheduleEntity of(Schedule schedule) {
         return new ScheduleEntity(schedule.getId().getNumber(), ThemeEntity.of(schedule.getTheme()),
-                schedule.getDate().toString(), schedule.getDate().toString());
+                schedule.getDate(), schedule.getTime());
     }
 
     public Schedule fromThis() {
-        return new Schedule(new Identity(id), themeEntity.fromThis(), LocalDate.parse(date), LocalTime.parse(time));
+        return new Schedule(new Identity(id), themeEntity.fromThis(), date, time);
     }
 }

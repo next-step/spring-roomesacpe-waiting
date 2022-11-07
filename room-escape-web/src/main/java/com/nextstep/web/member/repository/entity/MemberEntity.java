@@ -6,8 +6,6 @@ import nextstep.domain.member.Member;
 import nextstep.domain.member.Role;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Getter

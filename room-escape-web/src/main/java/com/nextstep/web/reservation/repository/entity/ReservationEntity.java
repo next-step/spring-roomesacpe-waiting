@@ -5,8 +5,6 @@ import com.nextstep.web.schedule.repository.entity.ScheduleEntity;
 import lombok.Getter;
 import nextstep.domain.Identity;
 import nextstep.domain.reservation.Reservation;
-import nextstep.domain.reservation.ReservationStatus;
-import nextstep.domain.schedule.Schedule;
 
 import java.time.LocalDateTime;
 
@@ -32,7 +30,7 @@ public class ReservationEntity {
     }
 
     public static ReservationEntity of(Reservation reservation) {
-        return new ReservationEntity(reservation.getId().getNumber(), ScheduleEntity.of(reservation.getSchedule()), reservation.getReservationTime(),
+        return new ReservationEntity(reservation.getIdNumber(), ScheduleEntity.of(reservation.getSchedule()), reservation.getReservationTime(),
                 ReservationStatusEntity.valueOf(reservation.getReservationStatus().status()), MemberEntity.of(reservation.getMember()));
     }
 }

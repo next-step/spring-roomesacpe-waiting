@@ -26,7 +26,9 @@ public class ThemeDao {
     public ThemeDao(NamedParameterJdbcTemplate jdbcTemplate, DataSource dataSource) {
         this.jdbcTemplate = jdbcTemplate;
         this.rowMapper = new ThemeRowMapper();
-        this.jdbcInsert = new SimpleJdbcInsert(dataSource).withTableName(TABLE_NAME);
+        this.jdbcInsert = new SimpleJdbcInsert(dataSource)
+                .withTableName(TABLE_NAME)
+                .usingGeneratedKeyColumns("id");
     }
 
     public Long save(ThemeEntity themeEntity) {
@@ -35,7 +37,7 @@ public class ThemeDao {
         parameters.put("DESC", themeEntity.getDesc());
         parameters.put("PRICE", themeEntity.getPrice());
 
-        return (long) jdbcInsert.execute(parameters);
+        return jdbcInsert.executeAndReturnKey(parameters).longValue();
     }
 
     public Optional<ThemeEntity> findById(Long id) {
