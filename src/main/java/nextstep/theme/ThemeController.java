@@ -1,7 +1,14 @@
 package nextstep.theme;
 
+import auth.LoginMember;
+import nextstep.member.Member;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.util.List;
@@ -15,7 +22,7 @@ public class ThemeController {
     }
 
     @PostMapping("/admin/themes")
-    public ResponseEntity<Void> createTheme(@RequestBody ThemeRequest themeRequest) {
+    public ResponseEntity<Void> createTheme(@LoginMember(isAdmin = true) Member member, @RequestBody ThemeRequest themeRequest) {
         Long id = themeService.create(themeRequest);
         return ResponseEntity.created(URI.create("/themes/" + id)).build();
     }
@@ -27,9 +34,8 @@ public class ThemeController {
     }
 
     @DeleteMapping("/admin/themes/{id}")
-    public ResponseEntity<Void> deleteTheme(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteTheme(@LoginMember(isAdmin = true) Member member, @PathVariable Long id) {
         themeService.delete(id);
-
         return ResponseEntity.noContent().build();
     }
 }

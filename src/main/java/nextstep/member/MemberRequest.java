@@ -36,6 +36,6 @@ public class MemberRequest {
     }
 
     public Member toEntity() {
-        return new Member(username, password, name, phone, role);
+        return new Member(username, password, name, phone, MemberRole.valueOf(role));
     }
 }

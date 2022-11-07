@@ -1,6 +1,7 @@
 package nextstep.reservation;
 
 import nextstep.member.Member;
+import nextstep.member.MemberRole;
 import nextstep.schedule.Schedule;
 import nextstep.theme.Theme;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -42,8 +43,9 @@ public class ReservationDao {
                     resultSet.getString("member.password"),
                     resultSet.getString("member.name"),
                     resultSet.getString("member.phone"),
-                    resultSet.getString("member.role")
-            )
+                    MemberRole.valueOf(resultSet.getString("member.role"))
+            ),
+            ReservationStatus.valueOf(resultSet.getString("reservation.status"))
     );
 
     public Long save(Reservation reservation) {
@@ -116,5 +118,36 @@ public class ReservationDao {
     public void deleteById(Long id) {
         String sql = "DELETE FROM reservation where id = ?;";
         jdbcTemplate.update(sql, id);
+    }
+
+    public Boolean existsByScheduleId(Long scheduleId) {
+        String sql = "SELECT EXISTS(SELECT * FROM reservation WHERE schedule_id = ?)";
+        Boolean exists = jdbcTemplate.queryForObject(sql, Boolean.class, scheduleId);
+
+        return exists;
+    }
+
+    public List<Reservation> findByMemberId(Long memberId) {
+        String sql = "SELECT " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, " +
+                "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+                "theme.id, theme.name, theme.desc, theme.price, " +
+                "member.id, member.username, member.password, member.name, member.phone, member.role " +
+                "from reservation " +
+                "inner join schedule on reservation.schedule_id = schedule.id " +
+                "inner join theme on schedule.theme_id = theme.id " +
+                "inner join member on reservation.member_id = member.id " +
+                "where member.id = ?;";
+
+        try {
+            return jdbcTemplate.query(sql, rowMapper, memberId);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    public void update(Reservation reservation) {
+        String sql = "UPDATE reservation SET schedule_id = ?, member_id = ?, status = ? WHERE id = ?";
+        jdbcTemplate.update(sql, reservation.getSchedule().getId(), reservation.getMember().getId(), reservation.getStatus().name(), reservation.getId());
     }
 }

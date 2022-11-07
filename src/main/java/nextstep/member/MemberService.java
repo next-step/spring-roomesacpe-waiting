@@ -1,10 +1,12 @@
 package nextstep.member;
 
+import auth.AuthenticationProvider;
+import auth.UserDetail;
 import org.springframework.stereotype.Service;
 
 @Service
-public class MemberService {
-    private MemberDao memberDao;
+public class MemberService implements AuthenticationProvider {
+    private final MemberDao memberDao;
 
     public MemberService(MemberDao memberDao) {
         this.memberDao = memberDao;
@@ -14,7 +16,13 @@ public class MemberService {
         return memberDao.save(memberRequest.toEntity());
     }
 
-    public Member findById(Long id) {
+    @Override
+    public UserDetail findByUsername(String userName) {
+        return memberDao.findByUsername(userName);
+    }
+
+    @Override
+    public UserDetail findById(Long id) {
         return memberDao.findById(id);
     }
 }

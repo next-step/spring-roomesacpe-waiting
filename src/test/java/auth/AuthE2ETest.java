@@ -1,4 +1,4 @@
-package nextstep.auth;
+package auth;
 
 import io.restassured.RestAssured;
 import nextstep.member.MemberRequest;
