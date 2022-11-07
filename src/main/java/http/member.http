@@ -1,0 +1,16 @@
+### 회원 가입
+POST http://localhost:8080/members
+Content-Type: application/json
+
+{
+  "username": "newwisdom",
+  "password": "1234",
+  "name": "신지혜",
+  "phone": "010-3347-1352",
+  "role": "ADMIN"
+}
+
+### 내정보 조회
+GET http://localhost:8080/members/me
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjY3Nzg0NDA3LCJleHAiOjE2Njc3ODgwMDcsInJvbGUiOiJBRE1JTiJ9.cEXitxTlgX4VToOLqxI5m17t7gTjR3PSmdeSZ0uaXyw
+Content-Type: application/json

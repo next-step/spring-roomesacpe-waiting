@@ -64,6 +64,7 @@ public class Member implements UserDetail {
         return !this.password.equals(password);
     }
 
+    @Override
     public boolean isAdmin() {
         return this.role == MemberRole.ADMIN;
     }

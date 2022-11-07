@@ -7,6 +7,8 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import java.util.Objects;
+
 public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolver {
     private final LoginService loginService;
 
@@ -20,12 +22,27 @@ public class LoginMemberArgumentResolver implements HandlerMethodArgumentResolve
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         try {
-            String credential = webRequest.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
-            return loginService.extractMember(credential);
+            String credential = parseTokenCredential(webRequest);
+            UserDetail userDetail = loginService.extractMember(credential);
+            validateIfAdmin(parameter, userDetail);
+            return userDetail;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private String parseTokenCredential(NativeWebRequest webRequest) {
+        String authorization = Objects.requireNonNull(webRequest.getHeader(HttpHeaders.AUTHORIZATION));
+        return authorization.split(" ")[1];
+    }
+
+    private void validateIfAdmin(MethodParameter parameter, UserDetail userDetail) {
+        LoginMember annotation = Objects.requireNonNull(parameter.getParameterAnnotation(LoginMember.class));
+        if (annotation.isAdmin() && userDetail.isAdmin()) {
+            return;
+        }
+        throw new AuthenticationException();
     }
 }

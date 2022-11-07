@@ -2,7 +2,6 @@ package auth;
 
 import org.springframework.stereotype.Service;
 
-// TODO: nextstep.member 의존성 제거
 @Service
 public class LoginService {
     private final JwtTokenProvider jwtTokenProvider;

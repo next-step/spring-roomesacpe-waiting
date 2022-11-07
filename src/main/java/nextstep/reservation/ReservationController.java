@@ -38,13 +38,6 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
-    @PatchMapping("/reservations/{id}/cancel")
-    public ResponseEntity<Void> cancelReservation(@LoginMember Member member, @PathVariable Long id) {
-        reservationService.cancel(member, id);
-
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/reservations/mine")
     public ResponseEntity<List<ReservationResponse>> readMyReservations(@LoginMember Member member) {
         List<ReservationResponse> results = reservationService.findMine(member);
@@ -52,14 +45,8 @@ public class ReservationController {
     }
 
     @PatchMapping("/reservations/{id}/approve")
-    public ResponseEntity<Void> readMyReservations(@LoginMember Member member, @PathVariable Long id) {
+    public ResponseEntity<Void> readMyReservations(@LoginMember(isAdmin = true) Member member, @PathVariable Long id) {
         reservationService.approve(id);
-        return ResponseEntity.ok().build();
-    }
-
-    @GetMapping("/reservations/{id}/cancel-approve")
-    public ResponseEntity<List<ReservationResponse>> cancelApproveReservation(@LoginMember Member member, @PathVariable Long id) {
-        reservationService.cancelApprove(id);
         return ResponseEntity.ok().build();
     }
 

@@ -1,5 +1,7 @@
 package nextstep.schedule;
 
+import auth.LoginMember;
+import nextstep.member.Member;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +23,7 @@ public class ScheduleController {
     }
 
     @PostMapping("/admin/schedules")
-    public ResponseEntity createSchedule(@RequestBody ScheduleRequest scheduleRequest) {
+    public ResponseEntity<Void> createSchedule(@LoginMember(isAdmin = true) Member member, @RequestBody ScheduleRequest scheduleRequest) {
         Long id = scheduleService.create(scheduleRequest);
         return ResponseEntity.created(URI.create("/schedules/" + id)).build();
     }
@@ -32,9 +34,8 @@ public class ScheduleController {
     }
 
     @DeleteMapping("/admin/schedules/{id}")
-    public ResponseEntity deleteReservation(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteReservation(@PathVariable Long id) {
         scheduleService.deleteById(id);
-
         return ResponseEntity.noContent().build();
     }
 }

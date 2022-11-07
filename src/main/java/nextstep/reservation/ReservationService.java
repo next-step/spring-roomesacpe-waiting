@@ -19,14 +19,12 @@ import java.util.List;
 @Service
 public class ReservationService {
     public final ReservationDao reservationDao;
-    public final ReservationWaitingService reservationWaitingService;
     public final AccountService accountService;
     public final ThemeDao themeDao;
     public final ScheduleDao scheduleDao;
 
-    public ReservationService(ReservationDao reservationDao, ReservationWaitingService reservationWaitingService, AccountService accountService, ThemeDao themeDao, ScheduleDao scheduleDao) {
+    public ReservationService(ReservationDao reservationDao, AccountService accountService, ThemeDao themeDao, ScheduleDao scheduleDao) {
         this.reservationDao = reservationDao;
-        this.reservationWaitingService = reservationWaitingService;
         this.accountService = accountService;
         this.themeDao = themeDao;
         this.scheduleDao = scheduleDao;
@@ -77,25 +75,11 @@ public class ReservationService {
     }
 
     @Transactional
-    public void cancel(Member member, Long id) {
+    public void approve(Long id) {
         Reservation reservation = getReservation(id);
-        if (!reservation.isCancelAble(member)) {
-            throw new AuthenticationException();
-        }
-
-        if (member.isAdmin()) {
-            if (reservation.isRequested()) {
-                withDraw(id);
-            } else if (reservation.isApproved()) {
-                cancelApprove(reservation.getId());
-            }
-        } else {
-            if (reservation.isRequested()) {
-                withDraw(id);
-            } else if (reservation.isApproved()) {
-                cancelRequested(reservation.getId());
-            }
-        }
+        reservation.approved();
+        reservationDao.update(reservation);
+        accountService.saveSales(reservation.getId(), reservation.getDeposit());
     }
 
     private Reservation getReservation(Long id) {
@@ -105,39 +89,5 @@ public class ReservationService {
         }
 
         return reservation;
-    }
-
-    @Transactional
-    public void approve(Long id) {
-        Reservation reservation = getReservation(id);
-
-        reservation.approved();
-        reservationDao.update(reservation);
-
-        accountService.saveSales(reservation.getId(), reservation.getDeposit());
-    }
-
-    @Transactional
-    public void cancelRequested(Long id) {
-        Reservation reservation = getReservation(id);
-        reservation.cancelRequested();
-        reservationDao.update(reservation);
-    }
-
-    @Transactional
-    public void cancelApprove(Long id) {
-        Reservation reservation = getReservation(id);
-        reservation.cancelApproved();
-        reservationDao.update(reservation);
-        accountService.saveSales(reservation.getId(), reservation.getDeposit());
-        withDraw(id);
-    }
-
-    @Transactional
-    public void withDraw(Long id) {
-        Reservation reservation = getReservation(id);
-        reservation.withDraw();
-        reservationDao.update(reservation);
-        reservationWaitingService.changeFirstToReservation(reservation.getSchedule().getId());
     }
 }

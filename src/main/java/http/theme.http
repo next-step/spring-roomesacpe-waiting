@@ -1,0 +1,19 @@
+### 테마 생성
+POST http://localhost:8080/admin/themes
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjY3Nzg0NDA3LCJleHAiOjE2Njc3ODgwMDcsInJvbGUiOiJBRE1JTiJ9.cEXitxTlgX4VToOLqxI5m17t7gTjR3PSmdeSZ0uaXyw
+Content-Type: application/json
+
+{
+  "name": "열쇄공이",
+  "desc": "잼씀",
+  "price": 1000
+}
+
+### 테마 목록 조회
+GET http://localhost:8080/themes
+Content-Type: application/json
+
+### 테마 삭제
+GET http://localhost:8080/admin/themes/1
+Authorization: Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiaWF0IjoxNjY3Nzg0NDA3LCJleHAiOjE2Njc3ODgwMDcsInJvbGUiOiJBRE1JTiJ9.cEXitxTlgX4VToOLqxI5m17t7gTjR3PSmdeSZ0uaXyw
+Content-Type: application/json

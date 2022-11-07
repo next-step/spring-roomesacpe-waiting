@@ -10,4 +10,6 @@ public interface UserDetail {
     MemberRole getRole();
 
     boolean checkWrongPassword(String password);
+
+    boolean isAdmin();
 }
