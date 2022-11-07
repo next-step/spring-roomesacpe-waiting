@@ -1,7 +1,8 @@
 package nextstep.reservation;
 
-import nextstep.auth.AuthenticationException;
-import nextstep.auth.LoginMember;
+import auth.AuthenticationException;
+import auth.LoginMember;
+import auth.UserDetail;
 import nextstep.member.Member;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,8 @@ public class ReservationController {
     }
 
     @PostMapping("/reservations")
-    public ResponseEntity createReservation(@LoginMember Member member, @RequestBody ReservationRequest reservationRequest) {
+    public ResponseEntity createReservation(@LoginMember UserDetail userDetail, @RequestBody ReservationRequest reservationRequest) {
+        Member member = Member.from(userDetail);
         Long id = reservationService.create(member, reservationRequest);
         return ResponseEntity.created(URI.create("/reservations/" + id)).build();
     }
@@ -31,11 +33,26 @@ public class ReservationController {
         return ResponseEntity.ok().body(results);
     }
 
+    @GetMapping("/reservations/mine")
+    public ResponseEntity<List<Reservation>> readMyReservations(@LoginMember UserDetail userDetail) {
+        List<Reservation> results = reservationService.findAllByMember(Member.from(userDetail));
+        return ResponseEntity.ok().body(results);
+    }
+
     @DeleteMapping("/reservations/{id}")
-    public ResponseEntity deleteReservation(@LoginMember Member member, @PathVariable Long id) {
+    public ResponseEntity deleteReservation(@LoginMember UserDetail userDetail, @PathVariable Long id) {
+        Member member = Member.from(userDetail);
         reservationService.deleteById(member, id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/reservations/{id}/cancel")
+    public ResponseEntity cancelReservation(@LoginMember UserDetail userDetail, @PathVariable Long id) {
+        Member member = Member.from(userDetail);
+        reservationService.cancelReservation(member, id);
+
+        return ResponseEntity.ok().build();
     }
 
     @ExceptionHandler(Exception.class)

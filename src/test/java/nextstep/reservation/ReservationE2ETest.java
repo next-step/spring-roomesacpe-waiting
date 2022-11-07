@@ -1,9 +1,11 @@
 package nextstep.reservation;
 
+import auth.TokenResponse;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import nextstep.AbstractE2ETest;
+import nextstep.admin.AdminE2ETest;
 import nextstep.schedule.ScheduleRequest;
 import nextstep.theme.ThemeRequest;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +18,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ReservationE2ETest extends AbstractE2ETest {
+public class ReservationE2ETest extends AbstractE2ETest {
     public static final String DATE = "2022-08-11";
     public static final String TIME = "13:00";
 
@@ -100,7 +102,7 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .then().log().all()
                 .extract();
 
-        List<Reservation> reservations = response.jsonPath().getList(".", Reservation.class);
+        List<Reservation> reservations = response.jsonPath().getList("id");
         assertThat(reservations.size()).isEqualTo(1);
     }
 
@@ -179,6 +181,90 @@ class ReservationE2ETest extends AbstractE2ETest {
         assertThat(response.statusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
+    @DisplayName("로그인한 회원의 예약 목록을 조회한다.")
+    @Test
+    void readMyReservation() {
+        // given
+        createReservation();
+
+        // when
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.jsonPath().getList("id")).hasSize(1);
+    }
+
+    @DisplayName("입금 대기 상태인 예약을 취소요청 하면, 즉시 예약 철회상태로 변경된다")
+    @Test
+    void cancelPaymentWaitingReservation() {
+        // given
+        ExtractableResponse<Response> createResponse = createReservation();
+        String location = createResponse.header("Location");
+
+        // when
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().patch(location + "/cancel")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        var getReservationResponse = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+        assertThat(getReservationResponse.jsonPath().getList("status"))
+                .containsExactly(ReservationStatus.CANCEL.name());
+    }
+
+    @DisplayName("입금 대기 상태인 예약을 취소요청 하면, 즉시 예약 철회상태로 변경된다")
+    @Test
+    void cancelApproveReservation() {
+        // given
+        ExtractableResponse<Response> createResponse = createReservation();
+        String location = createResponse.header("Location");
+        Long reservationId = Long.parseLong(location.split("/")[2]);
+        AdminE2ETest.관리자가_예약을_승인한다(reservationId, token);
+
+        // when
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().patch(location + "/cancel")
+                .then().log().all()
+                .extract();
+
+        // then
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
+
+        var getReservationResponse = RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().get("/reservations/mine")
+                .then().log().all()
+                .statusCode(HttpStatus.OK.value())
+                .extract();
+        assertThat(getReservationResponse.jsonPath().getList("status"))
+                .containsExactly(ReservationStatus.CANCEL_REQUEST.name());
+    }
+
     private ExtractableResponse<Response> createReservation() {
         return RestAssured
                 .given().log().all()
@@ -186,6 +272,39 @@ class ReservationE2ETest extends AbstractE2ETest {
                 .body(request)
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
                 .when().post("/reservations")
+                .then().log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> 예약을_생성한다(Long scheduleId, TokenResponse token) {
+        ReservationRequest request = new ReservationRequest(scheduleId);
+        return RestAssured
+                .given().log().all()
+                .auth().oauth2(token.getAccessToken())
+                .body(request)
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().post("/reservations")
+                .then().log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> 예약을_조회한다(Long themeId) {
+        return RestAssured
+                .given().log().all()
+                .param("themeId", themeId)
+                .param("date", DATE)
+                .when().get("/reservations")
+                .then().log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> 예약_취소를_요청한다(TokenResponse token, Long reservationId) {
+        return RestAssured
+                .given().log().all()
+                .pathParam("reservationId", reservationId)
+                .auth().oauth2(token.getAccessToken())
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .when().patch("/reservations/{reservationId}/cancel")
                 .then().log().all()
                 .extract();
     }

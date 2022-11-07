@@ -43,17 +43,19 @@ public class ReservationDao {
                     resultSet.getString("member.name"),
                     resultSet.getString("member.phone"),
                     resultSet.getString("member.role")
-            )
+            ),
+            ReservationStatus.from(resultSet.getString("status"))
     );
 
     public Long save(Reservation reservation) {
-        String sql = "INSERT INTO reservation (schedule_id, member_id) VALUES (?, ?);";
+        String sql = "INSERT INTO reservation (schedule_id, member_id, status) VALUES (?, ?, ?);";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {
             PreparedStatement ps = connection.prepareStatement(sql, new String[]{"id"});
             ps.setLong(1, reservation.getSchedule().getId());
             ps.setLong(2, reservation.getMember().getId());
+            ps.setString(3, reservation.getStatus().name());
             return ps;
 
         }, keyHolder);
@@ -63,7 +65,7 @@ public class ReservationDao {
 
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
         String sql = "SELECT " +
-                "reservation.id, reservation.schedule_id, reservation.member_id, " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, reservation.status, " +
                 "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
                 "theme.id, theme.name, theme.desc, theme.price, " +
                 "member.id, member.username, member.password, member.name, member.phone, member.role " +
@@ -71,14 +73,14 @@ public class ReservationDao {
                 "inner join schedule on reservation.schedule_id = schedule.id " +
                 "inner join theme on schedule.theme_id = theme.id " +
                 "inner join member on reservation.member_id = member.id " +
-                "where theme.id = ? and schedule.date = ?;";
+                "where theme.id = ? and schedule.date = ? AND reservation.deleted = false;";
 
         return jdbcTemplate.query(sql, rowMapper, themeId, Date.valueOf(date));
     }
 
     public Reservation findById(Long id) {
         String sql = "SELECT " +
-                "reservation.id, reservation.schedule_id, reservation.member_id, " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, reservation.status, " +
                 "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
                 "theme.id, theme.name, theme.desc, theme.price, " +
                 "member.id, member.username, member.password, member.name, member.phone, member.role " +
@@ -86,7 +88,7 @@ public class ReservationDao {
                 "inner join schedule on reservation.schedule_id = schedule.id " +
                 "inner join theme on schedule.theme_id = theme.id " +
                 "inner join member on reservation.member_id = member.id " +
-                "where reservation.id = ?;";
+                "where reservation.id = ? AND reservation.deleted = false;";
         try {
             return jdbcTemplate.queryForObject(sql, rowMapper, id);
         } catch (Exception e) {
@@ -96,7 +98,7 @@ public class ReservationDao {
 
     public List<Reservation> findByScheduleId(Long id) {
         String sql = "SELECT " +
-                "reservation.id, reservation.schedule_id, reservation.member_id, " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, reservation.status, " +
                 "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
                 "theme.id, theme.name, theme.desc, theme.price, " +
                 "member.id, member.username, member.password, member.name, member.phone, member.role " +
@@ -104,7 +106,7 @@ public class ReservationDao {
                 "inner join schedule on reservation.schedule_id = schedule.id " +
                 "inner join theme on schedule.theme_id = theme.id " +
                 "inner join member on reservation.member_id = member.id " +
-                "where schedule.id = ?;";
+                "where schedule.id = ? AND reservation.deleted = false;";
 
         try {
             return jdbcTemplate.query(sql, rowMapper, id);
@@ -114,7 +116,35 @@ public class ReservationDao {
     }
 
     public void deleteById(Long id) {
-        String sql = "DELETE FROM reservation where id = ?;";
-        jdbcTemplate.update(sql, id);
+        String sql = "UPDATE reservation SET deleted = true, status = ? WHERE id = ?;";
+        jdbcTemplate.update(sql, ReservationStatus.CANCEL.name(), id);
+    }
+
+    public boolean existReservationByScheduleId(Long scheduleId) {
+        List<Reservation> reservations = this.findByScheduleId(scheduleId);
+        return !(reservations.isEmpty());
+    }
+
+    public List<Reservation> findByMemberId(Long memberId) {
+        String sql = "SELECT " +
+                "reservation.id, reservation.schedule_id, reservation.member_id, reservation.status, " +
+                "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +
+                "theme.id, theme.name, theme.desc, theme.price, " +
+                "member.id, member.username, member.password, member.name, member.phone, member.role " +
+                "from reservation " +
+                "inner join schedule on reservation.schedule_id = schedule.id " +
+                "inner join theme on schedule.theme_id = theme.id " +
+                "inner join member on reservation.member_id = member.id " +
+                "where reservation.member_id = ?;";
+        try {
+            return jdbcTemplate.query(sql, rowMapper, memberId);
+        } catch (Exception e) {
+            return Collections.emptyList();
+        }
+    }
+
+    public void update(Reservation reservation) {
+        String sql = "UPDATE reservation SET schedule_id = ?, member_id = ?, status = ?";
+        jdbcTemplate.update(sql, reservation.getSchedule().getId(), reservation.getMember().getId(), reservation.getStatus().name());
     }
 }
