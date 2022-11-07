@@ -1,11 +1,11 @@
-package nextstep.reservation;
+package nextstep.reservation.domain;
 
+import java.util.Objects;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 
-import java.util.Objects;
-
 public class Reservation {
+
     private Long id;
     private Schedule schedule;
     private Member member;
@@ -14,8 +14,7 @@ public class Reservation {
     }
 
     public Reservation(Schedule schedule, Member member) {
-        this.schedule = schedule;
-        this.member = member;
+        this(null, schedule, member);
     }
 
     public Reservation(Long id, Schedule schedule, Member member) {

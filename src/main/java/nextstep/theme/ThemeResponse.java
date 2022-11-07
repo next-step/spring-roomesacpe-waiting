@@ -1,10 +1,11 @@
 package nextstep.theme;
 
 public class ThemeResponse {
-    private Long id;
-    private String name;
-    private String desc;
-    private int price;
+
+    private final Long id;
+    private final String name;
+    private final String desc;
+    private final int price;
 
     public static ThemeResponse of(Theme theme) {
         return new ThemeResponse(theme.getId(), theme.getName(), theme.getDesc(), theme.getPrice());

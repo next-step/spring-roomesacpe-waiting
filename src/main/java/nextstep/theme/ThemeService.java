@@ -1,13 +1,13 @@
 package nextstep.theme;
 
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
 @Service
 public class ThemeService {
-    private ThemeDao themeDao;
+
+    private final ThemeDao themeDao;
 
     public ThemeService(ThemeDao themeDao) {
         this.themeDao = themeDao;
@@ -20,8 +20,8 @@ public class ThemeService {
     public List<ThemeResponse> findAll() {
         List<Theme> themes = themeDao.findAll();
         return themes.stream()
-                .map(it -> new ThemeResponse(it.getId(), it.getName(), it.getDesc(), it.getPrice()))
-                .collect(Collectors.toList());
+            .map(it -> new ThemeResponse(it.getId(), it.getName(), it.getDesc(), it.getPrice()))
+            .collect(Collectors.toList());
     }
 
     public void delete(Long id) {
