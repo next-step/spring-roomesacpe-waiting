@@ -1,6 +1,7 @@
 package nextstep.reservation;
 
-import nextstep.auth.AuthenticationException;
+import auth.AuthenticationException;
+import java.util.List;
 import nextstep.member.Member;
 import nextstep.member.MemberDao;
 import nextstep.schedule.Schedule;
@@ -9,8 +10,6 @@ import nextstep.support.DuplicateEntityException;
 import nextstep.theme.Theme;
 import nextstep.theme.ThemeDao;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class ReservationService {
@@ -35,7 +34,7 @@ public class ReservationService {
             throw new NullPointerException();
         }
 
-        List<Reservation> reservation = reservationDao.findByScheduleId(schedule.getId());
+        List<Reservation> reservation = reservationDao.findByScheduleId(schedule.getId(), false);
         if (!reservation.isEmpty()) {
             throw new DuplicateEntityException();
         }
@@ -54,11 +53,19 @@ public class ReservationService {
             throw new NullPointerException();
         }
 
-        return reservationDao.findAllByThemeIdAndDate(themeId, date);
+        return reservationDao.findAllByThemeIdAndDate(themeId, date, false);
+    }
+
+    public List<Reservation> findAllByMember(Member member) {
+        return reservationDao.findAllByMember(member.getId());
+    }
+
+    public List<Reservation> findByScheduleId(Long scheduleId) {
+        return reservationDao.findByScheduleId(scheduleId, false);
     }
 
     public void deleteById(Member member, Long id) {
-        Reservation reservation = reservationDao.findById(id);
+        Reservation reservation = reservationDao.findById(id, false);
         if (reservation == null) {
             throw new NullPointerException();
         }

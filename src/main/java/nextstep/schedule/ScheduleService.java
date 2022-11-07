@@ -25,6 +25,10 @@ public class ScheduleService {
         return scheduleDao.findByThemeIdAndDate(themeId, date);
     }
 
+    public Schedule findById(Long scheduleId) {
+        return scheduleDao.findById(scheduleId);
+    }
+
     public void deleteById(Long id) {
         scheduleDao.deleteById(id);
     }

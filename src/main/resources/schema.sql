@@ -3,6 +3,17 @@ CREATE TABLE RESERVATION
     id          bigint not null auto_increment,
     schedule_id bigint not null,
     member_id   bigint not null,
+    deleted     bool   not null default false,
+    primary key (id)
+);
+
+CREATE TABLE RESERVATION_WAITING
+(
+    id          bigint not null auto_increment,
+    schedule_id bigint not null,
+    member_id   bigint not null,
+    event_type  varchar(255) not null,
+    created_at  timestamp not null,
     primary key (id)
 );
 

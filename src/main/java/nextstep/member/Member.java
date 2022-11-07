@@ -1,6 +1,8 @@
 package nextstep.member;
 
-public class Member {
+import auth.MemberDetail;
+
+public class Member implements MemberDetail {
     private Long id;
     private String username;
     private String password;
