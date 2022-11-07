@@ -84,7 +84,7 @@ public class WaitingService {
     }
 
     private Optional<Waiting> findLastOnSchedule(Schedule schedule) {
-        List<Waiting> waitingList = waitingDao.findByScheduleOrderBySeq(schedule.getId());
+        List<Waiting> waitingList = waitingDao.findByScheduleOrderBySequence(schedule.getId());
         if(waitingList.isEmpty()) {
             return Optional.empty();
         }

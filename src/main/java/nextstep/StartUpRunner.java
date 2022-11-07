@@ -48,46 +48,16 @@ public class StartUpRunner implements ApplicationRunner {
                 )
         );
 
-        Long memberId2 = memberService.create(
+        Long userMemberId = memberService.create(
                 new MemberRequest(
                         "username2",
                         "password",
                         "name",
                         "010-1234-1234",
-                        "ADMIN"
+                        "USER"
                 )
         );
-
-        Long memberId5 = memberService.create(
-                new MemberRequest(
-                        "username5",
-                        "password",
-                        "name",
-                        "010-1234-1234",
-                        "ADMIN"
-                )
-        );
-
-        Long memberId3 = memberService.create(
-                new MemberRequest(
-                        "username3",
-                        "password",
-                        "name",
-                        "010-1234-1234",
-                        "ADMIN"
-                )
-        );
-
-        Long memberId4 = memberService.create(
-                new MemberRequest(
-                        "username4",
-                        "password",
-                        "name",
-                        "010-1234-1234",
-                        "ADMIN"
-                )
-        );
-
+        
         Long themeId = themeService.create(new ThemeRequest("name", "desc", 1000));
         Long scheduleId = scheduleService.create(new ScheduleRequest(themeId, "2022-08-11", "13:00"));
 

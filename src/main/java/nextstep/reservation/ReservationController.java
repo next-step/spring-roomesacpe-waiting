@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,13 +53,31 @@ public class ReservationController {
         return ResponseEntity.ok(results);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity onException(Exception e) {
-        return ResponseEntity.badRequest().build();
+    @PatchMapping("/reservations/{id}/approve")
+    public ResponseEntity approve(@LoginMember UserDetail userDetail, @PathVariable Long id) {
+        reservationService.approve(userDetail, id);
+        return ResponseEntity.ok().build();
     }
 
-    @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity onAuthenticationException(AuthenticationException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    @PatchMapping("/reservations/{id}/cancel")
+    public ResponseEntity cancel(@LoginMember UserDetail userDetail, @PathVariable Long id) {
+        reservationService.cancel(userDetail, id);
+        return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/reservations/{id}/cancel-approve")
+    public ResponseEntity cancelApprove(@LoginMember UserDetail userDetail, @PathVariable Long id) {
+        reservationService.cancelApprove(userDetail, id);
+        return ResponseEntity.ok().build();
+    }
+
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity onException(Exception e) {
+//        return ResponseEntity.badRequest().build();
+//    }
+//
+//    @ExceptionHandler(AuthenticationException.class)
+//    public ResponseEntity onAuthenticationException(AuthenticationException e) {
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//    }
 }

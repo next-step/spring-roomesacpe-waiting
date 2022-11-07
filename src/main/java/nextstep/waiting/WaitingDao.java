@@ -55,7 +55,7 @@ public class WaitingDao {
 
     }
 
-    public List<Waiting> findByScheduleOrderBySeq(Long scheduleId) {
+    public List<Waiting> findByScheduleOrderBySequence(Long scheduleId) {
         String sql = "SELECT id, schedule_id, member_id, sequence_number " +
                 "from waiting " +
                 "where schedule_id = ?" +

@@ -1,3 +1,11 @@
+CREATE TABLE revenue
+(
+    id    bigint not null auto_increment,
+    reservation_id  bigint not null,
+    status varchar(20),
+    primary key (id)
+);
+
 CREATE TABLE waiting
 (
     id          bigint not null auto_increment,
@@ -12,7 +20,8 @@ CREATE TABLE reservation
     id          bigint not null auto_increment,
     schedule_id bigint not null,
     member_id   bigint not null,
-    canceled     boolean not null  DEFAULT  0,
+    canceled    boolean not null  DEFAULT  0,
+    status      varchar(20),
     primary key (id)
 );
 
