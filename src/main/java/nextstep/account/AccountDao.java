@@ -2,6 +2,7 @@ package nextstep.account;
 
 import java.sql.PreparedStatement;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,14 @@ public class AccountDao {
     this.jdbcTemplate = jdbcTemplate;
   }
 
-  public Long save(PurchaseMoney money) {
+  private final RowMapper<AccountMoney> rowMapper = (resultSet, rowNum) -> new AccountMoney(
+      resultSet.getLong("id"),
+      resultSet.getLong("member_id"),
+      resultSet.getLong("reservation_id"),
+      resultSet.getLong("amount")
+  );
+
+  public Long save(AccountMoney money) {
     String sql = "INSERT INTO member (member_id, reservation_id, amount) VALUES (?, ?, ?);";
     KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -28,5 +36,14 @@ public class AccountDao {
     }, keyHolder);
 
     return keyHolder.getKey().longValue();
+  }
+
+  public AccountMoney findByReservationIdAndMemberId(Long reservationId, Long memberId){
+    String sql = """
+        SELECT id, member_id, reservation_id, amount
+        FROM account
+        WHERE reservation_id = ? and member_id = ?
+        """;
+    return jdbcTemplate.queryForObject(sql, rowMapper, reservationId, memberId);
   }
 }

@@ -1,17 +1,17 @@
 package nextstep.account;
 
-public class PurchaseMoney {
+public class AccountMoney {
 
   private Long id;
   private Long reservationId;
   private Long memberId;
   private Long amount;
 
-  public PurchaseMoney(Long reservationId, Long memberId, Long amount) {
+  public AccountMoney(Long reservationId, Long memberId, Long amount) {
     this(null, reservationId, memberId, amount);
   }
 
-  public PurchaseMoney(Long id, Long reservationId, Long memberId, Long amount) {
+  public AccountMoney(Long id, Long reservationId, Long memberId, Long amount) {
     this.id = id;
     this.reservationId = reservationId;
     this.memberId = memberId;
@@ -32,5 +32,9 @@ public class PurchaseMoney {
 
   public Long getAmount() {
     return amount;
+  }
+
+  public AccountMoney refund() {
+    return new AccountMoney(reservationId, memberId, Math.negateExact(amount));
   }
 }
