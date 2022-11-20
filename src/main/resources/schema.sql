@@ -45,3 +45,12 @@ CREATE TABLE member
     role     varchar(20) not null,
     primary key (id)
 );
+
+CREATE TABLE account
+(
+    id       bigint      not null auto_increment,
+    member_id bigint not null,
+    reservation_id bigint not null,
+    amount     bigint not null,
+    primary key (id)
+);
