@@ -4,6 +4,7 @@ CREATE TABLE RESERVATION
     schedule_id bigint not null,
     member_id   bigint not null,
     deleted     bool   not null default false,
+    status      varchar(20)  not null default 'CREATED',
     primary key (id)
 );
 

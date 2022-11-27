@@ -64,7 +64,7 @@ public class ReservationWaitingDao {
     return keyHolder.getKey().longValue();
   }
 
-  public List<ReservationWaiting> findByMemberIdAndScheduleId(Long scheduleId) {
+  public List<ReservationWaiting> findByScheduleId(Long scheduleId) {
     String sql = "SELECT " +
                  "reservation_waiting.id, reservation_waiting.schedule_id, reservation_waiting.member_id, reservation_waiting.event_type, reservation_waiting.created_at," +
                  "schedule.id, schedule.theme_id, schedule.date, schedule.time, " +

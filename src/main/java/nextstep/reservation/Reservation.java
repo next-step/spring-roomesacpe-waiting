@@ -5,36 +5,59 @@ import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 
 public class Reservation {
-    private Long id;
-    private Schedule schedule;
-    private Member member;
 
-    public Reservation() {
-    }
+  private Long id;
+  private Schedule schedule;
+  private Member member;
+  private ReservationStatus status;
 
-    public Reservation(Schedule schedule, Member member) {
-        this(null, schedule, member);
-    }
+  public Reservation() {
+  }
 
-    public Reservation(Long id, Schedule schedule, Member member) {
-        this.id = id;
-        this.schedule = schedule;
-        this.member = member;
-    }
+  public Reservation(Schedule schedule, Member member) {
+    this(null, schedule, member, ReservationStatus.CREATED);
+  }
 
-    public Long getId() {
-        return id;
-    }
+  public Reservation(Long id, Schedule schedule, Member member, ReservationStatus reservationStatus) {
+    this.id = id;
+    this.schedule = schedule;
+    this.member = member;
+    this.status = reservationStatus;
+  }
 
-    public Schedule getSchedule() {
-        return schedule;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public Member getMember() {
-        return member;
-    }
+  public Schedule getSchedule() {
+    return schedule;
+  }
 
-    public boolean sameMember(Member member) {
-        return member != null && Objects.equals(this.member.getId(), member.getId());
-    }
+  public Member getMember() {
+    return member;
+  }
+
+  public ReservationStatus getStatus() {
+    return status;
+  }
+
+  public boolean sameMember(Member member) {
+    return member != null && Objects.equals(this.member.getId(), member.getId());
+  }
+
+  public void approve() {
+    status = ReservationStatus.APPROVED;
+  }
+
+  public boolean isApproved() {
+    return status == ReservationStatus.APPROVED;
+  }
+
+  public boolean isCreated() {
+    return status == ReservationStatus.CREATED;
+  }
+
+  public boolean isWithdrawn() {
+    return status == ReservationStatus.WITHDRAWN;
+  }
 }
