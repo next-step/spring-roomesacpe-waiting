@@ -37,24 +37,23 @@ public class ReservationFacade {
   }
 
   @Transactional
-  public void cancelReservation(Long reservationId) {
+  public void cancelReservation(Member member, Long reservationId) {
     Reservation reservation = reservationDao.findById(reservationId, false);
-    if (reservation.isApproved()) {
+    if (!reservation.sameMember(member) && member.isUser()) {
+      throw new IllegalArgumentException("본인의 예약만 취소할 수 있습니다.");
+    }
+
+    if (reservation.isApproved() && member.isUser()) {
       reservationService.challenge(reservation);
     } else {
-      reservationService.withdraw(reservation);
-      reservationWaitingService.reservationNextWaiting(reservation.getSchedule().getId());
-      refundMoney(reservation);
+      cancelReservation(reservation);
     }
   }
 
-  @Transactional
-  public void cancelReservation(Member member, Long reservationId) {
-    Reservation reservation = reservationDao.findById(reservationId, false);
-    if (!reservation.sameMember(member)) {
-      throw new IllegalArgumentException("본인의 예약만 취소할 수 있습니다.");
-    }
-    cancelReservation(reservationId);
+  private void cancelReservation(Reservation reservation) {
+    reservationService.withdraw(reservation);
+    reservationWaitingService.reservationNextWaiting(reservation.getSchedule().getId());
+    refundMoney(reservation);
   }
 
   private void refundMoney(Reservation reservation) {
