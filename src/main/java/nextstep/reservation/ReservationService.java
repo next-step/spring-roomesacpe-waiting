@@ -56,6 +56,15 @@ public class ReservationService {
         return reservation;
     }
 
+    public Reservation withdraw(Reservation reservation) {
+        if (reservation.isWithdrawn()) {
+            throw new IllegalStateException("이미 취소처리 된 예약입니다.");
+        }
+        reservation.withdraw();
+        reservationDao.update(reservation);
+        return reservation;
+    }
+
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
         Theme theme = themeDao.findById(themeId);
         if (theme == null) {

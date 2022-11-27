@@ -39,7 +39,7 @@ public class ReservationFacade {
   @Transactional
   public void cancelReservation(Long reservationId) {
     Reservation reservation = reservationDao.findById(reservationId, false);
-
+    reservationService.withdraw(reservation);
     refundMoney(reservation);
   }
 

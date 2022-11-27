@@ -49,6 +49,10 @@ public class Reservation {
     status = ReservationStatus.APPROVED;
   }
 
+  public void withdraw() {
+    status = ReservationStatus.WITHDRAWN;
+  }
+
   public boolean isApproved() {
     return status == ReservationStatus.APPROVED;
   }
