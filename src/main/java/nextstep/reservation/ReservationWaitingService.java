@@ -32,7 +32,7 @@ public class ReservationWaitingService {
     Schedule schedule = scheduleService.findById(scheduleId);
     List<Reservation> reservations = reservationService.findByScheduleId(scheduleId);
 
-    if (reservations.isEmpty()) {
+    if (canCreate(reservations)) {
       return reservationService.create(member, reservationWaitingRequest.toReservationRequest());
     }
 
@@ -47,9 +47,15 @@ public class ReservationWaitingService {
     return reservationWaitingDao.save(reservationWaiting);
   }
 
+  private static boolean canCreate(List<Reservation> reservations) {
+    boolean allWithdrawn = reservations.stream()
+        .allMatch(Reservation::isWithdrawn);
+    return reservations.isEmpty() || allWithdrawn;
+  }
+
   public ReservationWaitings findAllByScheduleIdAndMemberId(Member member, Long scheduleId) {
     return new ReservationWaitings(
-        reservationWaitingDao.findByMemberIdAndScheduleId(scheduleId), member);
+        reservationWaitingDao.findByScheduleId(scheduleId), member);
   }
 
   public ReservationWaitings findAllByMemberId(Member member) {

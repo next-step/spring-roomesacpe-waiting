@@ -32,7 +32,7 @@ public class ReservationFacade {
   @Transactional
   public void approveReservation(Long reservationId, Long amount) {
     Reservation reservation = reservationDao.findById(reservationId, false);
-
+    reservationService.approve(reservation);
     accountDao.save(new AccountMoney(reservation.getId(), reservation.getMember().getId(), amount));
   }
 

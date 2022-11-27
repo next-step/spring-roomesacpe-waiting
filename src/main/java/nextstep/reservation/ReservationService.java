@@ -47,6 +47,15 @@ public class ReservationService {
         return reservationDao.save(newReservation);
     }
 
+    public Reservation approve(Reservation reservation) {
+        if (reservation.isApproved()) {
+            throw new IllegalStateException("이미 승인처리 된 예약입니다.");
+        }
+        reservation.approve();
+        reservationDao.update(reservation);
+        return reservation;
+    }
+
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
         Theme theme = themeDao.findById(themeId);
         if (theme == null) {
