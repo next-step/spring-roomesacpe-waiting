@@ -48,19 +48,19 @@ public class ReservationService {
     }
 
     public Reservation approve(Reservation reservation) {
-        if (reservation.isApproved()) {
-            throw new IllegalStateException("이미 승인처리 된 예약입니다.");
-        }
         reservation.approve();
         reservationDao.update(reservation);
         return reservation;
     }
 
     public Reservation withdraw(Reservation reservation) {
-        if (reservation.isWithdrawn()) {
-            throw new IllegalStateException("이미 취소처리 된 예약입니다.");
-        }
         reservation.withdraw();
+        reservationDao.update(reservation);
+        return reservation;
+    }
+
+    public Reservation challenge(Reservation reservation) {
+        reservation.challenge();
         reservationDao.update(reservation);
         return reservation;
     }

@@ -46,18 +46,35 @@ public class Reservation {
   }
 
   public void approve() {
+    if(isApproved()){
+      throw new IllegalStateException("이미 승인 처리가 된 예약입니다");
+    }
     status = ReservationStatus.APPROVED;
   }
 
   public void withdraw() {
+    if(isWithdrawn()){
+      throw new IllegalStateException("이미 취소 처리가 된 예약입니다");
+    }
     status = ReservationStatus.WITHDRAWN;
+  }
+
+  public void challenge() {
+    if(isChallenge()){
+      throw new IllegalStateException("이미 취소 요청 처리가 된 예약입니다");
+    }
+    status = ReservationStatus.CHALLENGE;
+  }
+
+  private boolean isChallenge() {
+    return status == ReservationStatus.CHALLENGE;
   }
 
   public boolean isApproved() {
     return status == ReservationStatus.APPROVED;
   }
 
-  public boolean isCreated() {
+  private boolean isCreated() {
     return status == ReservationStatus.CREATED;
   }
 

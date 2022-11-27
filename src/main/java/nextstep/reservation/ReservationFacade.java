@@ -39,8 +39,12 @@ public class ReservationFacade {
   @Transactional
   public void cancelReservation(Long reservationId) {
     Reservation reservation = reservationDao.findById(reservationId, false);
-    reservationService.withdraw(reservation);
-    refundMoney(reservation);
+    if (reservation.isApproved()) {
+      reservationService.challenge(reservation);
+    } else {
+      reservationService.withdraw(reservation);
+      refundMoney(reservation);
+    }
   }
 
   @Transactional
@@ -49,8 +53,7 @@ public class ReservationFacade {
     if (!reservation.sameMember(member)) {
       throw new IllegalArgumentException("본인의 예약만 취소할 수 있습니다.");
     }
-
-    refundMoney(reservation);
+    cancelReservation(reservationId);
   }
 
   private void refundMoney(Reservation reservation) {
