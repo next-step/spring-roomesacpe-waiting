@@ -4,6 +4,7 @@ import static java.time.LocalDateTime.now;
 
 import auth.AuthenticationException;
 import java.util.List;
+import java.util.Optional;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleService;
@@ -91,5 +92,17 @@ public class ReservationWaitingService {
     }
 
     reservationWaitingDao.save(reservationWaiting);
+  }
+
+  public void reservationNextWaiting(Long scheduleId) {
+    ReservationWaitings reservationWaitings = new ReservationWaitings(reservationWaitingDao.findAll());
+    Optional<ReservationWaiting> maybeWait = reservationWaitings.findFirstWait();
+    maybeWait.ifPresent(
+        waiting -> {
+          var member = waiting.getMember();
+          reservationService.create(member, new ReservationRequest(scheduleId));
+          completeReservation(member, scheduleId);
+        }
+    );
   }
 }

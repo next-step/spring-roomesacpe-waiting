@@ -43,6 +43,7 @@ public class ReservationFacade {
       reservationService.challenge(reservation);
     } else {
       reservationService.withdraw(reservation);
+      reservationWaitingService.reservationNextWaiting(reservation.getSchedule().getId());
       refundMoney(reservation);
     }
   }
