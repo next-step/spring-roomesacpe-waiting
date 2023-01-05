@@ -4,6 +4,7 @@ CREATE TABLE RESERVATION
     schedule_id bigint not null,
     member_id   bigint not null,
     deleted     bool   not null default false,
+    status      varchar(20)  not null default 'CREATED',
     primary key (id)
 );
 
@@ -43,5 +44,14 @@ CREATE TABLE member
     name     varchar(20) not null,
     phone    varchar(20) not null,
     role     varchar(20) not null,
+    primary key (id)
+);
+
+CREATE TABLE account
+(
+    id       bigint      not null auto_increment,
+    member_id bigint not null,
+    reservation_id bigint not null,
+    amount     bigint not null,
     primary key (id)
 );

@@ -4,6 +4,7 @@ import static java.time.LocalDateTime.now;
 
 import auth.AuthenticationException;
 import java.util.List;
+import java.util.Optional;
 import nextstep.member.Member;
 import nextstep.schedule.Schedule;
 import nextstep.schedule.ScheduleService;
@@ -32,7 +33,7 @@ public class ReservationWaitingService {
     Schedule schedule = scheduleService.findById(scheduleId);
     List<Reservation> reservations = reservationService.findByScheduleId(scheduleId);
 
-    if (reservations.isEmpty()) {
+    if (canCreate(reservations)) {
       return reservationService.create(member, reservationWaitingRequest.toReservationRequest());
     }
 
@@ -47,9 +48,15 @@ public class ReservationWaitingService {
     return reservationWaitingDao.save(reservationWaiting);
   }
 
+  private static boolean canCreate(List<Reservation> reservations) {
+    boolean allWithdrawn = reservations.stream()
+        .allMatch(Reservation::isWithdrawn);
+    return reservations.isEmpty() || allWithdrawn;
+  }
+
   public ReservationWaitings findAllByScheduleIdAndMemberId(Member member, Long scheduleId) {
     return new ReservationWaitings(
-        reservationWaitingDao.findByMemberIdAndScheduleId(scheduleId), member);
+        reservationWaitingDao.findByScheduleId(scheduleId), member);
   }
 
   public ReservationWaitings findAllByMemberId(Member member) {
@@ -85,5 +92,17 @@ public class ReservationWaitingService {
     }
 
     reservationWaitingDao.save(reservationWaiting);
+  }
+
+  public void reservationNextWaiting(Long scheduleId) {
+    ReservationWaitings reservationWaitings = new ReservationWaitings(reservationWaitingDao.findAll());
+    Optional<ReservationWaiting> maybeWait = reservationWaitings.findFirstWait();
+    maybeWait.ifPresent(
+        waiting -> {
+          var member = waiting.getMember();
+          reservationService.create(member, new ReservationRequest(scheduleId));
+          completeReservation(member, scheduleId);
+        }
+    );
   }
 }

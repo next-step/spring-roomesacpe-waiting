@@ -12,6 +12,10 @@ import org.springframework.lang.Nullable;
 
 public record ReservationWaitings(List<ReservationWaiting> reservationWaitings, Member member) {
 
+  public ReservationWaitings(List<ReservationWaiting> reservationWaitings) {
+    this(reservationWaitings, null);
+  }
+
   public ReservationWaitings {
     if (reservationWaitings == null) {
       reservationWaitings = new ArrayList<>();

@@ -47,6 +47,24 @@ public class ReservationService {
         return reservationDao.save(newReservation);
     }
 
+    public Reservation approve(Reservation reservation) {
+        reservation.approve();
+        reservationDao.update(reservation);
+        return reservation;
+    }
+
+    public Reservation withdraw(Reservation reservation) {
+        reservation.withdraw();
+        reservationDao.update(reservation);
+        return reservation;
+    }
+
+    public Reservation challenge(Reservation reservation) {
+        reservation.challenge();
+        reservationDao.update(reservation);
+        return reservation;
+    }
+
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date) {
         Theme theme = themeDao.findById(themeId);
         if (theme == null) {

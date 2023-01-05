@@ -42,7 +42,8 @@ public class ReservationDao {
                     resultSet.getString("member.name"),
                     resultSet.getString("member.phone"),
                     resultSet.getString("member.role")
-            )
+            ),
+            ReservationStatus.valueOf("reservation.status")
     );
 
     public Long save(Reservation reservation) {
@@ -58,6 +59,12 @@ public class ReservationDao {
         }, keyHolder);
 
         return keyHolder.getKey().longValue();
+    }
+
+    public void update(Reservation reservation) {
+        String sql = "UPDATE reservation SET schedule_id = ?, member_id = ?, reservation_status= ? "
+                     + "where id = ?;";
+        jdbcTemplate.update(sql, reservation.getSchedule().getId(), reservation.getMember().getId(), reservation.getStatus().name(), reservation.getId());
     }
 
     public List<Reservation> findAllByThemeIdAndDate(Long themeId, String date, boolean deleted) {

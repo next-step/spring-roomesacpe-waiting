@@ -10,10 +10,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -66,6 +68,35 @@ public class ReservationController {
         reservationFacade.deleteReservation(member, id);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/reservations/{id}/approve")
+    public ResponseEntity approveReservation(@LoginMember Member member, @PathVariable Long id, @RequestParam long amount) {
+        assertAdmin(member);
+        reservationFacade.approveReservation(id, amount);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/reservations/{id}/cancel")
+    public ResponseEntity cancelReservation(@LoginMember Member member, @PathVariable Long id) {
+        reservationFacade.cancelReservation(member, id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/reservations/{id}/cancel-approve")
+    public ResponseEntity cancelReservationApprove(@LoginMember Member member, @PathVariable Long id) {
+        assertAdmin(member);
+        reservationFacade.cancelReservation(member, id);
+
+        return ResponseEntity.noContent().build();
+    }
+
+    private static void assertAdmin(Member member) {
+        if (member.isUser()) {
+            throw new IllegalArgumentException("관리자만 승인 취소가 가능합니다.");
+        }
     }
 
     @DeleteMapping("/reservations-watings/{scheduleId}")
